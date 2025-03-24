@@ -1,9 +1,9 @@
-
 import React from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Store, Plus, Edit, Link as LinkIcon, QrCode, Globe, Settings } from 'lucide-react';
+import PeermallShopForm from '@/components/PeermallShopForm';
 
 const PersonalLounge = () => {
   // 피어몰이 이미 생성되었는지 여부 (실제로는 API 또는 상태 관리를 통해 가져와야 함)
@@ -132,23 +132,10 @@ const PersonalLounge = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>내 피어몰 시작하기</CardTitle>
-                  <CardDescription>몇 분 안에 나만의 온라인 스토어를 만들어보세요.</CardDescription>
+                  <CardDescription>아래 정보를 입력하여 몇 분 안에 나만의 온라인 스토어를 만들어보세요.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="py-8 flex flex-col items-center justify-center">
-                    <div className="bg-blue-50 rounded-full p-4 mb-6">
-                      <Store className="h-12 w-12 text-blue-600" />
-                    </div>
-                    <h3 className="text-xl font-medium text-center mb-2">첫 피어몰을 만들어보세요</h3>
-                    <p className="text-center text-gray-500 max-w-md mb-6">
-                      간편한 설정만으로 나만의 온라인 쇼핑몰을 만들고 상품을 등록해보세요. 
-                      QR 코드를 통해 고객들에게 쉽게 공유할 수 있습니다.
-                    </p>
-                    <Button className="w-full md:w-auto">
-                      <Plus className="h-4 w-4 mr-2" />
-                      피어몰 만들기
-                    </Button>
-                  </div>
+                  <PeermallShopForm />
                 </CardContent>
                 <CardFooter className="flex justify-center border-t pt-6">
                   <p className="text-sm text-gray-500">

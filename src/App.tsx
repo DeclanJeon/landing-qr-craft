@@ -15,6 +15,7 @@ import PeermallList from "./pages/PeermallList";
 import CustomerService from "./pages/CustomerService";
 import Community from "./pages/Community";
 import SiteIntegration from "./pages/SiteIntegration";
+import ShopPage from "./pages/ShopPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />
           <Route path="/site-integration" element={<SiteIntegration />} />
+          <Route path="/shop/:shopUrl/:page" element={<ShopPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

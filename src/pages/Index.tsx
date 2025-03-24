@@ -1,11 +1,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { QrCode, Store, Link, ArrowRight, ChevronDown, CheckCheck, User, Settings } from "lucide-react";
+import { QrCode, Store, LinkIcon, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
+import Navigation from '@/components/Navigation';
 
 // Placeholder function to generate QR code image URL
 const generateQrCode = (content: string) => {
@@ -64,23 +66,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen font-sans">
-      {/* Header */}
-      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'}`}>
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">Peermall</h1>
-          <nav className="hidden md:block">
-            <ul className="flex space-x-6">
-              <li><a href="#features" className="text-gray-700 hover:text-blue-600 transition-colors">주요 기능</a></li>
-              <li><a href="#story" className="text-gray-700 hover:text-blue-600 transition-colors">Peermall 이야기</a></li>
-              <li><a href="#vision" className="text-gray-700 hover:text-blue-600 transition-colors">비전</a></li>
-              <li><a href="#values" className="text-gray-700 hover:text-blue-600 transition-colors">가치</a></li>
-              <li><a href="#mission" className="text-gray-700 hover:text-blue-600 transition-colors">미션</a></li>
-              <li><a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">문의하기</a></li>
-            </ul>
-          </nav>
-          <Button className="bg-blue-600 hover:bg-blue-700">시작하기</Button>
-        </div>
-      </header>
+      {/* Use the Navigation component instead of inline header */}
+      <Navigation />
 
       {/* Hero Section */}
       <section ref={heroRef} className="pt-32 pb-24 bg-gradient-to-br from-blue-50 to-indigo-100 animate-fade-in">
@@ -92,9 +79,11 @@ const Index = () => {
               <Button onClick={scrollToFeatures} className="bg-blue-600 hover:bg-blue-700 rounded-full px-8 py-6 text-lg flex items-center">
                 주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full px-8 py-6 text-lg">
-                무료로 시작하기
-              </Button>
+              <Link to="/qr-generator">
+                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full px-8 py-6 text-lg">
+                  무료로 시작하기
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
@@ -119,6 +108,12 @@ const Index = () => {
                       다운로드
                     </Button>
                   </div>
+                  <Link to="/qr-generator" className="block w-full">
+                    <Button variant="ghost" className="w-full">
+                      고급 QR 코드 생성기
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -142,7 +137,7 @@ const Index = () => {
                 <span>QR 코드</span>
               </TabsTrigger>
               <TabsTrigger value="integration" className="flex flex-col items-center py-3">
-                <Link className="h-6 w-6 mb-1" />
+                <LinkIcon className="h-6 w-6 mb-1" />
                 <span>사이트 연동</span>
               </TabsTrigger>
               <TabsTrigger value="authentication" className="flex flex-col items-center py-3">
@@ -183,7 +178,9 @@ const Index = () => {
                         <span>합리적인 거래 수수료 (3%)</span>
                       </li>
                     </ul>
-                    <Button className="mt-6 bg-blue-600 hover:bg-blue-700">스토어 만들기</Button>
+                    <Link to="/personal-lounge">
+                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">스토어 만들기</Button>
+                    </Link>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
                     <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
@@ -223,8 +220,12 @@ const Index = () => {
                       </li>
                     </ul>
                     <div className="flex space-x-3 mt-6">
-                      <Button className="bg-blue-600 hover:bg-blue-700">QR 코드 생성하기</Button>
-                      <Button variant="outline" className="border-blue-600 text-blue-600">사용 방법 보기</Button>
+                      <Link to="/qr-generator">
+                        <Button className="bg-blue-600 hover:bg-blue-700">QR 코드 생성하기</Button>
+                      </Link>
+                      <Link to="/qr-list">
+                        <Button variant="outline" className="border-blue-600 text-blue-600">내 QR 코드 보기</Button>
+                      </Link>
                     </div>
                   </div>
                   <div className="flex justify-center">
@@ -264,7 +265,9 @@ const Index = () => {
                         <span>다양한 플랫폼 지원</span>
                       </li>
                     </ul>
-                    <Button className="mt-6 bg-blue-600 hover:bg-blue-700">연동 시작하기</Button>
+                    <Link to="/site-integration">
+                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">연동 시작하기</Button>
+                    </Link>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
                     <div className="space-y-6">
@@ -387,7 +390,14 @@ const Index = () => {
                         <span>소통 기록 관리</span>
                       </li>
                     </ul>
-                    <Button className="mt-6 bg-blue-600 hover:bg-blue-700">커뮤니티 참여하기</Button>
+                    <div className="flex space-x-3 mt-6">
+                      <Link to="/community">
+                        <Button className="bg-blue-600 hover:bg-blue-700">커뮤니티 참여하기</Button>
+                      </Link>
+                      <Link to="/customer-service">
+                        <Button variant="outline" className="border-blue-600 text-blue-600">고객센터 문의하기</Button>
+                      </Link>
+                    </div>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
                     <div className="flex items-center mb-4">
@@ -425,7 +435,9 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" className="w-full mt-4">전체 게시글 보기</Button>
+                    <Link to="/community">
+                      <Button variant="outline" className="w-full mt-4">전체 게시글 보기</Button>
+                    </Link>
                   </div>
                 </div>
               </TabsContent>
@@ -453,7 +465,9 @@ const Index = () => {
                         <span>환불 및 교환 처리</span>
                       </li>
                     </ul>
-                    <Button className="mt-6 bg-blue-600 hover:bg-blue-700">관리자 대시보드</Button>
+                    <Link to="/lounge-admin">
+                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">관리자 대시보드</Button>
+                    </Link>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
                     <div className="mb-6">
@@ -500,6 +514,60 @@ const Index = () => {
               </TabsContent>
             </div>
           </Tabs>
+        </div>
+      </section>
+
+      {/* Quick Access Section - NEW SECTION FOR BETTER NAVIGATION */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-10">빠른 기능 접근</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <Link to="/qr-generator">
+              <Card className="hover:shadow-md transition-shadow h-full">
+                <CardContent className="flex flex-col items-center text-center p-6">
+                  <QrCode className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">QR 코드 생성</h3>
+                  <p className="text-sm text-gray-500 mt-2">나만의 QR 코드를 만들어보세요</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/personal-lounge">
+              <Card className="hover:shadow-md transition-shadow h-full">
+                <CardContent className="flex flex-col items-center text-center p-6">
+                  <Store className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">나의 라운지</h3>
+                  <p className="text-sm text-gray-500 mt-2">나만의 피어몰 라운지 관리</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/login">
+              <Card className="hover:shadow-md transition-shadow h-full">
+                <CardContent className="flex flex-col items-center text-center p-6">
+                  <User className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">로그인</h3>
+                  <p className="text-sm text-gray-500 mt-2">이메일로 간편하게 로그인</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/community">
+              <Card className="hover:shadow-md transition-shadow h-full">
+                <CardContent className="flex flex-col items-center text-center p-6">
+                  <Users className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">커뮤니티</h3>
+                  <p className="text-sm text-gray-500 mt-2">다양한 정보와 소통</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/customer-service">
+              <Card className="hover:shadow-md transition-shadow h-full">
+                <CardContent className="flex flex-col items-center text-center p-6">
+                  <MessageSquare className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">고객센터</h3>
+                  <p className="text-sm text-gray-500 mt-2">1:1 음성, 화상, 채팅 상담</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -595,9 +663,9 @@ const Index = () => {
             <div>
               <h4 className="text-lg font-bold mb-4">지원</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">고객 지원</a></li>
+                <li><Link to="/customer-service" className="text-gray-400 hover:text-white transition-colors">고객 지원</Link></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">이용 약관</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">개인정보처리방침</a></li>
               </ul>
             </div>
             <div>
@@ -619,4 +687,3 @@ const Index = () => {
 };
 
 export default Index;
-

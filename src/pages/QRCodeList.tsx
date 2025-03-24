@@ -16,14 +16,92 @@ interface QRCode {
   createdAt: string;
 }
 
+// 샘플 QR 코드 데이터
+const sampleQRCodes: QRCode[] = [
+  {
+    name: "내 피어몰 입구",
+    content: "https://mystore.peermall.com",
+    image: "https://placehold.co/400/4F46E5/FFFFFF?text=QR1",
+    type: "URL",
+    createdAt: "2025-03-15T09:00:00.000Z"
+  },
+  {
+    name: "베스트셀러 제품",
+    content: "https://mystore.peermall.com/products/best",
+    image: "https://placehold.co/400/10B981/FFFFFF?text=QR2",
+    type: "URL",
+    createdAt: "2025-03-14T14:30:00.000Z"
+  },
+  {
+    name: "신상품 소개",
+    content: "https://mystore.peermall.com/products/new",
+    image: "https://placehold.co/400/F59E0B/FFFFFF?text=QR3",
+    type: "URL",
+    createdAt: "2025-03-13T11:20:00.000Z"
+  },
+  {
+    name: "봄 시즌 할인 이벤트",
+    content: "https://mystore.peermall.com/events/spring-sale",
+    image: "https://placehold.co/400/84CC16/FFFFFF?text=QR4",
+    type: "URL",
+    createdAt: "2025-03-12T16:45:00.000Z"
+  },
+  {
+    name: "회원가입 페이지",
+    content: "https://mystore.peermall.com/signup",
+    image: "https://placehold.co/400/EC4899/FFFFFF?text=QR5",
+    type: "URL",
+    createdAt: "2025-03-11T13:15:00.000Z"
+  },
+  {
+    name: "고객 연락처",
+    content: "tel:+82-10-1234-5678",
+    image: "https://placehold.co/400/8B5CF6/FFFFFF?text=QR6",
+    type: "TEL",
+    createdAt: "2025-03-10T10:30:00.000Z"
+  },
+  {
+    name: "고객센터 이메일",
+    content: "mailto:support@mystore.peermall.com",
+    image: "https://placehold.co/400/3B82F6/FFFFFF?text=QR7",
+    type: "EMAIL",
+    createdAt: "2025-03-09T09:20:00.000Z"
+  },
+  {
+    name: "매장 위치",
+    content: "서울시 강남구 테헤란로 123",
+    image: "https://placehold.co/400/0EA5E9/FFFFFF?text=QR8",
+    type: "TEXT",
+    createdAt: "2025-03-08T15:10:00.000Z"
+  },
+  {
+    name: "매장 WiFi 정보",
+    content: "SSID: MyStore_Guest, PW: welcome2025",
+    image: "https://placehold.co/400/F43F5E/FFFFFF?text=QR9",
+    type: "TEXT",
+    createdAt: "2025-03-07T11:05:00.000Z"
+  },
+  {
+    name: "공식 인스타그램",
+    content: "https://instagram.com/mystore_official",
+    image: "https://placehold.co/400/6366F1/FFFFFF?text=QR10",
+    type: "URL",
+    createdAt: "2025-03-06T14:25:00.000Z"
+  }
+];
+
 const QRCodeList = () => {
   const [qrCodes, setQrCodes] = useState<QRCode[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   
   useEffect(() => {
+    // 로컬 스토리지에서 QR 코드 데이터를 가져오거나, 없으면 샘플 데이터 사용
     const storedQRCodes = localStorage.getItem('peermall-qrcodes');
     if (storedQRCodes) {
       setQrCodes(JSON.parse(storedQRCodes));
+    } else {
+      setQrCodes(sampleQRCodes);
+      localStorage.setItem('peermall-qrcodes', JSON.stringify(sampleQRCodes));
     }
   }, []);
   
@@ -55,7 +133,8 @@ const QRCodeList = () => {
   
   const filteredQRCodes = qrCodes.filter(qr => 
     qr.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    qr.content.toLowerCase().includes(searchTerm.toLowerCase())
+    qr.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    qr.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   return (
@@ -97,9 +176,14 @@ const QRCodeList = () => {
                         </div>
                         <h3 className="font-medium truncate">{qrCode.name}</h3>
                         <p className="text-sm text-gray-500 truncate">{qrCode.content}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {new Date(qrCode.createdAt).toLocaleDateString()}
-                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                            {qrCode.type}
+                          </span>
+                          <p className="text-xs text-gray-400">
+                            {new Date(qrCode.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex border-t">
                         <Button 

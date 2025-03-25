@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, User, Settings, Store, 
-  MessageSquare, Users, Link as LinkIcon
+  MessageSquare, Users, Link as LinkIcon, QrCode
 } from "lucide-react";
 
 const DesktopNavigation = () => {
@@ -37,7 +37,7 @@ const DesktopNavigation = () => {
         
         {/* 피어몰 관련 그룹 */}
         <li className="relative group">
-          <div className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors cursor-pointer ${isActive('/personal-lounge') || isActive('/peermall-list') ? 'text-blue-600 font-medium' : ''}`}>
+          <div className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors cursor-pointer ${isActive('/personal-lounge') || isActive('/peermall-list') || isActive('/qr-generator') ? 'text-blue-600 font-medium' : ''}`}>
             <Store className="h-4 w-4 mr-1" />
             <span>피어몰</span>
             <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -50,6 +50,9 @@ const DesktopNavigation = () => {
             </Link>
             <Link to="/peermall-list" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               피어몰 목록
+            </Link>
+            <Link to="/qr-generator" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              QR 코드 생성
             </Link>
           </div>
         </li>

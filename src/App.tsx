@@ -14,6 +14,7 @@ import CustomerService from "./pages/CustomerService";
 import Community from "./pages/Community";
 import SiteIntegration from "./pages/SiteIntegration";
 import ShopPage from "./pages/ShopPage";
+import QRCodeGenerator from "./pages/QRCodeGenerator";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +29,9 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/lounge-admin" element={<LoungeAdmin />} />
           <Route path="/personal-lounge" element={<PersonalLounge />} />
-          {/* Redirect QR-related pages to personal lounge with qrcode tab */}
-          <Route path="/qr-list" element={<Navigate to="/personal-lounge?tab=qrcode" replace />} />
-          <Route path="/qr-generator" element={<Navigate to="/personal-lounge?tab=qrcode" replace />} />
+          <Route path="/qr-generator" element={<QRCodeGenerator />} />
+          {/* Redirect QR-related pages to QR generator page */}
+          <Route path="/qr-list" element={<Navigate to="/qr-generator" replace />} />
           <Route path="/peermall-list" element={<PeermallList />} />
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />

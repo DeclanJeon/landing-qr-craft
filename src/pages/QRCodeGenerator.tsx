@@ -16,9 +16,9 @@ const QRCodeGenerator = () => {
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-bold">QR 코드 생성</h1>
-              <Link to="/qr-list">
+              <Link to="/personal-lounge">
                 <Button variant="outline" className="flex items-center">
-                  <span>내 QR 코드 목록</span>
+                  <span>내 피어몰 관리</span>
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>

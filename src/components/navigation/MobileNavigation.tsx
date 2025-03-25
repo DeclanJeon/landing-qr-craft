@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Home, User, Settings, Store, 
-  MessageSquare, Users, Link as LinkIcon
+  MessageSquare, Users, Link as LinkIcon, QrCode
 } from "lucide-react";
 
 interface MobileNavigationProps {
@@ -50,6 +50,12 @@ const MobileNavigation = ({ isMenuOpen, closeMenu }: MobileNavigationProps) => {
           <Link to="/peermall-list" className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md" onClick={closeMenu}>
             <Store className="h-5 w-5 mr-3 text-blue-600" />
             <span>피어몰 목록</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/qr-generator" className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md" onClick={closeMenu}>
+            <QrCode className="h-5 w-5 mr-3 text-blue-600" />
+            <span>QR 코드 생성</span>
           </Link>
         </li>
 

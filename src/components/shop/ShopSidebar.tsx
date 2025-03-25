@@ -1,26 +1,29 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Mail, MapPin, Phone, User } from 'lucide-react';
-
-interface Category {
-  id: number;
-  name: string;
-  count: number;
-}
+import { Category, ShopData } from '@/types/shop';
 
 interface ShopSidebarProps {
   categories: Category[];
   shopUrl?: string;
-  shopData: {
-    ownerName: string;
-    contactNumber: string;
-    email: string;
-    address: string;
-  };
+  shopData: ShopData;
+  selectedCategoryId?: number;
+  onCategorySelect: (categoryId: number) => void;
 }
 
-const ShopSidebar: React.FC<ShopSidebarProps> = ({ categories, shopUrl, shopData }) => {
+const ShopSidebar: React.FC<ShopSidebarProps> = ({ 
+  categories, 
+  shopUrl, 
+  shopData, 
+  selectedCategoryId,
+  onCategorySelect 
+}) => {
+  const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, categoryId: number) => {
+    e.preventDefault();
+    onCategorySelect(categoryId);
+  };
+
   return (
     <div className="lg:w-1/4">
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -28,12 +31,30 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({ categories, shopUrl, shopData
         <ul className="space-y-2">
           {categories.map(category => (
             <li key={category.id}>
-              <Link to={`/shop/${shopUrl}/category/${category.id}`} className="flex justify-between items-center text-gray-700 hover:text-blue-600">
+              <a 
+                href={`/shop/${shopUrl}/category/${category.id}`} 
+                className={`flex justify-between items-center hover:text-blue-600 ${selectedCategoryId === category.id ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                onClick={(e) => handleCategoryClick(e, category.id)}
+              >
                 <span>{category.name}</span>
                 <span className="text-sm text-gray-500">{category.count}</span>
-              </Link>
+              </a>
             </li>
           ))}
+          {selectedCategoryId && (
+            <li className="mt-4">
+              <a 
+                href="#" 
+                className="text-gray-500 hover:text-blue-600 text-sm flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onCategorySelect(0);
+                }}
+              >
+                <span>모든 상품 보기</span>
+              </a>
+            </li>
+          )}
         </ul>
       </div>
 

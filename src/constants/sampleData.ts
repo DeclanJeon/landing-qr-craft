@@ -9,6 +9,7 @@ export const sampleProducts: Product[] = [
     price: '29,900원',
     imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product1',
+    categoryId: 1,
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ export const sampleProducts: Product[] = [
     price: '59,900원',
     imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product2',
+    categoryId: 1,
   },
   {
     id: 3,
@@ -23,6 +25,7 @@ export const sampleProducts: Product[] = [
     price: '89,000원',
     imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product3',
+    categoryId: 2,
   },
   {
     id: 4,
@@ -30,6 +33,7 @@ export const sampleProducts: Product[] = [
     price: '129,000원',
     imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product4',
+    categoryId: 3,
   },
   {
     id: 5,
@@ -37,6 +41,7 @@ export const sampleProducts: Product[] = [
     price: '36,500원',
     imageUrl: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product5',
+    categoryId: 4,
   },
   {
     id: 6,
@@ -44,6 +49,7 @@ export const sampleProducts: Product[] = [
     price: '179,000원',
     imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     externalUrl: 'https://example.com/product6',
+    categoryId: 4,
   },
 ];
 

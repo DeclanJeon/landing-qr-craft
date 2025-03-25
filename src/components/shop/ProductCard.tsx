@@ -1,15 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Product } from '@/types/shop';
 
 interface ProductCardProps {
-  product: {
-    id: number;
-    name: string;
-    price: string;
-    imageUrl: string;
-    externalUrl: string;
-  };
+  product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {

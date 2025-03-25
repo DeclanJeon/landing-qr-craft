@@ -5,6 +5,7 @@ export interface Product {
   price: string;
   imageUrl: string;
   externalUrl: string;
+  categoryId: number;
 }
 
 export interface Category {

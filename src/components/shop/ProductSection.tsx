@@ -16,7 +16,10 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => (
   <ProductCard product={product} />
 );
 
-const ProductSection: React.FC<ProductSectionProps> = ({ title, linkTo, products }) => {
+// Main ProductSection component
+const ProductSection: React.FC<ProductSectionProps> & {
+  Item: React.FC<{ product: Product }>
+} = ({ title, linkTo, products }) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">

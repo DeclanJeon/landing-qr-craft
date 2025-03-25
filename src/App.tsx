@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import LoungeAdmin from "./pages/LoungeAdmin";
 import PersonalLounge from "./pages/PersonalLounge";
-import QRCodeGenerator from "./pages/QRCodeGenerator";
 import QRCodeList from "./pages/QRCodeList";
 import PeermallList from "./pages/PeermallList";
 import CustomerService from "./pages/CustomerService";
@@ -30,7 +29,6 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/lounge-admin" element={<LoungeAdmin />} />
           <Route path="/personal-lounge" element={<PersonalLounge />} />
-          <Route path="/qr-generator" element={<QRCodeGenerator />} />
           <Route path="/qr-list" element={<QRCodeList />} />
           <Route path="/peermall-list" element={<PeermallList />} />
           <Route path="/customer-service" element={<CustomerService />} />
@@ -38,6 +36,7 @@ const App = () => (
           <Route path="/site-integration" element={<SiteIntegration />} />
           <Route path="/shop/:shopUrl" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/:page" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

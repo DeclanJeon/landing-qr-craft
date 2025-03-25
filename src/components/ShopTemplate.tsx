@@ -13,11 +13,12 @@ import { ShopData, Product } from '@/types/shop';
 interface ShopTemplateProps {
   shopUrl?: string;
   page?: string;
+  categoryId?: number;
 }
 
-const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page }) => {
+const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }) => {
   const params = useParams();
-  const categoryParam = params.page === 'category' ? Number(params.categoryId) : 0;
+  const categoryParam = categoryId || (params.page === 'category' ? Number(params.categoryId) : 0);
   
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(categoryParam || 0);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);

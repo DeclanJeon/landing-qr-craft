@@ -41,7 +41,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const PeermallShopForm = () => {
+interface PeermallShopFormProps {
+  onSuccessfulSubmit?: () => void;
+}
+
+const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit }) => {
   const navigate = useNavigate();
   
   const form = useForm<FormValues>({
@@ -68,8 +72,13 @@ const PeermallShopForm = () => {
       description: `${values.shopName} 피어몰이 성공적으로 생성되었습니다.`,
     });
     
-    // Navigate to the generated shop page
-    navigate(`/shop/${values.shopUrl}/home`);
+    // Call onSuccessfulSubmit callback if provided
+    if (onSuccessfulSubmit) {
+      onSuccessfulSubmit();
+    } else {
+      // Navigate to the generated shop page
+      navigate(`/shop/${values.shopUrl}/home`);
+    }
   };
 
   return (

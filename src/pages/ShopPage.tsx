@@ -7,7 +7,11 @@ const ShopPage = () => {
   const { shopUrl, page, categoryId } = useParams();
   
   return (
-    <ShopTemplate shopUrl={shopUrl} page={page} />
+    <ShopTemplate 
+      shopUrl={shopUrl} 
+      page={page} 
+      categoryId={categoryId ? parseInt(categoryId) : undefined} 
+    />
   );
 };
 

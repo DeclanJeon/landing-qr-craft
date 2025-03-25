@@ -36,6 +36,7 @@ const App = () => (
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />
           <Route path="/site-integration" element={<SiteIntegration />} />
+          <Route path="/shop/:shopUrl" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/:page" element={<ShopPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

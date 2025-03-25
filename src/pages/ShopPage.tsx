@@ -6,7 +6,9 @@ import ShopTemplate from '@/components/ShopTemplate';
 const ShopPage = () => {
   const { shopUrl, page } = useParams();
   
-  return <ShopTemplate />;
+  return (
+    <ShopTemplate shopUrl={shopUrl} page={page} />
+  );
 };
 
 export default ShopPage;

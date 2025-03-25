@@ -10,6 +10,8 @@ import ShopSidebar from './shop/ShopSidebar';
 import ShopHero from './shop/ShopHero';
 import ProductSection from './shop/ProductSection';
 import QRCodeDisplay from './shop/QRCodeDisplay';
+import ForumPage from './community/ForumPage';
+import GroupChatPage from './community/GroupChatPage';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
 
@@ -29,6 +31,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
   const [shopData, setShopData] = useState<ShopData | null>(null);
   const [activeTab, setActiveTab] = useState<string>("products");
+  const [communityTab, setCommunityTab] = useState<string>("forum");
 
   // Get shop data from localStorage
   useEffect(() => {
@@ -188,40 +191,42 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
               {/* Community Tab Content */}
               <TabsContent value="community" className="space-y-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-2xl font-bold mb-6">커뮤니티</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="p-4 border rounded-lg">
-                      <h3 className="text-lg font-medium mb-3">포럼 & 게시판</h3>
-                      <p className="text-gray-600 mb-4">다른 사용자들과 의견을 나누고 질문하세요.</p>
-                      <Button className="w-full">포럼 입장하기</Button>
-                    </div>
-                    
-                    <div className="p-4 border rounded-lg">
-                      <h3 className="text-lg font-medium mb-3">소통 도구</h3>
-                      <ul className="space-y-2">
-                        <li>
-                          <Button variant="outline" size="sm" className="w-full justify-start">
-                            1:1 채팅
-                          </Button>
-                        </li>
-                        <li>
-                          <Button variant="outline" size="sm" className="w-full justify-start">
-                            1:1 음성 채팅
-                          </Button>
-                        </li>
-                        <li>
-                          <Button variant="outline" size="sm" className="w-full justify-start">
-                            1:1 화상 채팅
-                          </Button>
-                        </li>
-                        <li>
-                          <Button variant="outline" size="sm" className="w-full justify-start">
-                            화면 공유 & 화이트보드
-                          </Button>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                  <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
+                    <TabsList className="grid grid-cols-4 mb-6">
+                      <TabsTrigger value="forum" className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>포럼 & 게시판</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="groupchat" className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>그룹 채팅</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="voicechat" className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>음성 채팅</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="videochat" className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>화상 채팅</span>
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="forum">
+                      <ForumPage />
+                    </TabsContent>
+
+                    <TabsContent value="groupchat">
+                      <GroupChatPage type="text" />
+                    </TabsContent>
+
+                    <TabsContent value="voicechat">
+                      <GroupChatPage type="voice" />
+                    </TabsContent>
+
+                    <TabsContent value="videochat">
+                      <GroupChatPage type="video" />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </TabsContent>
 

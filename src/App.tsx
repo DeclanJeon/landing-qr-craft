@@ -33,6 +33,10 @@ const App = () => (
           <Route path="/peermall-list" element={<PeermallList />} />
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/community/forum" element={<Community />} />
+          <Route path="/community/groupchat" element={<Community />} />
+          <Route path="/community/voicechat" element={<Community />} />
+          <Route path="/community/videochat" element={<Community />} />
           <Route path="/site-integration" element={<SiteIntegration />} />
           
           {/* Shop routes with new URL structure */}

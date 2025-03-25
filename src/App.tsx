@@ -13,10 +13,8 @@ import PersonalLounge from "./pages/PersonalLounge";
 import PeermallList from "./pages/PeermallList";
 import CustomerService from "./pages/CustomerService";
 import Community from "./pages/Community";
-import SiteIntegration from "./pages/SiteIntegration";
 import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
-import ProductRegistration from "./pages/ProductRegistration";
 
 const queryClient = new QueryClient();
 
@@ -40,18 +38,15 @@ const App = () => (
             <Route path="/community/groupchat" element={<Community />} />
             <Route path="/community/voicechat" element={<Community />} />
             <Route path="/community/videochat" element={<Community />} />
-            <Route path="/site-integration" element={<SiteIntegration />} />
-            <Route path="/product-registration" element={<ProductRegistration />} />
             
             {/* Shop routes with new URL structure */}
             <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/services" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/community" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/support" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
             
             {/* Redirect old shop routes to new structure */}
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />

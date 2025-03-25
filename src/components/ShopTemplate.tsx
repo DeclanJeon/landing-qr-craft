@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Users, ExternalLink, QrCode, ShoppingCart } from 'lucide-react';
+import { MessageSquare, Users, ExternalLink, QrCode, ShoppingCart, PlusCircle } from 'lucide-react';
 import ShopHeader from './shop/ShopHeader';
 import ShopFooter from './shop/ShopFooter';
 import ShopSidebar from './shop/ShopSidebar';

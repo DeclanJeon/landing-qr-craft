@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { 
   Card, 
@@ -9,13 +10,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Store, MapPin, Star, ArrowRight, Filter, QrCode } from 'lucide-react';
+import { ShopData } from '@/types/shop';
+import { getPeermalls } from '@/utils/peermallStorage';
 
-// 샘플 피어몰 데이터
-const peermalls = [
+interface PeermallWithExtras extends ShopData {
+  id: number;
+  category: string;
+  rating: number;
+  image: string;
+  qrCode: string;
+}
+
+const defaultPeermalls = [
   {
     id: 1,
-    name: "테크 월드",
-    description: "최신 전자제품을 판매하는 피어몰입니다.",
+    shopName: "테크 월드",
+    shopDescription: "최신 전자제품을 판매하는 피어몰입니다.",
+    shopUrl: "tech-world",
+    ownerName: "김기술",
+    contactNumber: "010-1234-5678",
+    email: "tech@example.com",
+    address: "서울시 강남구",
     category: "전자기기",
     rating: 4.8,
     location: "서울",
@@ -24,8 +39,13 @@ const peermalls = [
   },
   {
     id: 2,
-    name: "패션 클로젯",
-    description: "트렌디한 패션 아이템들을 만나보세요.",
+    shopName: "패션 클로젯",
+    shopDescription: "트렌디한 패션 아이템들을 만나보세요.",
+    shopUrl: "fashion-closet",
+    ownerName: "이패션",
+    contactNumber: "010-2345-6789",
+    email: "fashion@example.com",
+    address: "부산시 해운대구",
     category: "패션",
     rating: 4.6,
     location: "부산",
@@ -34,93 +54,48 @@ const peermalls = [
   },
   {
     id: 3,
-    name: "홈 리빙 스토어",
-    description: "집을 아름답게 꾸미는 모든 제품을 판매합니다.",
+    shopName: "홈 리빙 스토어",
+    shopDescription: "집을 아름답게 꾸미는 모든 제품을 판매합니다.",
+    shopUrl: "home-living",
+    ownerName: "박인테리어",
+    contactNumber: "010-3456-7890",
+    email: "home@example.com",
+    address: "인천시 연수구",
     category: "인테리어",
     rating: 4.7,
     location: "인천",
     image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=홈리빙",
     qrCode: "https://placehold.co/200/F59E0B/FFFFFF?text=QR"
-  },
-  {
-    id: 4,
-    name: "오가닉 마켓",
-    description: "무농약 유기농 식품을 제공하는 피어몰입니다.",
-    category: "식품",
-    rating: 4.9,
-    location: "대전",
-    image: "https://placehold.co/400x300/84CC16/FFFFFF?text=오가닉마켓",
-    qrCode: "https://placehold.co/200/84CC16/FFFFFF?text=QR"
-  },
-  {
-    id: 5,
-    name: "뷰티 샵",
-    description: "화장품과 뷰티 제품을 판매합니다.",
-    category: "화장품",
-    rating: 4.5,
-    location: "대구",
-    image: "https://placehold.co/400x300/EC4899/FFFFFF?text=뷰티샵",
-    qrCode: "https://placehold.co/200/EC4899/FFFFFF?text=QR"
-  },
-  {
-    id: 6,
-    name: "키즈 플래닛",
-    description: "아이들을 위한 다양한 장난감과 교육용품을 판매합니다.",
-    category: "유아/아동",
-    rating: 4.6,
-    location: "광주",
-    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=키즈플래닛",
-    qrCode: "https://placehold.co/200/8B5CF6/FFFFFF?text=QR"
-  },
-  {
-    id: 7,
-    name: "스포츠 월드",
-    description: "다양한 스포츠 용품을 판매하는 피어몰입니다.",
-    category: "스포츠",
-    rating: 4.7,
-    location: "울산",
-    image: "https://placehold.co/400x300/3B82F6/FFFFFF?text=스포츠월드",
-    qrCode: "https://placehold.co/200/3B82F6/FFFFFF?text=QR"
-  },
-  {
-    id: 8,
-    name: "북 스토어",
-    description: "다양한 장르의 도서를 판매합니다.",
-    category: "도서",
-    rating: 4.8,
-    location: "세종",
-    image: "https://placehold.co/400x300/0EA5E9/FFFFFF?text=북스토어",
-    qrCode: "https://placehold.co/200/0EA5E9/FFFFFF?text=QR"
-  },
-  {
-    id: 9,
-    name: "펫 하우스",
-    description: "반려동물을 위한 모든 제품을 판매합니다.",
-    category: "반려동물",
-    rating: 4.9,
-    location: "경기",
-    image: "https://placehold.co/400x300/F43F5E/FFFFFF?text=펫하우스",
-    qrCode: "https://placehold.co/200/F43F5E/FFFFFF?text=QR"
-  },
-  {
-    id: 10,
-    name: "DIY 공방",
-    description: "직접 만들 수 있는 DIY 키트와 재료를 판매합니다.",
-    category: "취미",
-    rating: 4.7,
-    location: "강원",
-    image: "https://placehold.co/400x300/6366F1/FFFFFF?text=DIY공방",
-    qrCode: "https://placehold.co/200/6366F1/FFFFFF?text=QR"
   }
 ];
 
 const PeermallList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showQR, setShowQR] = useState<number | null>(null);
+  const [peermalls, setPeermalls] = useState<PeermallWithExtras[]>([]);
+  
+  useEffect(() => {
+    // Get peermalls from localStorage
+    const storedPeermalls = getPeermalls();
+    
+    // Convert stored peermalls to the format we need with default values for missing fields
+    const processedPeermalls = storedPeermalls.map((peermall, index) => ({
+      ...peermall,
+      id: index + 1 + defaultPeermalls.length,
+      category: peermall.shopDescription ? peermall.shopDescription.split(' ')[0] : '일반',
+      rating: 5.0,
+      location: peermall.address ? peermall.address.split(' ')[0] : '온라인',
+      image: `https://placehold.co/400x300/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${peermall.shopName}`,
+      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://peermall.com/shop/${peermall.shopUrl}/home`)}`
+    }));
+    
+    // Combine default peermalls with stored ones
+    setPeermalls([...defaultPeermalls, ...processedPeermalls]);
+  }, []);
   
   const filteredPeermalls = peermalls.filter(peermall => 
-    peermall.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    peermall.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    peermall.shopDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
     peermall.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     peermall.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -172,7 +147,7 @@ const PeermallList = () => {
                   <div className="relative h-48 overflow-hidden">
                     <img 
                       src={peermall.image} 
-                      alt={peermall.name} 
+                      alt={peermall.shopName} 
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-0 right-0 m-2">
@@ -189,13 +164,13 @@ const PeermallList = () => {
                       <div className="absolute inset-0 bg-white flex items-center justify-center p-4" onClick={() => setShowQR(null)}>
                         <div className="text-center">
                           <img src={peermall.qrCode} alt="QR Code" className="w-32 h-32 mx-auto mb-2" />
-                          <p className="text-sm font-medium">{peermall.name} QR 코드</p>
+                          <p className="text-sm font-medium">{peermall.shopName} QR 코드</p>
                           <p className="text-xs text-gray-500">클릭하여 닫기</p>
                         </div>
                       </div>
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                      <h3 className="text-lg font-bold text-white">{peermall.name}</h3>
+                      <h3 className="text-lg font-bold text-white">{peermall.shopName}</h3>
                       <p className="text-sm text-white/90">{peermall.category}</p>
                     </div>
                   </div>
@@ -210,13 +185,15 @@ const PeermallList = () => {
                         <span className="text-sm font-medium">{peermall.rating}</span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">{peermall.description}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{peermall.shopDescription}</p>
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-end">
-                    <Button variant="ghost" size="sm" className="text-blue-600">
-                      방문하기
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link to={`/shop/${peermall.shopUrl}/home`}>
+                      <Button variant="ghost" size="sm" className="text-blue-600">
+                        방문하기
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               ))}

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { QrCode, Store, LinkIcon, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
+import { QrCode, Store, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
 import Navigation from '@/components/Navigation';
 
 // Placeholder function to generate QR code image URL
@@ -79,7 +79,7 @@ const Index = () => {
               <Button onClick={scrollToFeatures} className="bg-blue-600 hover:bg-blue-700 rounded-full px-8 py-6 text-lg flex items-center">
                 주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Link to="/qr-generator">
+              <Link to="/personal-lounge">
                 <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full px-8 py-6 text-lg">
                   무료로 시작하기
                 </Button>
@@ -127,7 +127,7 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Peermall 기능 살펴보기</h2>
           
           <Tabs defaultValue="mystore" className="w-full" onValueChange={setActiveFeatureTab}>
-            <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-8">
+            <TabsList className="grid grid-cols-3 md:grid-cols-4 mb-8">
               <TabsTrigger value="mystore" className="flex flex-col items-center py-3">
                 <Store className="h-6 w-6 mb-1" />
                 <span>나의 쇼핑몰</span>
@@ -136,10 +136,6 @@ const Index = () => {
                 <QrCode className="h-6 w-6 mb-1" />
                 <span>QR 코드</span>
               </TabsTrigger>
-              <TabsTrigger value="integration" className="flex flex-col items-center py-3">
-                <LinkIcon className="h-6 w-6 mb-1" />
-                <span>사이트 연동</span>
-              </TabsTrigger>
               <TabsTrigger value="authentication" className="flex flex-col items-center py-3">
                 <CheckCheck className="h-6 w-6 mb-1" />
                 <span>인증</span>
@@ -147,10 +143,6 @@ const Index = () => {
               <TabsTrigger value="community" className="flex flex-col items-center py-3">
                 <User className="h-6 w-6 mb-1" />
                 <span>커뮤니티</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex flex-col items-center py-3">
-                <Settings className="h-6 w-6 mb-1" />
-                <span>관리</span>
               </TabsTrigger>
             </TabsList>
             
@@ -219,14 +211,9 @@ const Index = () => {
                         <span>손쉬운 QR 코드 인쇄 및 공유</span>
                       </li>
                     </ul>
-                    <div className="flex space-x-3 mt-6">
-                      <Link to="/qr-generator">
-                        <Button className="bg-blue-600 hover:bg-blue-700">QR 코드 생성하기</Button>
-                      </Link>
-                      <Link to="/qr-list">
-                        <Button variant="outline" className="border-blue-600 text-blue-600">내 QR 코드 보기</Button>
-                      </Link>
-                    </div>
+                    <Link to="/qr-generator">
+                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">QR 코드 생성하기</Button>
+                    </Link>
                   </div>
                   <div className="flex justify-center">
                     <div className="bg-white p-6 rounded-xl shadow-lg max-w-xs w-full">
@@ -236,70 +223,6 @@ const Index = () => {
                       <div className="text-center space-y-2">
                         <h4 className="font-medium text-gray-800">피어몰 샘플 스토어</h4>
                         <p className="text-sm text-gray-500">이 QR 코드를 스캔하여 샘플 스토어를 확인하세요</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="integration" className="mt-0">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-4">기존 사이트 연동</h3>
-                    <p className="text-gray-600 mb-6">운영 중인 웹사이트와 Peermall을 쉽게 연결하여 시너지를 창출하세요. API 연동을 통해 재고 관리, 주문 처리를 통합적으로 운영할 수 있습니다.</p>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>간편한 API 연동</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>통합 재고 관리</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>주문 정보 실시간 동기화</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>다양한 플랫폼 지원</span>
-                      </li>
-                    </ul>
-                    <Link to="/site-integration">
-                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">연동 시작하기</Button>
-                    </Link>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <div className="space-y-6">
-                      <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                          <span className="font-semibold text-blue-600">WP</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">WordPress</h4>
-                          <p className="text-sm text-gray-500">WooCommerce 플러그인 지원</p>
-                        </div>
-                        <Button variant="ghost" className="ml-auto">연결</Button>
-                      </div>
-                      <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                          <span className="font-semibold text-blue-600">SP</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Shopify</h4>
-                          <p className="text-sm text-gray-500">API 키 연동</p>
-                        </div>
-                        <Button variant="ghost" className="ml-auto">연결</Button>
-                      </div>
-                      <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                          <span className="font-semibold text-blue-600">CS</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Custom Site</h4>
-                          <p className="text-sm text-gray-500">REST API 연동</p>
-                        </div>
-                        <Button variant="ghost" className="ml-auto">연결</Button>
                       </div>
                     </div>
                   </div>
@@ -441,77 +364,6 @@ const Index = () => {
                   </div>
                 </div>
               </TabsContent>
-              
-              <TabsContent value="settings" className="mt-0">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-4">스토어 및 정보 관리</h3>
-                    <p className="text-gray-600 mb-6">언제든지 스토어 정보를 자유롭게 수정하고, 제품 정보를 관리하며, 거래 및 주문 상태를 확인할 수 있습니다.</p>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>스토어 설정 간편 수정</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>제품 등록 및 관리</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>주문 및 배송 상태 확인</span>
-                      </li>
-                      <li className="flex items-start">
-                        <CheckCheck className="h-5 w-5 text-green-500 mr-2 mt-1" />
-                        <span>환불 및 교환 처리</span>
-                      </li>
-                    </ul>
-                    <Link to="/lounge-admin">
-                      <Button className="mt-6 bg-blue-600 hover:bg-blue-700">관리자 대시보드</Button>
-                    </Link>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <div className="mb-6">
-                      <h4 className="font-medium mb-3">대시보드 미리보기</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-blue-50 p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">총 주문</p>
-                          <p className="text-xl font-bold text-blue-600">128</p>
-                        </div>
-                        <div className="bg-green-50 p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">총 매출</p>
-                          <p className="text-xl font-bold text-green-600">₩3.2M</p>
-                        </div>
-                        <div className="bg-amber-50 p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">방문자</p>
-                          <p className="text-xl font-bold text-amber-600">1.4K</p>
-                        </div>
-                        <div className="bg-purple-50 p-3 rounded-lg">
-                          <p className="text-xs text-gray-500">전환율</p>
-                          <p className="text-xl font-bold text-purple-600">3.2%</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                        <span className="font-medium">스토어 정보</span>
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                        <span className="font-medium">상품 관리</span>
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                        <span className="font-medium">주문 관리</span>
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                        <span className="font-medium">통계</span>
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
             </div>
           </Tabs>
         </div>
@@ -521,7 +373,7 @@ const Index = () => {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-10">빠른 기능 접근</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <Link to="/qr-generator">
               <Card className="hover:shadow-md transition-shadow h-full">
                 <CardContent className="flex flex-col items-center text-center p-6">
@@ -549,21 +401,12 @@ const Index = () => {
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/community">
+            <Link to="/peermall-list">
               <Card className="hover:shadow-md transition-shadow h-full">
                 <CardContent className="flex flex-col items-center text-center p-6">
-                  <Users className="h-10 w-10 text-blue-600 mb-4" />
-                  <h3 className="font-medium">커뮤니티</h3>
-                  <p className="text-sm text-gray-500 mt-2">다양한 정보와 소통</p>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link to="/customer-service">
-              <Card className="hover:shadow-md transition-shadow h-full">
-                <CardContent className="flex flex-col items-center text-center p-6">
-                  <MessageSquare className="h-10 w-10 text-blue-600 mb-4" />
-                  <h3 className="font-medium">고객센터</h3>
-                  <p className="text-sm text-gray-500 mt-2">1:1 음성, 화상, 채팅 상담</p>
+                  <Store className="h-10 w-10 text-blue-600 mb-4" />
+                  <h3 className="font-medium">피어몰 목록</h3>
+                  <p className="text-sm text-gray-500 mt-2">등록된 피어몰 둘러보기</p>
                 </CardContent>
               </Card>
             </Link>
@@ -647,7 +490,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <h3 className="text-2xl font-bold mb-4">Peermall</h3>
               <p className="text-gray-400">귀한 고객들이 직접 사거나 팔 수 있는 새로운 쇼핑 플랫폼입니다.</p>
@@ -658,14 +501,6 @@ const Index = () => {
                 <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">주요 기능</a></li>
                 <li><a href="#story" className="text-gray-400 hover:text-white transition-colors">Peermall 이야기</a></li>
                 <li><a href="#vision" className="text-gray-400 hover:text-white transition-colors">비전</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">지원</h4>
-              <ul className="space-y-2">
-                <li><Link to="/customer-service" className="text-gray-400 hover:text-white transition-colors">고객 지원</Link></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">이용 약관</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">개인정보처리방침</a></li>
               </ul>
             </div>
             <div>

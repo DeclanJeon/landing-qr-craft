@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, User, Settings, Store, 
-  MessageSquare, Users, Link as LinkIcon, QrCode
+  MessageSquare, Users, QrCode
 } from "lucide-react";
 
 const DesktopNavigation = () => {
@@ -68,13 +68,6 @@ const DesktopNavigation = () => {
               커뮤니티
             </Link>
           </div>
-        </li>
-        
-        <li>
-          <Link to="/site-integration" className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors ${isActive('/site-integration') ? 'text-blue-600 font-medium' : ''}`}>
-            <LinkIcon className="h-4 w-4 mr-1" />
-            <span>사이트연동</span>
-          </Link>
         </li>
       </ul>
     </nav>

@@ -4,7 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft,
   Heart,
-  Share
+  Share,
+  ShieldCheck,
+  Shield,
+  Truck,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/shop';
@@ -66,6 +70,35 @@ const ProductDetailPage: React.FC = () => {
         description: `${product.name}이(가) 관심목록에 추가되었습니다.`,
       });
     }
+  };
+
+  // New functions for the added buttons
+  const handleAuthenticity = () => {
+    toast({
+      title: "진품 인증 정보",
+      description: "이 제품은 공식 인증기관을 통해 진품 확인이 가능합니다.",
+    });
+  };
+
+  const handleOwnership = () => {
+    toast({
+      title: "소유권 인증 정보",
+      description: "블록체인 기반 소유권 증명 서비스를 제공합니다.",
+    });
+  };
+
+  const handleShipping = () => {
+    toast({
+      title: "배송 정보",
+      description: "주문 후 1-3일 이내 출고되며, 택배사에 따라 배송일이 달라질 수 있습니다.",
+    });
+  };
+
+  const handleProductInfo = () => {
+    toast({
+      title: "제품 정보",
+      description: "상세 제품정보 및 사양을 확인하실 수 있습니다.",
+    });
   };
 
   if (isLoading) {
@@ -147,12 +180,33 @@ const ProductDetailPage: React.FC = () => {
             </div>
           )}
           
+          {/* Action Buttons */}
           <div className="flex flex-col space-y-4 mb-8">
             <Button className="w-full" size="lg" onClick={handleBuyNow}>
               바로 구매하기
             </Button>
             <Button variant="outline" className="w-full" size="lg" onClick={handleAddToCart}>
               장바구니에 담기
+            </Button>
+          </div>
+          
+          {/* New Information Buttons */}
+          <div className="grid grid-cols-2 gap-2 mb-6">
+            <Button variant="outline" onClick={handleAuthenticity} className="flex items-center justify-start">
+              <ShieldCheck className="h-4 w-4 mr-2" />
+              진품 인증
+            </Button>
+            <Button variant="outline" onClick={handleOwnership} className="flex items-center justify-start">
+              <Shield className="h-4 w-4 mr-2" />
+              소유권 인증
+            </Button>
+            <Button variant="outline" onClick={handleShipping} className="flex items-center justify-start">
+              <Truck className="h-4 w-4 mr-2" />
+              배송 정보
+            </Button>
+            <Button variant="outline" onClick={handleProductInfo} className="flex items-center justify-start">
+              <FileText className="h-4 w-4 mr-2" />
+              제품 정보
             </Button>
           </div>
           

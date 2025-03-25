@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -110,6 +111,88 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
             <div className="p-4 border rounded-lg">
               <h3 className="text-lg font-semibold mb-2">고객 지원</h3>
               <p>효과적인 고객 지원 시스템을 통해 고객의 문의에 신속하게 대응할 수 있습니다.</p>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (page === 'qrcodes') {
+      return (
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-bold mb-6">QR 코드</h2>
+          <p className="mb-6">각 상품 및 링크에 대한 QR 코드를 확인하고 다운로드할 수 있습니다.</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map(product => (
+              <QRCodeDisplay key={product.id} product={product} />
+            ))}
+          </div>
+          
+          {filteredProducts.length === 0 && (
+            <p className="text-center text-gray-500 py-8">QR 코드를 생성할 상품이 없습니다.</p>
+          )}
+        </div>
+      );
+    } else if (page === 'community') {
+      return (
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-bold mb-6">커뮤니티</h2>
+          
+          <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
+            <TabsList className="mb-6 grid w-full grid-cols-3">
+              <TabsTrigger value="forum">포럼</TabsTrigger>
+              <TabsTrigger value="groupchat">그룹 채팅</TabsTrigger>
+              <TabsTrigger value="voice">음성 채팅</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="forum">
+              <ForumPage />
+            </TabsContent>
+            
+            <TabsContent value="groupchat">
+              <GroupChatPage type="text" />
+            </TabsContent>
+            
+            <TabsContent value="voice">
+              <GroupChatPage type="voice" />
+            </TabsContent>
+          </Tabs>
+        </div>
+      );
+    } else if (page === 'support') {
+      return (
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-bold mb-6">고객 지원</h2>
+          <p className="mb-6">질문이나 문제가 있으시면 아래의 방법으로 문의해 주세요.</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 border rounded-lg">
+              <h3 className="text-lg font-semibold mb-2">이메일 문의</h3>
+              <p className="mb-2">평일 9:00 - 18:00 이내 답변</p>
+              <a href={`mailto:${shopData?.email || 'support@peermall.com'}`} className="text-blue-600 hover:underline">
+                {shopData?.email || 'support@peermall.com'}
+              </a>
+            </div>
+            
+            <div className="p-4 border rounded-lg">
+              <h3 className="text-lg font-semibold mb-2">전화 문의</h3>
+              <p className="mb-2">평일 9:00 - 18:00</p>
+              <a href={`tel:${shopData?.contactNumber || '02-123-4567'}`} className="text-blue-600 hover:underline">
+                {shopData?.contactNumber || '02-123-4567'}
+              </a>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 border rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">자주 묻는 질문</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium">Q: 배송은 얼마나 걸리나요?</h4>
+                <p className="text-gray-700">A: 본 페이지는 외부 링크를 모아두는 프로모션 페이지로, 실제 배송은 각 판매처의 정책을 따릅니다.</p>
+              </div>
+              <div>
+                <h4 className="font-medium">Q: 교환이나 환불은 어떻게 하나요?</h4>
+                <p className="text-gray-700">A: 각 상품의 판매처에 직접 문의하시기 바랍니다. 본 페이지는 직접적인 판매를 하지 않습니다.</p>
+              </div>
             </div>
           </div>
         </div>

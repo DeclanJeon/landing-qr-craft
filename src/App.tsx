@@ -15,6 +15,7 @@ import CustomerService from "./pages/CustomerService";
 import Community from "./pages/Community";
 import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
+import QRCodeList from "./pages/QRCodeList";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/lounge-admin" element={<LoungeAdmin />} />
             <Route path="/personal-lounge" element={<PersonalLounge />} />
             <Route path="/qr-generator" element={<QRCodeGenerator />} />
+            <Route path="/qr-codes" element={<QRCodeList />} />
             <Route path="/peermall-list" element={<PeermallList />} />
             <Route path="/customer-service" element={<CustomerService />} />
             <Route path="/community" element={<Community />} />

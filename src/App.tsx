@@ -38,6 +38,9 @@ const App = () => (
           {/* Shop routes with new URL structure */}
           <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/community" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/support" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/about" element={<ShopPage />} />

@@ -20,8 +20,9 @@ const PeermallCreateModal: React.FC<PeermallCreateModalProps> = ({ open, onClose
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">내 피어몰 시작하기</DialogTitle>
-          <DialogDescription>
-            아래 정보를 입력하여 몇 분 안에 나만의 온라인 스토어를 만들어보세요.
+          <DialogDescription className="text-gray-600 mt-2">
+            피어몰은 다양한 외부 상품과 링크를 한곳에 모아 전시하는 프로모션 랜딩 페이지입니다.
+            아래 정보를 입력하여 몇 분 안에 나만의 피어몰을 만들어보세요.
           </DialogDescription>
         </DialogHeader>
         <PeermallShopForm onSuccessfulSubmit={onClose} />

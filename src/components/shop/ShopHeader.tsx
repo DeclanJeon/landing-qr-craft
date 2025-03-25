@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Search, ShoppingCart } from 'lucide-react';
+import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ShopHeaderProps {
@@ -30,28 +30,34 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
           </div>
         </div>
         
         <nav className="mt-4">
-          <ul className="flex space-x-6">
+          <ul className="flex space-x-6 overflow-x-auto pb-2">
             <li>
-              <Link to={`/shop/${shopUrl}/home`} className={`font-medium ${(!page || page === 'home') ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>홈</Link>
+              <Link to={`/shop/${shopUrl}/home`} className={`flex items-center font-medium ${(!page || page === 'home') ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <ExternalLink className="h-4 w-4 mr-1 md:mr-2" />
+                <span>상품/링크</span>
+              </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/products`} className={`font-medium ${page === 'products' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>상품</Link>
+              <Link to={`/shop/${shopUrl}/qrcodes`} className={`flex items-center font-medium ${page === 'qrcodes' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <QrCode className="h-4 w-4 mr-1 md:mr-2" />
+                <span>QR 코드</span>
+              </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/new`} className={`font-medium ${page === 'new' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>신상품</Link>
+              <Link to={`/shop/${shopUrl}/community`} className={`flex items-center font-medium ${page === 'community' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <Users className="h-4 w-4 mr-1 md:mr-2" />
+                <span>커뮤니티</span>
+              </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/best`} className={`font-medium ${page === 'best' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>베스트</Link>
-            </li>
-            <li>
-              <Link to={`/shop/${shopUrl}/about`} className={`font-medium ${page === 'about' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>소개</Link>
+              <Link to={`/shop/${shopUrl}/support`} className={`flex items-center font-medium ${page === 'support' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <MessageSquare className="h-4 w-4 mr-1 md:mr-2" />
+                <span>고객지원</span>
+              </Link>
             </li>
           </ul>
         </nav>

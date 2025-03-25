@@ -16,6 +16,7 @@ import Community from "./pages/Community";
 import SiteIntegration from "./pages/SiteIntegration";
 import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
+import ProductRegistration from "./pages/ProductRegistration";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/community/voicechat" element={<Community />} />
             <Route path="/community/videochat" element={<Community />} />
             <Route path="/site-integration" element={<SiteIntegration />} />
+            <Route path="/product-registration" element={<ProductRegistration />} />
             
             {/* Shop routes with new URL structure */}
             <Route path="/shop/:shopUrl/home" element={<ShopPage />} />

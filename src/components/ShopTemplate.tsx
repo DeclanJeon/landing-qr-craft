@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingCart, Heart, Search, ChevronRight, Phone, Mail, MapPin, User } from 'lucide-react';
@@ -60,9 +59,12 @@ const categories = [
   { id: 5, name: '디지털', count: 8 },
 ];
 
-const ShopTemplate = () => {
-  const { shopUrl } = useParams();
-  
+interface ShopTemplateProps {
+  shopUrl?: string;
+  page?: string;
+}
+
+const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page }) => {
   // Get shop data from localStorage (in a real application, this would come from a database)
   const shopDataString = localStorage.getItem('peermallShopData');
   const shopData = shopDataString ? JSON.parse(shopDataString) : null;
@@ -109,19 +111,19 @@ const ShopTemplate = () => {
           <nav className="mt-4">
             <ul className="flex space-x-6">
               <li>
-                <Link to={`/shop/${shopUrl}/home`} className="text-blue-600 font-medium">홈</Link>
+                <Link to={`/shop/${shopUrl}/home`} className={`font-medium ${(!page || page === 'home') ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>홈</Link>
               </li>
               <li>
-                <Link to={`/shop/${shopUrl}/products`} className="text-gray-600 hover:text-blue-600">상품</Link>
+                <Link to={`/shop/${shopUrl}/products`} className={`font-medium ${page === 'products' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>상품</Link>
               </li>
               <li>
-                <Link to={`/shop/${shopUrl}/new`} className="text-gray-600 hover:text-blue-600">신상품</Link>
+                <Link to={`/shop/${shopUrl}/new`} className={`font-medium ${page === 'new' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>신상품</Link>
               </li>
               <li>
-                <Link to={`/shop/${shopUrl}/best`} className="text-gray-600 hover:text-blue-600">베스트</Link>
+                <Link to={`/shop/${shopUrl}/best`} className={`font-medium ${page === 'best' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>베스트</Link>
               </li>
               <li>
-                <Link to={`/shop/${shopUrl}/about`} className="text-gray-600 hover:text-blue-600">소개</Link>
+                <Link to={`/shop/${shopUrl}/about`} className={`font-medium ${page === 'about' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>소개</Link>
               </li>
             </ul>
           </nav>

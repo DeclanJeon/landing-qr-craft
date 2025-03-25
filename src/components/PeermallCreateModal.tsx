@@ -17,7 +17,7 @@ interface PeermallCreateModalProps {
 const PeermallCreateModal: React.FC<PeermallCreateModalProps> = ({ open, onClose }) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">내 피어몰 시작하기</DialogTitle>
           <DialogDescription>

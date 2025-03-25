@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [activeTab, setActiveTab] = useState<string>("products");
   const [communityTab, setCommunityTab] = useState<string>("forum");
   const { getCartCount } = useCart();
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
   // Get shop data from localStorage
   useEffect(() => {
@@ -49,19 +51,28 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
     } else {
       setShopData(parsedShopData);
     }
+
+    // Load products from localStorage
+    const storedProducts = localStorage.getItem('peermall-products');
+    if (storedProducts) {
+      setLocalProducts(JSON.parse(storedProducts));
+    }
   }, [actualShopUrl]);
   
   // Filter products when selectedCategoryId changes
   useEffect(() => {
+    // Combine sample products with local products
+    const allProducts = [...sampleProducts, ...localProducts];
+    
     if (selectedCategoryId === 0) {
       // Show all products when no category is selected
-      setFilteredProducts(sampleProducts);
+      setFilteredProducts(allProducts);
     } else {
       // Filter products by selected category
-      const filtered = sampleProducts.filter(product => product.categoryId === selectedCategoryId);
+      const filtered = allProducts.filter(product => product.categoryId === selectedCategoryId);
       setFilteredProducts(filtered);
     }
-  }, [selectedCategoryId]);
+  }, [selectedCategoryId, localProducts]);
 
   // Handle category selection
   const handleCategorySelect = (categoryId: number) => {
@@ -126,11 +137,19 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
               {/* Products/Links Tab Content */}
               <TabsContent value="products" className="space-y-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-2xl font-bold mb-6">
-                    {selectedCategoryId > 0 
-                      ? (categories.find(cat => cat.id === selectedCategoryId)?.name || '상품 목록') 
-                      : '추천 상품 및 링크'}
-                  </h2>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">
+                      {selectedCategoryId > 0 
+                        ? (categories.find(cat => cat.id === selectedCategoryId)?.name || '상품 목록') 
+                        : '추천 상품 및 링크'}
+                    </h2>
+                    <Link to="/product-registration">
+                      <Button variant="outline" size="sm" className="flex items-center">
+                        <PlusCircle className="h-4 w-4 mr-1" />
+                        <span>상품 등록</span>
+                      </Button>
+                    </Link>
+                  </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredProducts.map(product => (

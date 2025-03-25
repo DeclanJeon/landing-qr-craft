@@ -6,6 +6,9 @@ export interface Product {
   imageUrl: string;
   externalUrl: string;
   categoryId: number;
+  distributor?: string;
+  manufacturer?: string;
+  description?: string;
 }
 
 export interface Category {

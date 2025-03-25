@@ -87,10 +87,18 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     const shopData = {
       ...values,
       faviconUrl: faviconPreview,
+      location: values.address.split(' ')[0],
+      category: values.shopDescription.split(' ')[0],
+      rating: 5.0
     };
     
     // Store the shop data in localStorage (for demo purposes)
     localStorage.setItem('peermallShopData', JSON.stringify(shopData));
+    
+    // Also add to peermall list
+    import('@/utils/peermallStorage').then(({ addPeermall }) => {
+      addPeermall(shopData);
+    });
     
     toast({
       title: "피어몰이 생성되었습니다!",

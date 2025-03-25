@@ -26,4 +26,7 @@ export interface ShopData {
   email: string;
   address: string;
   faviconUrl?: string;
+  location?: string;
+  category?: string;
+  rating?: number;
 }

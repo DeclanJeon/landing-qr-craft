@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
@@ -15,8 +14,6 @@ import { getPeermalls } from '@/utils/peermallStorage';
 
 interface PeermallWithExtras extends ShopData {
   id: number;
-  category: string;
-  rating: number;
   image: string;
   qrCode: string;
 }
@@ -82,9 +79,9 @@ const PeermallList = () => {
     const processedPeermalls = storedPeermalls.map((peermall, index) => ({
       ...peermall,
       id: index + 1 + defaultPeermalls.length,
-      category: peermall.shopDescription ? peermall.shopDescription.split(' ')[0] : '일반',
-      rating: 5.0,
-      location: peermall.address ? peermall.address.split(' ')[0] : '온라인',
+      category: peermall.category || (peermall.shopDescription ? peermall.shopDescription.split(' ')[0] : '일반'),
+      rating: peermall.rating || 5.0,
+      location: peermall.location || (peermall.address ? peermall.address.split(' ')[0] : '온라인'),
       image: `https://placehold.co/400x300/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${peermall.shopName}`,
       qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`https://peermall.com/shop/${peermall.shopUrl}/home`)}`
     }));
@@ -96,8 +93,8 @@ const PeermallList = () => {
   const filteredPeermalls = peermalls.filter(peermall => 
     peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     peermall.shopDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    peermall.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    peermall.location.toLowerCase().includes(searchTerm.toLowerCase())
+    (peermall.category && peermall.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (peermall.location && peermall.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (

@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Search, Home, Info, Settings, Store, MessageSquare } from 'lucide-react';
+import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Cart from './Cart';
-import ProductRegistrationModal from './ProductRegistrationModal';
 
 interface ShopHeaderProps {
   shopName: string;
@@ -13,8 +12,6 @@ interface ShopHeaderProps {
 }
 
 const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
@@ -34,9 +31,6 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
             <Cart />
           </div>
         </div>
@@ -45,32 +39,31 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
           <ul className="flex space-x-6 overflow-x-auto pb-2">
             <li>
               <Link to={`/shop/${shopUrl}/home`} className={`flex items-center font-medium ${(!page || page === 'home') ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <Home className="h-4 w-4 mr-1 md:mr-2" />
-                <span>홈</span>
+                <ExternalLink className="h-4 w-4 mr-1 md:mr-2" />
+                <span>상품/링크</span>
               </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/about`} className={`flex items-center font-medium ${page === 'about' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <Info className="h-4 w-4 mr-1 md:mr-2" />
-                <span>소개</span>
+              <Link to={`/shop/${shopUrl}/qrcodes`} className={`flex items-center font-medium ${page === 'qrcodes' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <QrCode className="h-4 w-4 mr-1 md:mr-2" />
+                <span>QR 코드</span>
               </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/services`} className={`flex items-center font-medium ${page === 'services' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <Store className="h-4 w-4 mr-1 md:mr-2" />
-                <span>서비스</span>
+              <Link to={`/shop/${shopUrl}/community`} className={`flex items-center font-medium ${page === 'community' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <Users className="h-4 w-4 mr-1 md:mr-2" />
+                <span>커뮤니티</span>
+              </Link>
+            </li>
+            <li>
+              <Link to={`/shop/${shopUrl}/support`} className={`flex items-center font-medium ${page === 'support' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+                <MessageSquare className="h-4 w-4 mr-1 md:mr-2" />
+                <span>고객지원</span>
               </Link>
             </li>
           </ul>
         </nav>
       </div>
-      
-      {/* Product Registration Modal */}
-      <ProductRegistrationModal 
-        open={isProductModalOpen}
-        onClose={() => setIsProductModalOpen(false)}
-        shopUrl={shopUrl}
-      />
     </header>
   );
 };

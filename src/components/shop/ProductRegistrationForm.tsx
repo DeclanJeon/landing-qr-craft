@@ -12,13 +12,6 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode } from "lucide-react";
@@ -26,7 +19,6 @@ import { useForm } from "react-hook-form";
 import { Product } from "@/types/shop";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { categories } from '@/constants/sampleData';
 
 // Generate a QR code URL for the product
 const generateQrCodeUrl = (url: string) => {
@@ -42,36 +34,21 @@ const productSchema = z.object({
   distributor: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
-  categoryId: z.number().or(z.string().transform(val => parseInt(val, 10))),
-  newCategory: z.string().optional()
+  categoryId: z.number().default(1)
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-interface ProductRegistrationFormProps {
-  onComplete?: () => void;
-  shopUrl?: string;
-}
-
-const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onComplete, shopUrl }) => {
+const ProductRegistrationForm = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [availableCategories, setAvailableCategories] = useState(categories);
-  const [showNewCategoryField, setShowNewCategoryField] = useState(false);
   
   // Load existing products from localStorage
   useEffect(() => {
     const storedProducts = localStorage.getItem('peermall-products');
     if (storedProducts) {
       setProducts(JSON.parse(storedProducts));
-    }
-    
-    // Check for custom categories
-    const storedCategories = localStorage.getItem('peermall-categories');
-    if (storedCategories) {
-      const customCategories = JSON.parse(storedCategories);
-      setAvailableCategories([...categories, ...customCategories]);
     }
   }, []);
 
@@ -86,15 +63,13 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onCom
       distributor: "",
       manufacturer: "",
       description: "",
-      categoryId: 1,
-      newCategory: ""
+      categoryId: 1
     }
   });
 
   // Watch for image URL changes to update preview
   const watchImageUrl = form.watch("imageUrl");
   const watchExternalUrl = form.watch("externalUrl");
-  const watchCategoryId = form.watch("categoryId");
   
   useEffect(() => {
     if (watchImageUrl) {
@@ -107,52 +82,16 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onCom
       setQrCodeUrl(generateQrCodeUrl(watchExternalUrl));
     }
   }, [watchExternalUrl]);
-  
-  useEffect(() => {
-    if (watchCategoryId === 999) { // Special value for "New Category"
-      setShowNewCategoryField(true);
-    } else {
-      setShowNewCategoryField(false);
-    }
-  }, [watchCategoryId]);
 
   // Handle form submission
   const onSubmit = (data: ProductFormValues) => {
-    let categoryId = Number(data.categoryId);
-    
-    // Handle new category creation
-    if (categoryId === 999 && data.newCategory) {
-      // Calculate a new unique ID for the category
-      const maxId = Math.max(...availableCategories.map(cat => cat.id));
-      const newCategoryId = maxId + 1;
-      
-      // Create new category
-      const newCategory = {
-        id: newCategoryId,
-        name: data.newCategory,
-        count: 1
-      };
-      
-      // Add to available categories
-      const updatedCategories = [...availableCategories, newCategory];
-      setAvailableCategories(updatedCategories);
-      
-      // Save to localStorage
-      localStorage.setItem('peermall-categories', JSON.stringify(
-        updatedCategories.filter(cat => !categories.some(c => c.id === cat.id))
-      ));
-      
-      // Use new category ID
-      categoryId = newCategoryId;
-    }
-
     const newProduct: Product = {
       id: Date.now(), // Use timestamp as unique ID
       name: data.name,
       price: data.price,
       imageUrl: data.imageUrl,
       externalUrl: data.externalUrl,
-      categoryId: categoryId,
+      categoryId: data.categoryId,
       distributor: data.distributor,
       manufacturer: data.manufacturer,
       description: data.description
@@ -190,15 +129,10 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onCom
     form.reset();
     setPreviewImage("");
     setQrCodeUrl("");
-    
-    // Call onComplete callback if provided
-    if (onComplete) {
-      onComplete();
-    }
   };
 
   return (
-    <div className="bg-white rounded-lg">
+    <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           <Form {...form}>
@@ -230,51 +164,6 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onCom
                   </FormItem>
                 )}
               />
-              
-              <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>카테고리 *</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="카테고리 선택" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {availableCategories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="999">새 카테고리 추가</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              {showNewCategoryField && (
-                <FormField
-                  control={form.control}
-                  name="newCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>새 카테고리 이름 *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="새 카테고리 이름을 입력하세요" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
               
               <FormField
                 control={form.control}

@@ -3,8 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Home, User, Settings, Store, 
-  MessageSquare, Users, Link as LinkIcon, QrCode
+  MessageSquare, Users, Link as LinkIcon, QrCode, ShoppingCart
 } from "lucide-react";
+import Cart from '../shop/Cart';
 
 interface MobileNavigationProps {
   isMenuOpen: boolean;
@@ -57,6 +58,17 @@ const MobileNavigation = ({ isMenuOpen, closeMenu }: MobileNavigationProps) => {
             <QrCode className="h-5 w-5 mr-3 text-blue-600" />
             <span>QR 코드 생성</span>
           </Link>
+        </li>
+
+        {/* 장바구니 */}
+        <li>
+          <div className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md">
+            <ShoppingCart className="h-5 w-5 mr-3 text-blue-600" />
+            <span>장바구니</span>
+            <div className="ml-auto">
+              <Cart />
+            </div>
+          </div>
         </li>
 
         {/* 고객지원 그룹 */}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,8 +11,10 @@ import ProductSection from './shop/ProductSection';
 import QRCodeDisplay from './shop/QRCodeDisplay';
 import ForumPage from './community/ForumPage';
 import GroupChatPage from './community/GroupChatPage';
+import ProductItem from './shop/ProductItem';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
+import { useCart } from '@/contexts/CartContext';
 
 interface ShopTemplateProps {
   shopUrl?: string;
@@ -32,6 +33,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [shopData, setShopData] = useState<ShopData | null>(null);
   const [activeTab, setActiveTab] = useState<string>("products");
   const [communityTab, setCommunityTab] = useState<string>("forum");
+  const { getCartCount } = useCart();
 
   // Get shop data from localStorage
   useEffect(() => {
@@ -132,20 +134,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredProducts.map(product => (
-                      <div key={product.id} className="relative group">
-                        <ProductSection.Item product={product} />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                          <a 
-                            href={product.externalUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center"
-                          >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            외부 링크 방문
-                          </a>
-                        </div>
-                      </div>
+                      <ProductItem key={product.id} product={product} />
                     ))}
                   </div>
                   

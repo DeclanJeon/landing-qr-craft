@@ -5,6 +5,7 @@ import MobileNavigation from './navigation/MobileNavigation';
 import NavLogo from './navigation/NavLogo';
 import MobileMenuButton from './navigation/MobileMenuButton';
 import StartButton from './navigation/StartButton';
+import Cart from './shop/Cart';
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,7 +32,10 @@ const Navigation = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         <NavLogo />
         <DesktopNavigation />
-        <MobileMenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+        <div className="flex items-center space-x-2">
+          <Cart />
+          <MobileMenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+        </div>
         <MobileNavigation isMenuOpen={isMenuOpen} closeMenu={closeMenu} />
         <StartButton />
       </div>

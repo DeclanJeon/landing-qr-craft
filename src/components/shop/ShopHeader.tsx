@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Cart from './Cart';
 
 interface ShopHeaderProps {
   shopName: string;
@@ -30,6 +31,7 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
             </Button>
+            <Cart />
           </div>
         </div>
         

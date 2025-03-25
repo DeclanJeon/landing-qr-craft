@@ -35,7 +35,7 @@ const DesktopNavigation = () => {
           </Link>
         </li>
         
-        {/* 피어몰 목록 링크 (드롭다운 제거, 직접 링크로 변경) */}
+        {/* 피어몰 목록 링크 */}
         <li>
           <Link to="/peermall-list" className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors ${isActive('/peermall-list') ? 'text-blue-600 font-medium' : ''}`}>
             <Store className="h-4 w-4 mr-1" />

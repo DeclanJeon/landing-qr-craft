@@ -34,18 +34,24 @@ const DesktopNavigation = () => {
             <span>관리자</span>
           </Link>
         </li>
-        <li>
-          <Link to="/personal-lounge" className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors ${isActive('/personal-lounge') ? 'text-blue-600 font-medium' : ''}`}>
-            <Store className="h-4 w-4 mr-1" />
-            <span>내 피어몰 만들기</span>
-          </Link>
-        </li>
         
-        <li>
-          <Link to="/peermall-list" className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors ${isActive('/peermall-list') ? 'text-blue-600 font-medium' : ''}`}>
+        {/* 피어몰 관련 그룹 */}
+        <li className="relative group">
+          <div className={`flex items-center text-gray-700 hover:text-blue-600 transition-colors cursor-pointer ${isActive('/personal-lounge') || isActive('/peermall-list') ? 'text-blue-600 font-medium' : ''}`}>
             <Store className="h-4 w-4 mr-1" />
-            <span>피어몰 목록</span>
-          </Link>
+            <span>피어몰</span>
+            <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <Link to="/personal-lounge" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              내 피어몰 만들기
+            </Link>
+            <Link to="/peermall-list" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              피어몰 목록
+            </Link>
+          </div>
         </li>
         
         {/* 고객지원 및 커뮤니티 그룹 */}

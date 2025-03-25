@@ -35,13 +35,17 @@ const MobileNavigation = ({ isMenuOpen, closeMenu }: MobileNavigationProps) => {
             <span>관리자</span>
           </Link>
         </li>
+
+        {/* 피어몰 그룹 */}
+        <li className="border-t border-gray-100 pt-2">
+          <p className="px-4 text-xs text-gray-500 uppercase">피어몰</p>
+        </li>
         <li>
           <Link to="/personal-lounge" className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md" onClick={closeMenu}>
             <Store className="h-5 w-5 mr-3 text-blue-600" />
             <span>내 피어몰 만들기</span>
           </Link>
         </li>
-
         <li>
           <Link to="/peermall-list" className="flex items-center py-2 px-4 hover:bg-gray-100 rounded-md" onClick={closeMenu}>
             <Store className="h-5 w-5 mr-3 text-blue-600" />

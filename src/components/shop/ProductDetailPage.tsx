@@ -2,15 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Truck, 
-  FileText, 
-  HelpCircle, 
   ArrowLeft,
   Heart,
   Share
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
@@ -133,13 +129,11 @@ const ProductDetailPage: React.FC = () => {
             <div className="mb-6 space-y-2">
               {product.distributor && (
                 <div className="flex items-center text-sm text-gray-600">
-                  <Truck className="h-4 w-4 mr-2" />
                   <span>유통사: {product.distributor}</span>
                 </div>
               )}
               {product.manufacturer && (
                 <div className="flex items-center text-sm text-gray-600">
-                  <FileText className="h-4 w-4 mr-2" />
                   <span>제조사: {product.manufacturer}</span>
                 </div>
               )}
@@ -166,71 +160,6 @@ const ProductDetailPage: React.FC = () => {
             <p>이 상품은 외부 판매자의 상품입니다. 구매 시 판매자의 웹사이트로 이동합니다.</p>
           </div>
         </div>
-      </div>
-      
-      {/* Product Tabs */}
-      <div className="mt-12">
-        <Tabs defaultValue="details">
-          <TabsList className="grid grid-cols-4 w-full">
-            <TabsTrigger value="details">제품 정보</TabsTrigger>
-            <TabsTrigger value="shipping">배송 정보</TabsTrigger>
-            <TabsTrigger value="reviews">구매 후기</TabsTrigger>
-            <TabsTrigger value="support">고객 지원</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="details" className="py-6">
-            <h3 className="text-lg font-medium mb-4">제품 상세 정보</h3>
-            <div className="space-y-4">
-              <p className="text-gray-700">
-                {product.description || "제품에 대한 상세 정보가 제공되지 않았습니다."}
-              </p>
-              {product.manufacturer && (
-                <div className="flex items-start">
-                  <FileText className="h-5 w-5 mr-2 mt-0.5 text-gray-500" />
-                  <div>
-                    <h4 className="font-medium">제조사 정보</h4>
-                    <p className="text-gray-700">{product.manufacturer}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="shipping" className="py-6">
-            <h3 className="text-lg font-medium mb-4">배송 안내</h3>
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <Truck className="h-5 w-5 mr-2 mt-0.5 text-gray-500" />
-                <div>
-                  <h4 className="font-medium">배송 정책</h4>
-                  <p className="text-gray-700">
-                    {product.distributor 
-                      ? `${product.distributor}에서 배송을 담당합니다.` 
-                      : "판매자 웹사이트의 배송 정책을 참고해주세요."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="reviews" className="py-6">
-            <h3 className="text-lg font-medium mb-4">구매 후기</h3>
-            <p className="text-gray-600">아직 등록된 구매 후기가 없습니다.</p>
-          </TabsContent>
-          
-          <TabsContent value="support" className="py-6">
-            <h3 className="text-lg font-medium mb-4">고객 지원</h3>
-            <div className="flex items-start">
-              <HelpCircle className="h-5 w-5 mr-2 mt-0.5 text-gray-500" />
-              <div>
-                <h4 className="font-medium">문의하기</h4>
-                <p className="text-gray-700">
-                  제품에 대한 문의사항은 판매자에게 직접 문의해주세요.
-                </p>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );

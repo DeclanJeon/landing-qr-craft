@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -101,10 +100,10 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     // Call onSuccessfulSubmit callback if provided
     if (onSuccessfulSubmit) {
       onSuccessfulSubmit();
-    } else {
-      // Navigate to the generated shop page with new URL structure
-      navigate(`/shop/${values.shopUrl}/home`);
     }
+    
+    // Navigate to the generated shop page with new URL structure
+    navigate(`/shop/${values.shopUrl}/home`);
   };
 
   return (

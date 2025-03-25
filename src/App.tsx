@@ -30,22 +30,20 @@ const App = () => (
           <Route path="/lounge-admin" element={<LoungeAdmin />} />
           <Route path="/personal-lounge" element={<PersonalLounge />} />
           <Route path="/qr-generator" element={<QRCodeGenerator />} />
-          {/* Redirect QR-related pages to QR generator page */}
-          <Route path="/qr-list" element={<Navigate to="/qr-generator" replace />} />
           <Route path="/peermall-list" element={<PeermallList />} />
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />
           <Route path="/site-integration" element={<SiteIntegration />} />
           
-          {/* Updated shop routes with new URL structure */}
+          {/* Shop routes with new URL structure */}
           <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
           
           {/* Redirect old shop routes to new structure */}
           <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
-          <Route path="/shop/:shopUrl/:page" element={<Navigate to="/shop/:shopUrl/home" replace />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

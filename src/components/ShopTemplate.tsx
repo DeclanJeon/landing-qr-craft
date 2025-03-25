@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ShopHeader from './shop/ShopHeader';
 import ShopFooter from './shop/ShopFooter';
@@ -18,14 +18,29 @@ interface ShopTemplateProps {
 
 const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }) => {
   const params = useParams();
-  const categoryParam = categoryId || (params.page === 'category' ? Number(params.categoryId) : 0);
+  const navigate = useNavigate();
+  const actualShopUrl = shopUrl || params.shopUrl;
+  const categoryParam = categoryId || (params.categoryId ? Number(params.categoryId) : 0);
   
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(categoryParam || 0);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
+  const [shopData, setShopData] = useState<ShopData | null>(null);
 
-  // Get shop data from localStorage (in a real application, this would come from a database)
-  const shopDataString = localStorage.getItem('peermallShopData');
-  const shopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
+  // Get shop data from localStorage
+  useEffect(() => {
+    const shopDataString = localStorage.getItem('peermallShopData');
+    const parsedShopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
+    
+    // If there's no shop data or the URLs don't match, shop might not exist
+    if (!parsedShopData || (actualShopUrl && parsedShopData.shopUrl !== actualShopUrl)) {
+      // Only navigate if we're on a shop page
+      if (window.location.pathname.includes('/shop/')) {
+        setShopData(null);
+      }
+    } else {
+      setShopData(parsedShopData);
+    }
+  }, [actualShopUrl]);
   
   // Filter products when selectedCategoryId changes
   useEffect(() => {
@@ -59,7 +74,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Shop Header */}
-      <ShopHeader shopName={shopData.shopName} shopUrl={shopUrl || ''} page={page} />
+      <ShopHeader shopName={shopData.shopName} shopUrl={actualShopUrl || ''} page={page} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -70,7 +85,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           {/* Sidebar */}
           <ShopSidebar 
             categories={categories} 
-            shopUrl={shopUrl} 
+            shopUrl={actualShopUrl} 
             shopData={shopData}
             selectedCategoryId={selectedCategoryId}
             onCategorySelect={handleCategorySelect}
@@ -96,13 +111,13 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
               <>
                 <ProductSection 
                   title="추천 상품" 
-                  linkTo={`/shop/${shopUrl}/products`} 
+                  linkTo={`/shop/${actualShopUrl}/products`} 
                   products={filteredProducts.slice(0, 3)} 
                 />
 
                 <ProductSection 
                   title="신상품" 
-                  linkTo={`/shop/${shopUrl}/new`} 
+                  linkTo={`/shop/${actualShopUrl}/new`} 
                   products={filteredProducts.slice(3, 6)} 
                 />
               </>
@@ -112,7 +127,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
       </main>
 
       {/* Footer */}
-      <ShopFooter shopName={shopData.shopName} shopUrl={shopUrl || ''} />
+      <ShopFooter shopName={shopData.shopName} shopUrl={actualShopUrl || ''} />
     </div>
   );
 };

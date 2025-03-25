@@ -12,6 +12,11 @@ interface ProductItemProps {
 const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   const { addToCart } = useCart();
 
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to product detail
+    addToCart(product);
+  };
+
   return (
     <div className="relative group overflow-hidden bg-white rounded-lg shadow-sm">
       <div className="relative h-48 w-full overflow-hidden">
@@ -25,7 +30,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
           variant="secondary"
           size="icon"
           className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100"
-          onClick={() => addToCart(product)}
+          onClick={handleCartClick}
         >
           <ShoppingCart className="h-4 w-4" />
         </Button>
@@ -61,6 +66,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-sm text-gray-500 hover:text-blue-600 flex items-center"
+            onClick={(e) => e.stopPropagation()} // Prevent navigation to product detail
           >
             <ExternalLink className="h-3 w-3 mr-1" />
             <span>외부 링크</span>

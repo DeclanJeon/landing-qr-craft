@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,11 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-const ProductRegistrationForm = () => {
+interface ProductRegistrationFormProps {
+  onSuccessfulSubmit?: () => void;
+}
+
+const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuccessfulSubmit }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
@@ -129,10 +132,15 @@ const ProductRegistrationForm = () => {
     form.reset();
     setPreviewImage("");
     setQrCodeUrl("");
+    
+    // Call the callback if provided
+    if (onSuccessfulSubmit) {
+      onSuccessfulSubmit();
+    }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
+    <div className="bg-white rounded-lg">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           <Form {...form}>

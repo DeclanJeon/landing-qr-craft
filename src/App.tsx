@@ -52,6 +52,7 @@ const App = () => (
             <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/product/:productId" element={<ShopPage />} />
             
             {/* Redirect old shop routes to new structure */}
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />

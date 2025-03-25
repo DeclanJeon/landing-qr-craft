@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Search, Home, Users, Info, Settings, Store, QrCode, MessageSquare } from 'lucide-react';
+import { Heart, Search, Home, Info, Settings, Store, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Cart from './Cart';
 import ProductRegistrationModal from './ProductRegistrationModal';
@@ -59,24 +59,6 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
               <Link to={`/shop/${shopUrl}/services`} className={`flex items-center font-medium ${page === 'services' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <Store className="h-4 w-4 mr-1 md:mr-2" />
                 <span>서비스</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={`/shop/${shopUrl}/qrcodes`} className={`flex items-center font-medium ${page === 'qrcodes' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <QrCode className="h-4 w-4 mr-1 md:mr-2" />
-                <span>QR 코드</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={`/shop/${shopUrl}/community`} className={`flex items-center font-medium ${page === 'community' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <Users className="h-4 w-4 mr-1 md:mr-2" />
-                <span>커뮤니티</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={`/shop/${shopUrl}/support`} className={`flex items-center font-medium ${page === 'support' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <MessageSquare className="h-4 w-4 mr-1 md:mr-2" />
-                <span>고객지원</span>
               </Link>
             </li>
           </ul>

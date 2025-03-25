@@ -3,15 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Users, ExternalLink, QrCode, ShoppingCart, PlusCircle, Info, Store } from 'lucide-react';
+import { ExternalLink, PlusCircle } from 'lucide-react';
 import ShopHeader from './shop/ShopHeader';
 import ShopFooter from './shop/ShopFooter';
 import ShopSidebar from './shop/ShopSidebar';
 import ShopHero from './shop/ShopHero';
 import ProductSection from './shop/ProductSection';
-import QRCodeDisplay from './shop/QRCodeDisplay';
-import ForumPage from './community/ForumPage';
-import GroupChatPage from './community/GroupChatPage';
 import ProductItem from './shop/ProductItem';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
@@ -34,7 +31,6 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
   const [shopData, setShopData] = useState<ShopData | null>(null);
   const [activeTab, setActiveTab] = useState<string>("products");
-  const [communityTab, setCommunityTab] = useState<string>("forum");
   const { getCartCount } = useCart();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -115,123 +111,99 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           </div>
         </div>
       );
-    } else if (page === 'qrcodes') {
-      return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">QR 코드</h2>
-          <p className="mb-6">각 상품 및 링크에 대한 QR 코드를 확인하고 다운로드할 수 있습니다.</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map(product => (
-              <QRCodeDisplay key={product.id} product={product} />
-            ))}
-          </div>
-          
-          {filteredProducts.length === 0 && (
-            <p className="text-center text-gray-500 py-8">QR 코드를 생성할 상품이 없습니다.</p>
-          )}
-        </div>
-      );
-    } else if (page === 'community') {
-      return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">커뮤니티</h2>
-          
-          <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
-            <TabsList className="mb-6 grid w-full grid-cols-3">
-              <TabsTrigger value="forum">포럼</TabsTrigger>
-              <TabsTrigger value="groupchat">그룹 채팅</TabsTrigger>
-              <TabsTrigger value="voice">음성 채팅</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="forum">
-              <ForumPage />
-            </TabsContent>
-            
-            <TabsContent value="groupchat">
-              <GroupChatPage type="text" />
-            </TabsContent>
-            
-            <TabsContent value="voice">
-              <GroupChatPage type="voice" />
-            </TabsContent>
-          </Tabs>
-        </div>
-      );
-    } else if (page === 'support') {
-      return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">고객 지원</h2>
-          <p className="mb-6">질문이나 문제가 있으시면 아래의 방법으로 문의해 주세요.</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-4 border rounded-lg">
-              <h3 className="text-lg font-semibold mb-2">이메일 문의</h3>
-              <p className="mb-2">평일 9:00 - 18:00 이내 답변</p>
-              <a href={`mailto:${shopData?.email || 'support@peermall.com'}`} className="text-blue-600 hover:underline">
-                {shopData?.email || 'support@peermall.com'}
-              </a>
-            </div>
-            
-            <div className="p-4 border rounded-lg">
-              <h3 className="text-lg font-semibold mb-2">전화 문의</h3>
-              <p className="mb-2">평일 9:00 - 18:00</p>
-              <a href={`tel:${shopData?.contactNumber || '02-123-4567'}`} className="text-blue-600 hover:underline">
-                {shopData?.contactNumber || '02-123-4567'}
-              </a>
-            </div>
-          </div>
-          
-          <div className="mt-6 p-4 border rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">자주 묻는 질문</h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium">Q: 배송은 얼마나 걸리나요?</h4>
-                <p className="text-gray-700">A: 본 페이지는 외부 링크를 모아두는 프로모션 페이지로, 실제 배송은 각 판매처의 정책을 따릅니다.</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Q: 교환이나 환불은 어떻게 하나요?</h4>
-                <p className="text-gray-700">A: 각 상품의 판매처에 직접 문의하시기 바랍니다. 본 페이지는 직접적인 판매를 하지 않습니다.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
     } else {
       return (
         <>
           <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {selectedCategoryId > 0 
-                  ? (categories.find(cat => cat.id === selectedCategoryId)?.name || '상품 목록') 
-                  : '추천 상품 및 링크'}
-              </h2>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center"
-                onClick={() => setIsProductModalOpen(true)}
-              >
-                <PlusCircle className="h-4 w-4 mr-1" />
-                <span>상품 등록</span>
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
-                <ProductItem key={product.id} product={product} />
-              ))}
-            </div>
-            
-            {filteredProducts.length === 0 && (
-              <p className="text-center text-gray-500 py-8">해당 카테고리에 상품이 없습니다.</p>
-            )}
+            {/* Tabs for different product sections */}
+            <Tabs defaultValue="products" className="w-full mb-6">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="products">상품 및 링크</TabsTrigger>
+                <TabsTrigger value="qrcodes">QR 코드</TabsTrigger>
+                <TabsTrigger value="community">커뮤니티</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="products">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">
+                    {selectedCategoryId > 0 
+                      ? (categories.find(cat => cat.id === selectedCategoryId)?.name || '상품 목록') 
+                      : '추천 상품 및 링크'}
+                  </h2>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center"
+                    onClick={() => setIsProductModalOpen(true)}
+                  >
+                    <PlusCircle className="h-4 w-4 mr-1" />
+                    <span>상품 등록</span>
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map(product => (
+                    <ProductItem key={product.id} product={product} />
+                  ))}
+                </div>
+                
+                {filteredProducts.length === 0 && (
+                  <p className="text-center text-gray-500 py-8">해당 카테고리에 상품이 없습니다.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="qrcodes">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-4">QR 코드</h2>
+                  <p className="text-gray-600">각 상품 및 링크에 대한 QR 코드를 확인하고 다운로드할 수 있습니다.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map(product => (
+                    <div key={product.id} className="border p-4 rounded-lg">
+                      <h3 className="font-medium mb-2">{product.name}</h3>
+                      <div className="bg-gray-100 p-4 flex justify-center rounded-md">
+                        {/* QR 코드 자리 */}
+                        <div className="w-32 h-32 border flex items-center justify-center">
+                          QR Code
+                        </div>
+                      </div>
+                      <a
+                        href={product.externalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-blue-600 text-sm mt-2 justify-end"
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        <span>링크</span>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="community">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-4">커뮤니티</h2>
+                  <p className="text-gray-600">고객들과 자유롭게 소통할 수 있는 공간입니다.</p>
+                </div>
+                
+                <div className="border p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-4">게시판</h3>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <p className="text-gray-500">아직 게시글이 없습니다. 첫 번째 게시글을 작성해보세요!</p>
+                    </div>
+                    <Button className="w-full">게시글 작성</Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
           
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-6">
             <div className="flex items-start">
-              <ShoppingCart className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
+              <ExternalLink className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
               <div>
                 <h3 className="font-medium text-blue-700">링크 관심목록 정보</h3>
                 <p className="text-sm text-blue-600">

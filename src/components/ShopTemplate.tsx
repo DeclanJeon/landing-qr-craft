@@ -63,8 +63,8 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Banner */}
-        <ShopHero shopName={shopData.shopName} />
+        {/* Hero Banner with Shop Description */}
+        <ShopHero shopName={shopData.shopName} description={shopData.shopDescription} />
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}

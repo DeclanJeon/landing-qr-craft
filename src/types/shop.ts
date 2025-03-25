@@ -16,9 +16,11 @@ export interface Category {
 
 export interface ShopData {
   shopName: string;
+  shopDescription: string;
   shopUrl: string;
   ownerName: string;
   contactNumber: string;
   email: string;
   address: string;
+  faviconUrl?: string;
 }

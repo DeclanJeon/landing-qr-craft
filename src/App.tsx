@@ -36,9 +36,17 @@ const App = () => (
           <Route path="/customer-service" element={<CustomerService />} />
           <Route path="/community" element={<Community />} />
           <Route path="/site-integration" element={<SiteIntegration />} />
-          <Route path="/shop/:shopUrl" element={<ShopPage />} />
-          <Route path="/shop/:shopUrl/:page" element={<ShopPage />} />
+          
+          {/* Updated shop routes with new URL structure */}
+          <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
+          <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
           <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
+          
+          {/* Redirect old shop routes to new structure */}
+          <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
+          <Route path="/shop/:shopUrl/:page" element={<Navigate to="/shop/:shopUrl/home" replace />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

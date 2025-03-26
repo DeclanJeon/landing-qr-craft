@@ -10,7 +10,8 @@ const ShopPage = () => {
     <ShopTemplate 
       shopUrl={shopUrl} 
       page={page} 
-      categoryId={categoryId ? parseInt(categoryId) : undefined} 
+      categoryId={categoryId ? parseInt(categoryId) : undefined}
+      productId={productId}
     />
   );
 };

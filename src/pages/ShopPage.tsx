@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import ShopTemplate from '@/components/ShopTemplate';
 
 const ShopPage = () => {
-  const { shopUrl, page, categoryId } = useParams();
+  const { shopUrl, page, categoryId, productId } = useParams();
   
   return (
     <ShopTemplate 

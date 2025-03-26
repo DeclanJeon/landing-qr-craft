@@ -5,9 +5,15 @@ import { Link } from 'react-router-dom';
 interface ShopFooterProps {
   shopName: string;
   shopUrl: string;
+  shopData?: {
+    ownerName?: string;
+    contactNumber?: string;
+    email?: string;
+    address?: string;
+  };
 }
 
-const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl }) => {
+const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl, shopData }) => {
   return (
     <footer className="bg-gray-800 text-white py-10">
       <div className="container mx-auto px-4">
@@ -24,6 +30,7 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl }) => {
               <h4 className="text-lg font-medium mb-3">쇼핑몰 정보</h4>
               <ul className="space-y-2">
                 <li><Link to={`/shop/${shopUrl}/about`} className="text-gray-400 hover:text-white">소개</Link></li>
+                <li><Link to={`/shop/${shopUrl}/service`} className="text-gray-400 hover:text-white">서비스</Link></li>
                 <li><Link to={`/shop/${shopUrl}/terms`} className="text-gray-400 hover:text-white">이용약관</Link></li>
                 <li><Link to={`/shop/${shopUrl}/privacy`} className="text-gray-400 hover:text-white">개인정보처리방침</Link></li>
               </ul>
@@ -36,6 +43,18 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl }) => {
                 <li><Link to={`/shop/${shopUrl}/contact`} className="text-gray-400 hover:text-white">문의하기</Link></li>
                 <li><Link to={`/shop/${shopUrl}/shipping`} className="text-gray-400 hover:text-white">배송 안내</Link></li>
               </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-medium mb-3">연락처 정보</h4>
+              {shopData && (
+                <ul className="space-y-2 text-gray-400">
+                  {shopData.ownerName && <li>대표자: {shopData.ownerName}</li>}
+                  {shopData.contactNumber && <li>연락처: {shopData.contactNumber}</li>}
+                  {shopData.email && <li>이메일: {shopData.email}</li>}
+                  {shopData.address && <li>주소: {shopData.address}</li>}
+                </ul>
+              )}
             </div>
           </div>
         </div>

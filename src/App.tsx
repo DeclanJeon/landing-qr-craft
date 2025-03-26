@@ -49,10 +49,16 @@ const App = () => (
             <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/community" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/support" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/service" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/product/:productId" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/terms" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/privacy" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
             
             {/* Redirect old shop routes to new structure */}
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />

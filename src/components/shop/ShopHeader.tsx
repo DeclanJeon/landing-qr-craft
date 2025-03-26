@@ -40,25 +40,19 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
             <li>
               <Link to={`/shop/${shopUrl}/home`} className={`flex items-center font-medium ${(!page || page === 'home') ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <ExternalLink className="h-4 w-4 mr-1 md:mr-2" />
-                <span>상품/링크</span>
+                <span>홈</span>
               </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/qrcodes`} className={`flex items-center font-medium ${page === 'qrcodes' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+              <Link to={`/shop/${shopUrl}/about`} className={`flex items-center font-medium ${page === 'about' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <QrCode className="h-4 w-4 mr-1 md:mr-2" />
-                <span>QR 코드</span>
+                <span>소개</span>
               </Link>
             </li>
             <li>
-              <Link to={`/shop/${shopUrl}/community`} className={`flex items-center font-medium ${page === 'community' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+              <Link to={`/shop/${shopUrl}/service`} className={`flex items-center font-medium ${page === 'service' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <Users className="h-4 w-4 mr-1 md:mr-2" />
-                <span>커뮤니티</span>
-              </Link>
-            </li>
-            <li>
-              <Link to={`/shop/${shopUrl}/support`} className={`flex items-center font-medium ${page === 'support' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
-                <MessageSquare className="h-4 w-4 mr-1 md:mr-2" />
-                <span>고객지원</span>
+                <span>서비스</span>
               </Link>
             </li>
           </ul>

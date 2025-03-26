@@ -118,16 +118,16 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           {/* Sidebar */}
-          <ShopSidebar 
+          {/* <ShopSidebar 
             categories={categories} 
             shopUrl={actualShopUrl} 
             shopData={shopData}
             selectedCategoryId={selectedCategoryId}
             onCategorySelect={handleCategorySelect}
-          />
+          /> */}
 
           {/* Main Content */}
-          <div className="lg:w-3/4">
+          <div className="w-full">
             {/* Show Product Detail Page if productId is provided */}
             {productId ? (
               <ProductDetailPage />

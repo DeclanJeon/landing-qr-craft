@@ -24,15 +24,14 @@ interface ShopTemplateProps {
   shopUrl?: string;
   page?: string;
   categoryId?: number;
-  productId?: string;
 }
 
-const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, productId }) => {
+const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }) => {
   const params = useParams();
   const navigate = useNavigate();
   const actualShopUrl = shopUrl || params.shopUrl;
   const categoryParam = categoryId || (params.categoryId ? Number(params.categoryId) : 0);
-  const productIdParam = params.productId;
+  const productId = params.productId;
   
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(categoryParam || 0);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
@@ -43,11 +42,14 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
   const { getCartCount } = useCart();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
+  // Get shop data from localStorage
   useEffect(() => {
     const shopDataString = localStorage.getItem('peermallShopData');
     const parsedShopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
     
+    // If there's no shop data or the URLs don't match, shop might not exist
     if (!parsedShopData || (actualShopUrl && parsedShopData.shopUrl !== actualShopUrl)) {
+      // Only navigate if we're on a shop page
       if (window.location.pathname.includes('/shop/')) {
         setShopData(null);
       }
@@ -55,27 +57,34 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
       setShopData(parsedShopData);
     }
 
+    // Load products from localStorage
     const storedProducts = localStorage.getItem('peermall-products');
     if (storedProducts) {
       setLocalProducts(JSON.parse(storedProducts));
     }
   }, [actualShopUrl]);
   
+  // Filter products when selectedCategoryId changes
   useEffect(() => {
+    // Combine sample products with local products
     const allProducts = [...sampleProducts, ...localProducts];
     
     if (selectedCategoryId === 0) {
+      // Show all products when no category is selected
       setFilteredProducts(allProducts);
     } else {
+      // Filter products by selected category
       const filtered = allProducts.filter(product => product.categoryId === selectedCategoryId);
       setFilteredProducts(filtered);
     }
   }, [selectedCategoryId, localProducts]);
 
+  // Handle category selection
   const handleCategorySelect = (categoryId: number) => {
     setSelectedCategoryId(categoryId);
   };
 
+  // Open product registration modal
   const openProductRegistration = () => {
     setIsProductRegistrationOpen(true);
   };
@@ -92,11 +101,14 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
     );
   }
 
+  // Render content based on the current page
   const renderContent = () => {
+    // Show product detail page if productId is provided
     if (productId) {
       return <ProductDetailPage />;
     }
 
+    // Show specific pages based on the route
     if (page === 'about') {
       return <AboutPage shopData={shopData} />;
     }
@@ -105,6 +117,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
       return <ServicePage shopData={shopData} />;
     }
 
+    // Show default homepage/products content
     return (
       <Tabs defaultValue="products" value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
         <TabsList className="grid grid-cols-4 mb-8">
@@ -126,6 +139,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
           </TabsTrigger>
         </TabsList>
 
+        {/* Products/Links Tab Content */}
         <TabsContent value="products" className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-6">
@@ -153,6 +167,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
             )}
           </div>
           
+          {/* Shopping Cart Note (Link Aggregator) */}
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
             <div className="flex items-start">
               <ShoppingCart className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
@@ -167,6 +182,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
           </div>
         </TabsContent>
 
+        {/* QR Codes Tab Content */}
         <TabsContent value="qrcodes" className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold mb-6">QR 코드 목록</h2>
@@ -185,6 +201,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
           </div>
         </TabsContent>
 
+        {/* Community Tab Content */}
         <TabsContent value="community" className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
@@ -226,6 +243,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
           </div>
         </TabsContent>
 
+        {/* Support Tab Content */}
         <TabsContent value="support" className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold mb-6">고객 지원</h2>
@@ -280,31 +298,39 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Shop Header */}
       <ShopHeader shopName={shopData.shopName} shopUrl={actualShopUrl || ''} page={page} />
 
+      {/* Product Registration Modal */}
       <ProductRegistrationModal 
         open={isProductRegistrationOpen} 
         onClose={() => setIsProductRegistrationOpen(false)} 
       />
 
+      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* Hero Banner with Shop Description */}
         {page !== 'about' && page !== 'service' && !productId && (
           <ShopHero shopName={shopData.shopName} description={shopData.shopDescription} />
         )}
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
-          <ShopSidebar 
+          {/* Sidebar */}
+          {/* <ShopSidebar 
             categories={categories} 
             shopUrl={actualShopUrl} 
             shopData={shopData}
             selectedCategoryId={selectedCategoryId}
             onCategorySelect={handleCategorySelect}
-          />
+          /> */}
 
+          {/* Main Content */}
           <div className="w-full">
+            {/* Show Product Detail Page if productId is provided */}
             {productId ? (
               <ProductDetailPage />
             ) : (
+              /* Tabs for different sections */
               <Tabs defaultValue="products" value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
                 <TabsList className="grid grid-cols-4 mb-8">
                   <TabsTrigger value="products" className="flex items-center gap-2">
@@ -325,6 +351,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
                   </TabsTrigger>
                 </TabsList>
 
+                {/* Products/Links Tab Content */}
                 <TabsContent value="products" className="space-y-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="flex justify-between items-center mb-6">
@@ -352,6 +379,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
                     )}
                   </div>
                   
+                  {/* Shopping Cart Note (Link Aggregator) */}
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                     <div className="flex items-start">
                       <ShoppingCart className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
@@ -366,6 +394,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
                   </div>
                 </TabsContent>
 
+                {/* QR Codes Tab Content */}
                 <TabsContent value="qrcodes" className="space-y-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h2 className="text-2xl font-bold mb-6">QR 코드 목록</h2>
@@ -384,6 +413,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
                   </div>
                 </TabsContent>
 
+                {/* Community Tab Content */}
                 <TabsContent value="community" className="space-y-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
@@ -425,6 +455,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
                   </div>
                 </TabsContent>
 
+                {/* Support Tab Content */}
                 <TabsContent value="support" className="space-y-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h2 className="text-2xl font-bold mb-6">고객 지원</h2>
@@ -479,6 +510,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId, 
         </div>
       </main>
 
+      {/* Footer */}
       <ShopFooter 
         shopName={shopData.shopName} 
         shopUrl={actualShopUrl || ''} 

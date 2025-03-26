@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Image } from 'lucide-react';
+import { ShopData } from '@/types/shop';
 
 const formSchema = z.object({
   shopName: z.string().min(2, {
@@ -83,10 +84,16 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
   };
 
   const onSubmit = (values: FormValues) => {
-    // Add favicon to the values
-    const shopData = {
-      ...values,
-      faviconUrl: faviconPreview,
+    // Create a properly typed ShopData object
+    const shopData: ShopData = {
+      shopName: values.shopName,
+      shopDescription: values.shopDescription,
+      shopUrl: values.shopUrl,
+      contactNumber: values.contactNumber,
+      email: values.email,
+      address: values.address,
+      ownerName: values.ownerName,
+      faviconUrl: faviconPreview || undefined,
       location: values.address.split(' ')[0],
       category: values.shopDescription.split(' ')[0],
       rating: 5.0

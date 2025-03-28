@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Phone } from 'lucide-react';
 
 interface ShopFooterProps {
   shopName: string;
@@ -50,9 +51,15 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl, shopData }) 
               {shopData && (
                 <ul className="space-y-2 text-gray-400">
                   {shopData.ownerName && <li>대표자: {shopData.ownerName}</li>}
-                  {shopData.contactNumber && <li>연락처: {shopData.contactNumber}</li>}
+                  {shopData.contactNumber && (
+                    <li className="flex items-center">
+                      <Link to={`/shop/${shopUrl}/call`} className="flex items-center hover:text-white">
+                        <Phone className="h-4 w-4 mr-2" />
+                        연락처: {shopData.contactNumber}
+                      </Link>
+                    </li>
+                  )}
                   {shopData.email && <li>이메일: {shopData.email}</li>}
-                  {shopData.address && <li>주소: {shopData.address}</li>}
                 </ul>
               )}
             </div>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode } from "lucide-react";
+import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Product } from "@/types/shop";
 import { z } from "zod";
@@ -46,6 +46,7 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
   const [products, setProducts] = useState<Product[]>([]);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [isExtractingImage, setIsExtractingImage] = useState(false);
   
   // Load existing products from localStorage
   useEffect(() => {
@@ -85,6 +86,60 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
       setQrCodeUrl(generateQrCodeUrl(watchExternalUrl));
     }
   }, [watchExternalUrl]);
+
+  // Extract image from URL (simulated function)
+  const extractImageFromUrl = async () => {
+    const externalUrl = form.getValues("externalUrl");
+    if (!externalUrl) {
+      toast({
+        title: "URL을 입력해주세요",
+        description: "이미지를 추출할 외부 URL을 먼저 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsExtractingImage(true);
+    
+    // Simulate API call to extract image
+    try {
+      // In a real implementation, this would be an API call to a service that extracts images from URLs
+      // For demo purposes, we'll simulate a delay and return a placeholder image
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Determine a placeholder image based on the URL domain
+      const url = new URL(externalUrl);
+      let imageUrl: string;
+      
+      if (url.hostname.includes('amazon')) {
+        imageUrl = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7';
+      } else if (url.hostname.includes('apple')) {
+        imageUrl = 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b';
+      } else if (url.hostname.includes('samsung')) {
+        imageUrl = 'https://images.unsplash.com/photo-1518770660439-4636190af475';
+      } else {
+        // Default image
+        imageUrl = 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d';
+      }
+      
+      // Update the form with the extracted image URL
+      form.setValue("imageUrl", imageUrl);
+      setPreviewImage(imageUrl);
+      
+      toast({
+        title: "이미지 추출 완료",
+        description: "외부 URL에서 대표 이미지를 추출했습니다.",
+      });
+    } catch (error) {
+      toast({
+        title: "이미지 추출 실패",
+        description: "이미지를 추출하는 중 오류가 발생했습니다. 수동으로 이미지 URL을 입력해주세요.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExtractingImage(false);
+    }
+  };
 
   // Handle form submission
   const onSubmit = (data: ProductFormValues) => {
@@ -175,15 +230,30 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
               
               <FormField
                 control={form.control}
-                name="imageUrl"
+                name="externalUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>이미지 URL *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="상품 이미지 URL을 입력하세요" {...field} />
-                    </FormControl>
+                    <FormLabel>판매 URL *</FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input placeholder="https://example.com/product" {...field} />
+                      </FormControl>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={extractImageFromUrl}
+                        disabled={isExtractingImage || !field.value}
+                      >
+                        {isExtractingImage ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Image className="h-4 w-4 mr-2" />
+                        )}
+                        이미지 추출
+                      </Button>
+                    </div>
                     <FormDescription>
-                      상품 이미지의 URL 주소를 입력하세요.
+                      실제 상품이 판매되는 URL을 입력하고, "이미지 추출" 버튼을 클릭하여 대표 이미지를 자동으로 추출할 수 있습니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -192,15 +262,15 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
               
               <FormField
                 control={form.control}
-                name="externalUrl"
+                name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>판매 URL *</FormLabel>
+                    <FormLabel>이미지 URL *</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://example.com/product" {...field} />
+                      <Input placeholder="상품 이미지 URL을 입력하세요" {...field} />
                     </FormControl>
                     <FormDescription>
-                      실제 상품이 판매되는 URL을 입력하세요.
+                      "이미지 추출" 기능을 사용하면 자동으로 채워집니다. 수동으로 입력할 수도 있습니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

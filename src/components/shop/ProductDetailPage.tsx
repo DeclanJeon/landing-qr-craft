@@ -8,12 +8,23 @@ import {
   ShieldCheck,
   Shield,
   Truck,
-  FileText
+  FileText,
+  MessageSquare,
+  Phone,
+  Video,
+  Monitor,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 const ProductDetailPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -21,6 +32,8 @@ const ProductDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [vendors, setVendors] = useState<{name: string, rating: number, price: string}[]>([]);
 
   useEffect(() => {
     // Fetch product data from localStorage and sample data
@@ -34,13 +47,27 @@ const ProductDetailPage: React.FC = () => {
       // Import sampleProducts dynamically
       import('@/constants/sampleData').then(({ sampleProducts }) => {
         // Combine local and sample products
-        const allProducts = [...sampleProducts, ...localProducts];
+        const allProducts = [...localProducts];
         
         // Find the product with the matching ID
         const foundProduct = allProducts.find(p => p.id.toString() === productId);
         
         if (foundProduct) {
           setProduct(foundProduct);
+          
+          // Find related products (same category)
+          const related = allProducts
+            .filter(p => p.categoryId === foundProduct.categoryId && p.id !== foundProduct.id)
+            .slice(0, 3);
+          setRelatedProducts(related);
+          
+          // Generate mock vendors
+          const mockVendors = [
+            { name: '공식 스토어', rating: 4.9, price: foundProduct.price },
+            { name: '프리미엄 리셀러', rating: 4.7, price: `${parseInt(foundProduct.price.replace(/[^\d]/g, '')) * 1.05}원` },
+            { name: '인증 파트너샵', rating: 4.5, price: `${parseInt(foundProduct.price.replace(/[^\d]/g, '')) * 0.95}원` }
+          ];
+          setVendors(mockVendors);
         }
         
         setIsLoading(false);
@@ -72,7 +99,35 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  // New functions for the added buttons
+  const handleConsultChat = () => {
+    toast({
+      title: "채팅 상담 시작",
+      description: "상담원과의 채팅이 곧 연결됩니다.",
+    });
+  };
+
+  const handleConsultVoice = () => {
+    toast({
+      title: "음성 상담 연결",
+      description: "음성 상담이 연결 중입니다. 잠시만 기다려주세요.",
+    });
+  };
+
+  const handleConsultVideo = () => {
+    toast({
+      title: "화상 상담 연결",
+      description: "화상 상담이 연결 중입니다. 잠시만 기다려주세요.",
+    });
+  };
+
+  const handleMeeting = () => {
+    toast({
+      title: "화상 미팅 예약",
+      description: "화면 공유 및 화이트보드 기능이 포함된 화상 미팅을 예약합니다.",
+    });
+  };
+
+  // Previous functions for the existing buttons
   const handleAuthenticity = () => {
     toast({
       title: "진품 인증 정보",
@@ -188,9 +243,37 @@ const ProductDetailPage: React.FC = () => {
             <Button variant="outline" className="w-full" size="lg" onClick={handleAddToCart}>
               장바구니에 담기
             </Button>
+            
+            {/* New Consult Dropdown Button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="w-full" size="lg">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  상담하기
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuItem onClick={handleConsultChat}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  채팅 상담
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleConsultVoice}>
+                  <Phone className="mr-2 h-4 w-4" />
+                  음성 상담
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleConsultVideo}>
+                  <Video className="mr-2 h-4 w-4" />
+                  화상 상담
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMeeting}>
+                  <Monitor className="mr-2 h-4 w-4" />
+                  화상 미팅 (화면공유, 화이트보드)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           
-          {/* New Information Buttons */}
+          {/* Information Buttons */}
           <div className="grid grid-cols-2 gap-2 mb-6">
             <Button variant="outline" onClick={handleAuthenticity} className="flex items-center justify-start">
               <ShieldCheck className="h-4 w-4 mr-2" />
@@ -215,6 +298,62 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Vendors Section */}
+      <div className="mt-10 border-t pt-8">
+        <h2 className="text-xl font-bold mb-4">판매처 목록</h2>
+        <div className="space-y-3">
+          {vendors.map((vendor, index) => (
+            <div key={index} className="p-4 border rounded-lg flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">{vendor.name}</h3>
+                <div className="flex items-center mt-1">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={`text-sm ${i < Math.floor(vendor.rating) ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-500 ml-1">{vendor.rating.toFixed(1)}</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-blue-600">{vendor.price}</p>
+                <Button size="sm" variant="outline" className="mt-2">
+                  방문하기
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-10 border-t pt-8">
+          <h2 className="text-xl font-bold mb-4">관련 상품</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {relatedProducts.map(relatedProduct => (
+              <div 
+                key={relatedProduct.id} 
+                className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => navigate(`/shop/${window.location.pathname.split('/')[2]}/product/${relatedProduct.id}`)}
+              >
+                <div className="aspect-video bg-gray-100 overflow-hidden">
+                  <img 
+                    src={relatedProduct.imageUrl} 
+                    alt={relatedProduct.name}
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <div className="p-3">
+                  <h3 className="font-medium truncate">{relatedProduct.name}</h3>
+                  <p className="text-blue-600 font-bold mt-1">{relatedProduct.price}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

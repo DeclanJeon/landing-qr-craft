@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import ShopTemplate from '@/components/ShopTemplate';
@@ -15,7 +16,7 @@ const ShopPage = () => {
       shopUrl={shopUrl} 
       page={page} // "about" 또는 "service", 없으면 undefined
       categoryId={undefined} // 현재 경로에 categoryId가 없으므로 undefined
-      productId={productId}
+      productId={productId} // Pass the productId parameter
     />
   );
 };

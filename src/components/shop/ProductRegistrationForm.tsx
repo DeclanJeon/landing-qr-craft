@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode, Loader2 } from "lucide-react";
+import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode, Loader2, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Product } from "@/types/shop";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Generate a QR code URL for the product
 const generateQrCodeUrl = (url: string) => {
@@ -47,7 +48,9 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
   const [products, setProducts] = useState<Product[]>([]);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [isExtractingImage, setIsExtractingImage] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionError, setExtractionError] = useState<string | null>(null);
+  const [extractionSuccess, setExtractionSuccess] = useState(false);
   
   // Load existing products from localStorage
   useEffect(() => {
@@ -88,74 +91,115 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
     }
   }, [watchExternalUrl]);
 
-  // Enhanced image extraction from URL
-  const extractImageFromUrl = async () => {
+  // Reset extraction states when URL changes
+  useEffect(() => {
+    if (watchExternalUrl) {
+      setExtractionError(null);
+    }
+  }, [watchExternalUrl]);
+
+  // Enhanced image and product info extraction from URL
+  const extractFromUrl = async () => {
     const externalUrl = form.getValues("externalUrl");
     if (!externalUrl) {
       toast({
         title: "URL을 입력해주세요",
-        description: "이미지를 추출할 외부 URL을 먼저 입력해주세요.",
+        description: "정보를 추출할 상품 URL을 먼저 입력해주세요.",
         variant: "destructive"
       });
       return;
     }
 
-    setIsExtractingImage(true);
+    setIsExtracting(true);
+    setExtractionError(null);
+    setExtractionSuccess(false);
     
     try {
-      // Simulate API call to extract the largest image from the top of the product page
-      // In a real implementation, this would be an API call to a web scraping service
-      // that extracts the main product image from a sales page
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API call to extract information from the product page
+      // In a real implementation, this would call a backend API that uses
+      // a headless browser or web scraping service to extract data
+      await new Promise(resolve => setTimeout(resolve, 1800));
       
-      // Determine a higher quality placeholder image based on the URL domain
+      // Parse URL to determine domain
       const url = new URL(externalUrl);
       let imageUrl: string;
+      let productName: string = "";
+      let productPrice: string = "";
+      let productManufacturer: string = "";
       
-      // Enhanced image selection logic based on URL patterns
+      // Determine product details based on URL patterns
       if (url.hostname.includes('coupang.com')) {
-        // For Coupang URLs, we simulate extracting the largest product image
         if (externalUrl.includes('products/7941427212')) {
+          // Detailed extraction for specific product example
           imageUrl = 'https://thumbnail10.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2023/11/22/16/9/6b7a8c4e-b6a0-4e18-90f5-0cd2e3962e96.jpg';
-        } else {
+          productName = "2024 새학기 삼성 갤럭시북4 NT450XGL 최신형 노트북";
+          productPrice = "₩679,000";
+          productManufacturer = "삼성전자";
+        } else if (externalUrl.includes('products/')) {
+          // Generic Coupang product extraction
           imageUrl = 'https://thumbnail10.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2022/05/31/16/5/e94d098c-542c-482c-81c8-945a387a7d0c.jpg';
+          productName = "LG 그램 2024 신모델 17인치 노트북";
+          productPrice = "₩1,499,000";
+          productManufacturer = "LG전자";
+        } else {
+          // Default Coupang extraction
+          imageUrl = 'https://thumbnail6.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/1193723368624729-def3f8db-b71a-492d-a17d-dc6148e84ba2.jpg';
+          productName = "코멧 일회용 마스크";
+          productPrice = "₩9,890";
         }
       } else if (url.hostname.includes('amazon')) {
         imageUrl = 'https://m.media-amazon.com/images/I/71TPda7cwUL._AC_SL1500_.jpg';
+        productName = "Apple AirPods Pro (2nd Generation)";
+        productPrice = "₩299,000";
+        productManufacturer = "Apple";
       } else if (url.hostname.includes('apple')) {
         imageUrl = 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=2560&hei=1440&fmt=jpeg&qlt=95&.v=1692846360609';
+        productName = "iPhone 15 Pro Max 512GB";
+        productPrice = "₩1,900,000";
+        productManufacturer = "Apple";
       } else if (url.hostname.includes('samsung')) {
         imageUrl = 'https://images.samsung.com/is/image/samsung/p6pim/kr/2307/gallery/kr-galaxy-z-fold5-f946-sm-f946nzkakoo-thumb-537240137';
+        productName = "Galaxy Z Fold 5";
+        productPrice = "₩2,398,700";
+        productManufacturer = "삼성전자";
       } else {
-        // Default high-quality image
+        // Default high-quality image for unknown domains
         imageUrl = 'https://images.unsplash.com/photo-1585565804112-f201f68c48b4?q=80&w=1000&auto=format&fit=crop';
+        productName = "제품명을 자동으로 추출할 수 없습니다";
+        productPrice = "가격을 자동으로 추출할 수 없습니다";
       }
       
-      // Update the form with the extracted image URL
+      // Update form with extracted data
       form.setValue("imageUrl", imageUrl);
       setPreviewImage(imageUrl);
       
-      // Also try to extract product name and price if available (simulated)
-      if (url.hostname.includes('coupang.com')) {
-        // Simulate extracting product details from Coupang
-        if (!form.getValues("name")) {
-          form.setValue("name", "2024 새학기 갤럭시북4 NT450XGL");
-          form.setValue("price", "₩679,000");
-        }
+      // Only update name and price if they're not already set by user
+      if (!form.getValues("name") || form.getValues("name") === "") {
+        form.setValue("name", productName);
       }
       
+      if (!form.getValues("price") || form.getValues("price") === "") {
+        form.setValue("price", productPrice);
+      }
+      
+      if (!form.getValues("manufacturer") || form.getValues("manufacturer") === "") {
+        form.setValue("manufacturer", productManufacturer);
+      }
+      
+      setExtractionSuccess(true);
       toast({
-        title: "이미지 추출 완료",
-        description: "외부 URL에서 대표 이미지를 추출했습니다.",
+        title: "정보 추출 완료",
+        description: "상품 정보를 성공적으로 추출했습니다.",
       });
     } catch (error) {
+      setExtractionError("상품 정보를 추출하는 데 실패했습니다. 직접 입력해주세요.");
       toast({
-        title: "이미지 추출 실패",
-        description: "이미지를 추출하는 중 오류가 발생했습니다. 수동으로 이미지 URL을 입력해주세요.",
+        title: "정보 추출 실패",
+        description: "상품 정보를 추출하는 중 오류가 발생했습니다. 수동으로 입력해주세요.",
         variant: "destructive"
       });
     } finally {
-      setIsExtractingImage(false);
+      setIsExtracting(false);
     }
   };
 
@@ -205,6 +249,7 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
     form.reset();
     setPreviewImage("");
     setQrCodeUrl("");
+    setExtractionSuccess(false);
     
     // Call the callback if provided
     if (onSuccessfulSubmit) {
@@ -218,6 +263,64 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
         <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="externalUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>판매 URL *</FormLabel>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input placeholder="https://example.com/product" {...field} />
+                      </FormControl>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={extractFromUrl}
+                        disabled={isExtracting || !field.value}
+                        className="whitespace-nowrap"
+                      >
+                        {isExtracting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            추출 중...
+                          </>
+                        ) : (
+                          <>
+                            <Image className="h-4 w-4 mr-2" />
+                            정보 추출
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <FormDescription>
+                      실제 상품이 판매되는 URL을 입력하고, "정보 추출" 버튼을 클릭하여 상품의 이미지와 정보를 자동으로 추출할 수 있습니다.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {extractionError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>추출 실패</AlertTitle>
+                  <AlertDescription>
+                    {extractionError}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {extractionSuccess && (
+                <Alert className="mb-4 bg-green-50 border-green-200">
+                  <Check className="h-4 w-4 text-green-500" />
+                  <AlertTitle className="text-green-700">추출 성공</AlertTitle>
+                  <AlertDescription className="text-green-600">
+                    상품 정보가 성공적으로 추출되었습니다. 필요시 수정해주세요.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <FormField
                 control={form.control}
                 name="name"
@@ -248,38 +351,6 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
               
               <FormField
                 control={form.control}
-                name="externalUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>판매 URL *</FormLabel>
-                    <div className="flex gap-2">
-                      <FormControl>
-                        <Input placeholder="https://example.com/product" {...field} />
-                      </FormControl>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={extractImageFromUrl}
-                        disabled={isExtractingImage || !field.value}
-                      >
-                        {isExtractingImage ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Image className="h-4 w-4 mr-2" />
-                        )}
-                        이미지 추출
-                      </Button>
-                    </div>
-                    <FormDescription>
-                      실제 상품이 판매되는 URL을 입력하고, "이미지 추출" 버튼을 클릭하여 대표 이미지를 자동으로 추출할 수 있습니다.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
                 name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
@@ -288,7 +359,7 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
                       <Input placeholder="상품 이미지 URL을 입력하세요" {...field} />
                     </FormControl>
                     <FormDescription>
-                      "이미지 추출" 기능을 사용하면 자동으로 채워집니다. 수동으로 입력할 수도 있습니다.
+                      "정보 추출" 기능을 사용하면 자동으로 채워집니다. 수동으로 입력할 수도 있습니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

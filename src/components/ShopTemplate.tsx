@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,29 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
     setIsProductRegistrationOpen(true);
   };
 
+  const handleDeleteProduct = (productId: number) => {
+    // Filter out the product with the given id
+    const updatedProducts = localProducts.filter(product => product.id !== productId);
+    
+    // Update local state
+    setLocalProducts(updatedProducts);
+    
+    // Update localStorage
+    localStorage.setItem('peermall-products', JSON.stringify(updatedProducts));
+    
+    // Also update QR codes list if needed
+    const storedQRCodes = localStorage.getItem('peermall-qrcodes');
+    if (storedQRCodes) {
+      const qrCodes = JSON.parse(storedQRCodes);
+      // Find the product name to filter QR codes
+      const productToDelete = localProducts.find(p => p.id === productId);
+      if (productToDelete) {
+        const updatedQRCodes = qrCodes.filter((qr: any) => qr.name !== productToDelete.name);
+        localStorage.setItem('peermall-qrcodes', JSON.stringify(updatedQRCodes));
+      }
+    }
+  };
+
   if (!shopData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -144,7 +168,10 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map(product => (
                   <div key={product.id} className="cursor-pointer" onClick={() => navigate(`/shop/${actualShopUrl}/product/${product.id}`)}>
-                    <ProductItem product={product} />
+                    <ProductItem 
+                      product={product} 
+                      onDelete={handleDeleteProduct}
+                    />
                   </div>
                 ))}
               </div>

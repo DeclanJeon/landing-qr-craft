@@ -47,8 +47,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Review interface
 interface Review {
   id: string;
   title: string;
@@ -59,7 +59,6 @@ interface Review {
   date: string;
 }
 
-// MyMall interface
 interface MyMall {
   id: string;
   userName: string;
@@ -187,56 +186,139 @@ const ProductDetailPage: React.FC = () => {
       setIsLinkProcessing(true);
       setLinkError(null);
 
-      const domain = new URL(newReviewLink).hostname;
-      const sourceName = domain.replace('www.', '').split('.')[0];
-      const formattedSource = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
-      
       let newReview: Review = {
         id: Date.now().toString(),
         title: `리뷰 ${reviews.length + 1}`,
         author: "불명",
-        source: formattedSource,
+        source: "웹사이트",
         imageUrl: "https://placehold.co/200x150",
         linkUrl: newReviewLink,
         date: new Date().toISOString().split('T')[0]
       };
 
       try {
-        const response = await fetch(`https://cors-anywhere.herokuapp.com/${newReviewLink}`);
+        const url = new URL(newReviewLink);
+        const domain = url.hostname.replace('www.', '');
+        const sourceName = domain.split('.')[0];
+        const formattedSource = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
+        newReview.source = formattedSource;
+
+        console.log("Fetching URL:", newReviewLink);
+        const proxyUrl = `https://cors-anywhere.herokuapp.com/${newReviewLink}`;
+        const response = await fetch(proxyUrl);
+        
+        if (!response.ok) {
+          console.error("Failed to fetch URL:", response.status);
+          throw new Error(`Failed to fetch URL: ${response.status}`);
+        }
+        
         const html = await response.text();
         
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        const metaTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                          doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
-                          doc.querySelector('title')?.textContent;
+        const metaTitle = 
+          doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+          doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
+          doc.querySelector('title')?.textContent ||
+          newReview.title;
         
         if (metaTitle) {
           newReview.title = metaTitle;
         }
         
-        const metaImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
-                         doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
+        const metaImage = 
+          doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+          doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
         
         if (metaImage) {
           if (metaImage.startsWith('/')) {
-            const url = new URL(newReviewLink);
             newReview.imageUrl = `${url.origin}${metaImage}`;
           } else if (metaImage.startsWith('http')) {
             newReview.imageUrl = metaImage;
           }
+        } else {
+          const images = Array.from(doc.querySelectorAll('img')).filter(img => {
+            const src = img.getAttribute('src');
+            return src && 
+                 !src.includes('avatar') && 
+                 !src.includes('icon') && 
+                 !src.includes('logo') &&
+                 (img.width > 100 || img.height > 100 || !img.width);
+          });
+          
+          if (images.length > 0) {
+            let imgSrc = images[0].getAttribute('src');
+            if (imgSrc) {
+              if (imgSrc.startsWith('/')) {
+                newReview.imageUrl = `${url.origin}${imgSrc}`;
+              } else if (imgSrc.startsWith('http')) {
+                newReview.imageUrl = imgSrc;
+              } else {
+                newReview.imageUrl = `${url.origin}/${imgSrc}`;
+              }
+            }
+          }
         }
         
-        const metaAuthor = doc.querySelector('meta[name="author"]')?.getAttribute('content') ||
-                          doc.querySelector('meta[property="article:author"]')?.getAttribute('content');
+        const metaAuthor = 
+          doc.querySelector('meta[name="author"]')?.getAttribute('content') ||
+          doc.querySelector('meta[property="article:author"]')?.getAttribute('content') ||
+          doc.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
         
         if (metaAuthor) {
           newReview.author = metaAuthor;
+        } else {
+          const authorElements = doc.querySelectorAll('.author, .byline, [rel="author"]');
+          if (authorElements.length > 0) {
+            const authorText = authorElements[0].textContent?.trim();
+            if (authorText) {
+              newReview.author = authorText;
+            }
+          }
         }
+        
+        const dateElements = doc.querySelectorAll('time, .date, .published, meta[property="article:published_time"]');
+        if (dateElements.length > 0) {
+          const dateElement = dateElements[0];
+          
+          if (dateElement.tagName === 'META') {
+            const dateContent = dateElement.getAttribute('content');
+            if (dateContent) {
+              try {
+                newReview.date = new Date(dateContent).toISOString().split('T')[0];
+              } catch (e) {
+                console.error("Failed to parse date from meta tag:", e);
+              }
+            }
+          } else if (dateElement.hasAttribute('datetime')) {
+            const dateTime = dateElement.getAttribute('datetime');
+            if (dateTime) {
+              try {
+                newReview.date = new Date(dateTime).toISOString().split('T')[0];
+              } catch (e) {
+                console.error("Failed to parse datetime attribute:", e);
+              }
+            }
+          } else {
+            const dateText = dateElement.textContent?.trim();
+            if (dateText) {
+              try {
+                newReview.date = new Date(dateText).toISOString().split('T')[0];
+              } catch (e) {
+                console.error("Failed to parse date from text:", e);
+              }
+            }
+          }
+        }
+        
+        console.log("Extracted review data:", newReview);
       } catch (error) {
         console.error("Error extracting metadata:", error);
-        setLinkError("유효한 URL을 입력해주세요");
+        toast({
+          title: "메타데이터 추출 문제",
+          description: "페이지 정보를 추출하는 데 어려움이 있습니다. 기본 정보를 사용합니다.",
+        });
       }
       
       const updatedReviews = [...reviews, newReview];
@@ -598,15 +680,19 @@ const ProductDetailPage: React.FC = () => {
                 {reviews.map(review => (
                   <div key={review.id} className="border rounded-lg overflow-hidden">
                     <div className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr]">
-                      <div className="bg-gray-100 h-[150px]">
-                        <img 
-                          src={review.imageUrl} 
-                          alt={review.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://placehold.co/200x150";
-                          }}
-                        />
+                      <div className="bg-gray-100 h-[150px] relative">
+                        {isLoading ? (
+                          <Skeleton className="w-full h-full" />
+                        ) : (
+                          <img 
+                            src={review.imageUrl} 
+                            alt={review.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://placehold.co/200x150";
+                            }}
+                          />
+                        )}
                       </div>
                       <div className="p-4 flex flex-col">
                         <div className="flex items-start justify-between">

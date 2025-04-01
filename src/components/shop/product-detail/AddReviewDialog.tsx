@@ -358,7 +358,7 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
                   name="linkUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>원문 링크 URL (선택사항)</FormLabel>
+                      <FormLabel>원문 링크 URL</FormLabel>
                       <FormControl>
                         <Input placeholder="https://example.com/review" {...field} />
                       </FormControl>

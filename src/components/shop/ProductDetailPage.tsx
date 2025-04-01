@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -17,7 +16,8 @@ import {
   Link,
   Plus,
   Trash2,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/shop';
@@ -76,41 +76,34 @@ const ProductDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [vendors, setVendors] = useState<{name: string, rating: number, price: string}[]>([]);
-  
-  // New states for the added features
   const [reviews, setReviews] = useState<Review[]>([]);
   const [myMalls, setMyMalls] = useState<MyMall[]>([]);
   const [newReviewLink, setNewReviewLink] = useState('');
   const [isAddingReview, setIsAddingReview] = useState(false);
   const [activeTab, setActiveTab] = useState('product-info');
+  const [isLinkProcessing, setIsLinkProcessing] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch product data from localStorage and sample data
     const fetchProduct = () => {
       setIsLoading(true);
       
-      // Get stored products from localStorage
       const storedProducts = localStorage.getItem('peermall-products');
       const localProducts = storedProducts ? JSON.parse(storedProducts) : [];
       
-      // Import sampleProducts dynamically
       import('@/constants/sampleData').then(({ sampleProducts }) => {
-        // Combine local and sample products
         const allProducts = [...localProducts];
         
-        // Find the product with the matching ID
         const foundProduct = allProducts.find(p => p.id.toString() === productId);
         
         if (foundProduct) {
           setProduct(foundProduct);
           
-          // Find related products (same category)
           const related = allProducts
             .filter(p => p.categoryId === foundProduct.categoryId && p.id !== foundProduct.id)
             .slice(0, 3);
           setRelatedProducts(related);
           
-          // Generate mock vendors
           const mockVendors = [
             { name: '공식 스토어', rating: 4.9, price: foundProduct.price },
             { name: '프리미엄 리셀러', rating: 4.7, price: `${parseInt(foundProduct.price.replace(/[^\d]/g, '')) * 1.05}원` },
@@ -118,7 +111,6 @@ const ProductDetailPage: React.FC = () => {
           ];
           setVendors(mockVendors);
           
-          // Load reviews and myMalls from localStorage
           loadReviews(foundProduct.id);
           loadMyMalls(foundProduct.id);
         }
@@ -132,13 +124,11 @@ const ProductDetailPage: React.FC = () => {
     }
   }, [productId]);
 
-  // Load reviews from localStorage
   const loadReviews = (productId: number) => {
     const storedReviews = localStorage.getItem(`peermall-reviews-${productId}`);
     if (storedReviews) {
       setReviews(JSON.parse(storedReviews));
     } else {
-      // Mock data for initial experience
       const mockReviews: Review[] = [
         {
           id: "1",
@@ -164,13 +154,11 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  // Load myMalls from localStorage
   const loadMyMalls = (productId: number) => {
     const storedMyMalls = localStorage.getItem(`peermall-mymalls-${productId}`);
     if (storedMyMalls) {
       setMyMalls(JSON.parse(storedMyMalls));
     } else {
-      // Mock data for initial experience
       const mockMyMalls: MyMall[] = [
         {
           id: "1",
@@ -192,34 +180,84 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  // Add a new review link
-  const handleAddReviewLink = () => {
+  const handleAddReviewLink = async () => {
     if (!newReviewLink.trim() || !product) return;
     
-    const newReview: Review = {
-      id: Date.now().toString(),
-      title: `리뷰 ${reviews.length + 1}`, // Simplified for now as we're not extracting real data
-      author: "사용자",
-      source: new URL(newReviewLink).hostname,
-      imageUrl: "https://placehold.co/200x150", // Placeholder as we're not extracting real images
-      linkUrl: newReviewLink,
-      date: new Date().toISOString().split('T')[0]
-    };
-    
-    const updatedReviews = [...reviews, newReview];
-    setReviews(updatedReviews);
-    localStorage.setItem(`peermall-reviews-${product.id}`, JSON.stringify(updatedReviews));
-    
-    setNewReviewLink('');
-    setIsAddingReview(false);
-    
-    toast({
-      title: "리뷰 링크가 추가되었습니다",
-      description: "제품 상세 페이지에 리뷰 링크가 성공적으로 추가되었습니다.",
-    });
+    try {
+      setIsLinkProcessing(true);
+      setLinkError(null);
+
+      const domain = new URL(newReviewLink).hostname;
+      const sourceName = domain.replace('www.', '').split('.')[0];
+      const formattedSource = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
+      
+      let newReview: Review = {
+        id: Date.now().toString(),
+        title: `리뷰 ${reviews.length + 1}`,
+        author: "불명",
+        source: formattedSource,
+        imageUrl: "https://placehold.co/200x150",
+        linkUrl: newReviewLink,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      try {
+        const response = await fetch(`https://cors-anywhere.herokuapp.com/${newReviewLink}`);
+        const html = await response.text();
+        
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const metaTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+                          doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
+                          doc.querySelector('title')?.textContent;
+        
+        if (metaTitle) {
+          newReview.title = metaTitle;
+        }
+        
+        const metaImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+                         doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
+        
+        if (metaImage) {
+          if (metaImage.startsWith('/')) {
+            const url = new URL(newReviewLink);
+            newReview.imageUrl = `${url.origin}${metaImage}`;
+          } else if (metaImage.startsWith('http')) {
+            newReview.imageUrl = metaImage;
+          }
+        }
+        
+        const metaAuthor = doc.querySelector('meta[name="author"]')?.getAttribute('content') ||
+                          doc.querySelector('meta[property="article:author"]')?.getAttribute('content');
+        
+        if (metaAuthor) {
+          newReview.author = metaAuthor;
+        }
+      } catch (error) {
+        console.error("Error extracting metadata:", error);
+        setLinkError("유효한 URL을 입력해주세요");
+      }
+      
+      const updatedReviews = [...reviews, newReview];
+      setReviews(updatedReviews);
+      localStorage.setItem(`peermall-reviews-${product.id}`, JSON.stringify(updatedReviews));
+      
+      setNewReviewLink('');
+      setIsAddingReview(false);
+      
+      toast({
+        title: "리뷰 링크가 추가되었습니다",
+        description: "제품 상세 페이지에 리뷰 링크가 성공적으로 추가되었습니다.",
+      });
+    } catch (error) {
+      console.error("Error adding review link:", error);
+      setLinkError("유효한 URL을 입력해주세요");
+    } finally {
+      setIsLinkProcessing(false);
+    }
   };
 
-  // Delete a review link
   const handleDeleteReview = (reviewId: string) => {
     if (!product) return;
     
@@ -233,7 +271,6 @@ const ProductDetailPage: React.FC = () => {
     });
   };
 
-  // Handler functions for existing buttons
   const handleBuyNow = () => {
     if (product?.externalUrl) {
       window.open(product.externalUrl, '_blank');
@@ -282,7 +319,6 @@ const ProductDetailPage: React.FC = () => {
     });
   };
 
-  // Previous functions for the existing buttons
   const handleAuthenticity = () => {
     toast({
       title: "진품 인증 정보",
@@ -334,7 +370,6 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
-      {/* Back button */}
       <Button 
         variant="ghost" 
         size="sm" 
@@ -346,7 +381,6 @@ const ProductDetailPage: React.FC = () => {
       </Button>
       
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Product Image */}
         <div className="relative">
           <img 
             src={product.imageUrl} 
@@ -363,7 +397,6 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Product Information */}
         <div>
           <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
           <p className="text-3xl font-bold text-blue-600 mb-6">{product.price}</p>
@@ -390,7 +423,6 @@ const ProductDetailPage: React.FC = () => {
             </div>
           )}
           
-          {/* Action Buttons */}
           <div className="flex flex-col space-y-4 mb-8">
             <Button className="w-full" size="lg" onClick={handleBuyNow}>
               바로 구매하기
@@ -399,7 +431,6 @@ const ProductDetailPage: React.FC = () => {
               장바구니에 담기
             </Button>
             
-            {/* New Consult Dropdown Button */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" className="w-full" size="lg">
@@ -424,7 +455,6 @@ const ProductDetailPage: React.FC = () => {
             </DropdownMenu>
           </div>
           
-          {/* Information Buttons */}
           <div className="grid grid-cols-2 gap-2 mb-6">
             <Button variant="outline" onClick={handleAuthenticity} className="flex items-center justify-start">
               <ShieldCheck className="h-4 w-4 mr-2" />
@@ -450,7 +480,6 @@ const ProductDetailPage: React.FC = () => {
         </div>
       </div>
       
-      {/* New Tabs Section for Product Info, Reviews, and MyMalls */}
       <div className="mt-10 border-t pt-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 mb-8">
@@ -460,7 +489,6 @@ const ProductDetailPage: React.FC = () => {
           </TabsList>
           
           <TabsContent value="product-info">
-            {/* Vendors Section */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4">판매처 목록</h2>
               <div className="space-y-3">
@@ -488,7 +516,6 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Product Specifications */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4">상품 상세 정보</h2>
               <Table>
@@ -530,17 +557,37 @@ const ProductDetailPage: React.FC = () => {
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <p className="text-sm text-gray-600">
-                      외부 사이트의 리뷰 링크를 추가하세요. 링크를 등록하면 자동으로 정보가 추출됩니다.
+                      외부 사이트의 리뷰 링크를 추가하세요. 링크를 등록하면 자동으로 제목과 이미지 정보가 추출됩니다.
                     </p>
-                    <Input 
-                      placeholder="https://example.com/review" 
-                      value={newReviewLink}
-                      onChange={(e) => setNewReviewLink(e.target.value)}
-                    />
+                    <div className="space-y-2">
+                      <Input 
+                        placeholder="https://example.com/review" 
+                        value={newReviewLink}
+                        onChange={(e) => {
+                          setNewReviewLink(e.target.value);
+                          setLinkError(null);
+                        }}
+                        className={linkError ? "border-red-500" : ""}
+                      />
+                      {linkError && <p className="text-sm text-red-500">{linkError}</p>}
+                    </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsAddingReview(false)}>취소</Button>
-                    <Button onClick={handleAddReviewLink}>추가</Button>
+                    <Button variant="outline" onClick={() => {
+                      setIsAddingReview(false);
+                      setLinkError(null);
+                    }}>취소</Button>
+                    <Button 
+                      onClick={handleAddReviewLink} 
+                      disabled={isLinkProcessing || !newReviewLink.trim()}
+                    >
+                      {isLinkProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          처리 중...
+                        </>
+                      ) : "추가"}
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -551,11 +598,14 @@ const ProductDetailPage: React.FC = () => {
                 {reviews.map(review => (
                   <div key={review.id} className="border rounded-lg overflow-hidden">
                     <div className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr]">
-                      <div className="bg-gray-100">
+                      <div className="bg-gray-100 h-[150px]">
                         <img 
                           src={review.imageUrl} 
                           alt={review.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "https://placehold.co/200x150";
+                          }}
                         />
                       </div>
                       <div className="p-4 flex flex-col">
@@ -650,7 +700,6 @@ const ProductDetailPage: React.FC = () => {
         </Tabs>
       </div>
       
-      {/* Related Products Section */}
       {relatedProducts.length > 0 && (
         <div className="mt-10 border-t pt-8">
           <h2 className="text-xl font-bold mb-4">관련 상품</h2>

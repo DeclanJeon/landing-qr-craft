@@ -51,7 +51,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
       <TabsList className="grid grid-cols-3 mb-8">
         <TabsTrigger value="product-info">상품 정보</TabsTrigger>
         <TabsTrigger value="reviews">리뷰 모음</TabsTrigger>
-        <TabsTrigger value="my-malls">다른 사용자의 마이몰</TabsTrigger>
+        <TabsTrigger value="my-malls">다른 사용자의 피어몰</TabsTrigger>
       </TabsList>
       
       <TabsContent value="product-info">

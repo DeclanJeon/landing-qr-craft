@@ -13,7 +13,11 @@ import {
   Phone,
   Video,
   Monitor,
-  Users
+  Users,
+  Link,
+  Plus,
+  Trash2,
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/shop';
@@ -25,6 +29,44 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Review interface
+interface Review {
+  id: string;
+  title: string;
+  author: string;
+  source: string;
+  imageUrl: string;
+  linkUrl: string;
+  date: string;
+}
+
+// MyMall interface
+interface MyMall {
+  id: string;
+  userName: string;
+  userImageUrl: string;
+  comment: string;
+  date: string;
+}
 
 const ProductDetailPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -34,6 +76,13 @@ const ProductDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [vendors, setVendors] = useState<{name: string, rating: number, price: string}[]>([]);
+  
+  // New states for the added features
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [myMalls, setMyMalls] = useState<MyMall[]>([]);
+  const [newReviewLink, setNewReviewLink] = useState('');
+  const [isAddingReview, setIsAddingReview] = useState(false);
+  const [activeTab, setActiveTab] = useState('product-info');
 
   useEffect(() => {
     // Fetch product data from localStorage and sample data
@@ -68,6 +117,10 @@ const ProductDetailPage: React.FC = () => {
             { name: '인증 파트너샵', rating: 4.5, price: `${parseInt(foundProduct.price.replace(/[^\d]/g, '')) * 0.95}원` }
           ];
           setVendors(mockVendors);
+          
+          // Load reviews and myMalls from localStorage
+          loadReviews(foundProduct.id);
+          loadMyMalls(foundProduct.id);
         }
         
         setIsLoading(false);
@@ -79,6 +132,108 @@ const ProductDetailPage: React.FC = () => {
     }
   }, [productId]);
 
+  // Load reviews from localStorage
+  const loadReviews = (productId: number) => {
+    const storedReviews = localStorage.getItem(`peermall-reviews-${productId}`);
+    if (storedReviews) {
+      setReviews(JSON.parse(storedReviews));
+    } else {
+      // Mock data for initial experience
+      const mockReviews: Review[] = [
+        {
+          id: "1",
+          title: "상품 사용 후기: 기대 이상입니다!",
+          author: "테크리뷰어",
+          source: "블로그",
+          imageUrl: "https://placehold.co/200x150",
+          linkUrl: "https://example.com/review1",
+          date: "2023-10-15"
+        },
+        {
+          id: "2",
+          title: "1개월 사용 후 정직한 리뷰",
+          author: "일상리뷰",
+          source: "유튜브",
+          imageUrl: "https://placehold.co/200x150",
+          linkUrl: "https://example.com/review2",
+          date: "2023-09-20"
+        }
+      ];
+      setReviews(mockReviews);
+      localStorage.setItem(`peermall-reviews-${productId}`, JSON.stringify(mockReviews));
+    }
+  };
+
+  // Load myMalls from localStorage
+  const loadMyMalls = (productId: number) => {
+    const storedMyMalls = localStorage.getItem(`peermall-mymalls-${productId}`);
+    if (storedMyMalls) {
+      setMyMalls(JSON.parse(storedMyMalls));
+    } else {
+      // Mock data for initial experience
+      const mockMyMalls: MyMall[] = [
+        {
+          id: "1",
+          userName: "김민수",
+          userImageUrl: "https://placehold.co/40",
+          comment: "이 상품 강력 추천합니다!",
+          date: "2023-10-16"
+        },
+        {
+          id: "2",
+          userName: "이지은",
+          userImageUrl: "https://placehold.co/40",
+          comment: "저도 사용중인데 만족스러워요",
+          date: "2023-10-10"
+        }
+      ];
+      setMyMalls(mockMyMalls);
+      localStorage.setItem(`peermall-mymalls-${productId}`, JSON.stringify(mockMyMalls));
+    }
+  };
+
+  // Add a new review link
+  const handleAddReviewLink = () => {
+    if (!newReviewLink.trim() || !product) return;
+    
+    const newReview: Review = {
+      id: Date.now().toString(),
+      title: `리뷰 ${reviews.length + 1}`, // Simplified for now as we're not extracting real data
+      author: "사용자",
+      source: new URL(newReviewLink).hostname,
+      imageUrl: "https://placehold.co/200x150", // Placeholder as we're not extracting real images
+      linkUrl: newReviewLink,
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    const updatedReviews = [...reviews, newReview];
+    setReviews(updatedReviews);
+    localStorage.setItem(`peermall-reviews-${product.id}`, JSON.stringify(updatedReviews));
+    
+    setNewReviewLink('');
+    setIsAddingReview(false);
+    
+    toast({
+      title: "리뷰 링크가 추가되었습니다",
+      description: "제품 상세 페이지에 리뷰 링크가 성공적으로 추가되었습니다.",
+    });
+  };
+
+  // Delete a review link
+  const handleDeleteReview = (reviewId: string) => {
+    if (!product) return;
+    
+    const updatedReviews = reviews.filter(review => review.id !== reviewId);
+    setReviews(updatedReviews);
+    localStorage.setItem(`peermall-reviews-${product.id}`, JSON.stringify(updatedReviews));
+    
+    toast({
+      title: "리뷰 링크가 삭제되었습니다",
+      description: "제품 상세 페이지에서 리뷰 링크가 성공적으로 삭제되었습니다.",
+    });
+  };
+
+  // Handler functions for existing buttons
   const handleBuyNow = () => {
     if (product?.externalUrl) {
       window.open(product.externalUrl, '_blank');
@@ -295,32 +450,204 @@ const ProductDetailPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Vendors Section */}
+      {/* New Tabs Section for Product Info, Reviews, and MyMalls */}
       <div className="mt-10 border-t pt-8">
-        <h2 className="text-xl font-bold mb-4">판매처 목록</h2>
-        <div className="space-y-3">
-          {vendors.map((vendor, index) => (
-            <div key={index} className="p-4 border rounded-lg flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{vendor.name}</h3>
-                <div className="flex items-center mt-1">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={`text-sm ${i < Math.floor(vendor.rating) ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
-                    ))}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-3 mb-8">
+            <TabsTrigger value="product-info">상품 정보</TabsTrigger>
+            <TabsTrigger value="reviews">리뷰 모음</TabsTrigger>
+            <TabsTrigger value="my-malls">다른 사용자의 마이몰</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="product-info">
+            {/* Vendors Section */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4">판매처 목록</h2>
+              <div className="space-y-3">
+                {vendors.map((vendor, index) => (
+                  <div key={index} className="p-4 border rounded-lg flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">{vendor.name}</h3>
+                      <div className="flex items-center mt-1">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`text-sm ${i < Math.floor(vendor.rating) ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-500 ml-1">{vendor.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-blue-600">{vendor.price}</p>
+                      <Button size="sm" variant="outline" className="mt-2">
+                        방문하기
+                      </Button>
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-500 ml-1">{vendor.rating.toFixed(1)}</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-blue-600">{vendor.price}</p>
-                <Button size="sm" variant="outline" className="mt-2">
-                  방문하기
-                </Button>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+            
+            {/* Product Specifications */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4">상품 상세 정보</h2>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">제품명</TableCell>
+                    <TableCell>{product.name}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">제조사</TableCell>
+                    <TableCell>{product.manufacturer || '-'}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">유통사</TableCell>
+                    <TableCell>{product.distributor || '-'}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">가격</TableCell>
+                    <TableCell>{product.price}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="reviews">
+            <div className="mb-6 flex justify-between items-center">
+              <h2 className="text-xl font-bold">리뷰 모음</h2>
+              <Dialog open={isAddingReview} onOpenChange={setIsAddingReview}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    <Plus className="h-4 w-4 mr-1" />
+                    <span>리뷰 링크 추가</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>리뷰 링크 추가</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <p className="text-sm text-gray-600">
+                      외부 사이트의 리뷰 링크를 추가하세요. 링크를 등록하면 자동으로 정보가 추출됩니다.
+                    </p>
+                    <Input 
+                      placeholder="https://example.com/review" 
+                      value={newReviewLink}
+                      onChange={(e) => setNewReviewLink(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddingReview(false)}>취소</Button>
+                    <Button onClick={handleAddReviewLink}>추가</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            {reviews.length > 0 ? (
+              <div className="space-y-4">
+                {reviews.map(review => (
+                  <div key={review.id} className="border rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr]">
+                      <div className="bg-gray-100">
+                        <img 
+                          src={review.imageUrl} 
+                          alt={review.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-4 flex flex-col">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-medium text-lg mb-1 line-clamp-2">{review.title}</h3>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {review.author} • {review.source} • {review.date}
+                            </p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="text-red-500 h-8 w-8"
+                            onClick={() => handleDeleteReview(review.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="mt-auto">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex items-center mt-2"
+                            onClick={() => window.open(review.linkUrl, '_blank')}
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            원문 보기
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 리뷰가 없습니다</h3>
+                <p className="text-gray-500 mb-4">첫 번째 리뷰 링크를 추가해보세요.</p>
+                <Button onClick={() => setIsAddingReview(true)} className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  리뷰 링크 추가하기
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="my-malls">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold">다른 사용자의 마이몰</h2>
+              <p className="text-gray-600 mt-1">이 상품을 포함한 다른 사용자의 마이몰 목록입니다.</p>
+            </div>
+            
+            {myMalls.length > 0 ? (
+              <div className="space-y-4">
+                {myMalls.map(mall => (
+                  <div key={mall.id} className="p-4 border rounded-lg flex items-start">
+                    <div className="flex-shrink-0 mr-4">
+                      <img 
+                        src={mall.userImageUrl} 
+                        alt={mall.userName}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center mb-1">
+                        <h3 className="font-medium">{mall.userName}님의 마이몰</h3>
+                        <span className="text-sm text-gray-500 ml-2">{mall.date}</span>
+                      </div>
+                      <p className="text-gray-700">{mall.comment}</p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-blue-600 mt-1"
+                        onClick={() => toast({
+                          title: "마이몰 방문",
+                          description: `${mall.userName}님의 마이몰로 이동합니다.`,
+                        })}
+                      >
+                        마이몰 방문하기
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 마이몰이 없습니다</h3>
+                <p className="text-gray-500">아직 이 상품을 포함한 다른 사용자의 마이몰이 없습니다.</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
       
       {/* Related Products Section */}

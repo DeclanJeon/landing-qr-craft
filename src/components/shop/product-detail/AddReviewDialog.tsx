@@ -19,13 +19,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-interface AddReviewDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAddLink: (link: string) => Promise<void>;
-  onAddManualReview: (review: ManualReviewData) => Promise<void>;
-}
-
 interface ManualReviewData {
   title: string;
   author: string;
@@ -33,6 +26,13 @@ interface ManualReviewData {
   imageUrl: string;
   linkUrl: string;
   date: string;
+}
+
+interface AddReviewDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAddLink: (link: string) => Promise<void>;
+  onAddManualReview: (review: ManualReviewData) => Promise<void>;
 }
 
 const formSchema = z.object({
@@ -91,13 +91,30 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
       
       // Simulate metadata extraction
       setTimeout(() => {
-        setPreviewData({
+        const mockPreviewData = {
           title: "리뷰 제목 (서버에서 실제 제목이 추출됩니다)",
           imageUrl: "https://placehold.co/200x150",
           author: "작성자 (실제 추출됩니다)",
           source: formattedSource,
           date: new Date().toISOString().split('T')[0]
-        });
+        };
+        
+        // Customize based on domain
+        if (url.hostname.includes('youtube') || url.hostname.includes('youtu.be')) {
+          mockPreviewData.title = "유튜브 리뷰 영상";
+          mockPreviewData.author = "유튜브 채널";
+          mockPreviewData.imageUrl = "https://placehold.co/200x150/FF0000/FFFFFF?text=YouTube";
+        } else if (url.hostname.includes('instagram')) {
+          mockPreviewData.title = "인스타그램 포스트";
+          mockPreviewData.author = "인스타그램 사용자";
+          mockPreviewData.imageUrl = "https://placehold.co/200x150/E1306C/FFFFFF?text=Instagram";
+        } else if (url.hostname.includes('blog')) {
+          mockPreviewData.title = "블로그 리뷰 포스트";
+          mockPreviewData.author = "블로그 작성자";
+          mockPreviewData.imageUrl = "https://placehold.co/200x150/FF9800/FFFFFF?text=Blog";
+        }
+        
+        setPreviewData(mockPreviewData);
         setIsPreviewLoading(false);
       }, 1000);
       
@@ -128,7 +145,18 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
   const handleAddManualReview = async (data: z.infer<typeof formSchema>) => {
     try {
       setIsLinkProcessing(true);
-      await onAddManualReview(data);
+      
+      // Ensure all required fields are present for ManualReviewData
+      const reviewData: ManualReviewData = {
+        title: data.title,
+        author: data.author,
+        source: data.source,
+        imageUrl: data.imageUrl || "https://placehold.co/200x150",
+        linkUrl: data.linkUrl || "",
+        date: data.date
+      };
+      
+      await onAddManualReview(reviewData);
       form.reset();
       setImagePreview(null);
       onOpenChange(false);

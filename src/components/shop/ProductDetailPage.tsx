@@ -249,7 +249,7 @@ const ProductDetailPage: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" className="w-full" size="lg">
                   <MessageSquare className="mr-2 h-4 w-4" />
-                  상담하기
+                  고객센터
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
@@ -264,10 +264,6 @@ const ProductDetailPage: React.FC = () => {
                 <DropdownMenuItem onClick={handleConsultVideo}>
                   <Video className="mr-2 h-4 w-4" />
                   화상 상담
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleMeeting}>
-                  <Monitor className="mr-2 h-4 w-4" />
-                  화상 미팅 (화면공유, 화이트보드)
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

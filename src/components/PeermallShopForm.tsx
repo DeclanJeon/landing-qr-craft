@@ -265,19 +265,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
             />
           </div>
           
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>주소</FormLabel>
-                <FormControl>
-                  <Input placeholder="서울특별시 강남구..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          
         </div>
         
         <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700">

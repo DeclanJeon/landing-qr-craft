@@ -105,7 +105,7 @@ const ProductDetailPage: React.FC = () => {
           id: "2",
           title: "1개월 사용 후 정직한 리뷰",
           author: "일상리뷰",
-          source: "유튜��",
+          source: "유튜",
           imageUrl: "https://placehold.co/200x150",
           linkUrl: "https://example.com/review2",
           date: "2023-09-20"
@@ -142,6 +142,59 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const extractMetadataFromUrl = async (url: string) => {
+    try {
+      console.log("Attempting to extract metadata from URL:", url);
+      
+      // Simulate a call to the scraping API
+      const mockResponse = {
+        title: `리뷰 ${reviews.length + 1}`,
+        image: "https://placehold.co/200x150",
+        author: "불명",
+        source: "웹사이트",
+        date: new Date().toISOString().split('T')[0]
+      };
+      
+      try {
+        const parsedUrl = new URL(url);
+        const domain = parsedUrl.hostname.replace('www.', '');
+        const sourceName = domain.split('.')[0];
+        mockResponse.source = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
+
+        // This would be where you'd call your scraping API
+        // For this demo, we'll simulate the response
+        // In a real implementation, you'd make a fetch call to your API endpoint
+        // Example: const response = await fetch(`/api/scrape?url=${encodeURIComponent(url)}`);
+        
+        // Simulate delay for API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simulate random metadata based on the URL
+        if (url.includes('blog')) {
+          mockResponse.title = "블로그에서 발견한 상세 리뷰";
+          mockResponse.author = "블로그 작성자";
+        } else if (url.includes('youtube') || url.includes('youtu.be')) {
+          mockResponse.title = "유튜브 리뷰 영상";
+          mockResponse.author = "유튜버";
+          mockResponse.image = "https://placehold.co/200x150/FF0000/FFFFFF?text=YouTube";
+        } else if (url.includes('instagram')) {
+          mockResponse.title = "인스타그램 게시물";
+          mockResponse.author = "인스타그래머";
+          mockResponse.image = "https://placehold.co/200x150/E1306C/FFFFFF?text=Instagram";
+        }
+        
+        console.log("Extracted metadata:", mockResponse);
+        return mockResponse;
+      } catch (parseError) {
+        console.error("Error parsing URL:", parseError);
+        return mockResponse;
+      }
+    } catch (error) {
+      console.error("Error extracting metadata:", error);
+      throw new Error("메타데이터 추출 중 오류가 발생했습니다");
+    }
+  };
+
   const handleAddReviewLink = async (newReviewLink: string) => {
     if (!newReviewLink.trim() || !product) return;
     
@@ -156,129 +209,23 @@ const ProductDetailPage: React.FC = () => {
         date: new Date().toISOString().split('T')[0]
       };
 
-      try {
-        const url = new URL(newReviewLink);
-        const domain = url.hostname.replace('www.', '');
-        const sourceName = domain.split('.')[0];
-        const formattedSource = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
-        newReview.source = formattedSource;
-
-        console.log("Fetching URL:", newReviewLink);
-        const proxyUrl = `https://cors-anywhere.herokuapp.com/${newReviewLink}`;
-        const response = await fetch(proxyUrl);
-        
-        if (!response.ok) {
-          console.error("Failed to fetch URL:", response.status);
-          throw new Error(`Failed to fetch URL: ${response.status}`);
-        }
-        
-        const html = await response.text();
-        
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        const metaTitle = 
-          doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-          doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
-          doc.querySelector('title')?.textContent ||
-          newReview.title;
-        
-        if (metaTitle) {
-          newReview.title = metaTitle;
-        }
-        
-        const metaImage = 
-          doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
-          doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
-        
-        if (metaImage) {
-          if (metaImage.startsWith('/')) {
-            newReview.imageUrl = `${url.origin}${metaImage}`;
-          } else if (metaImage.startsWith('http')) {
-            newReview.imageUrl = metaImage;
-          }
-        } else {
-          const images = Array.from(doc.querySelectorAll('img')).filter(img => {
-            const src = img.getAttribute('src');
-            return src && 
-                 !src.includes('avatar') && 
-                 !src.includes('icon') && 
-                 !src.includes('logo') &&
-                 (img.width > 100 || img.height > 100 || !img.width);
-          });
-          
-          if (images.length > 0) {
-            let imgSrc = images[0].getAttribute('src');
-            if (imgSrc) {
-              if (imgSrc.startsWith('/')) {
-                newReview.imageUrl = `${url.origin}${imgSrc}`;
-              } else if (imgSrc.startsWith('http')) {
-                newReview.imageUrl = imgSrc;
-              } else {
-                newReview.imageUrl = `${url.origin}/${imgSrc}`;
-              }
-            }
+      // Extract metadata from URL
+      const metadata = await extractMetadataFromUrl(newReviewLink);
+      if (metadata) {
+        newReview.title = metadata.title || newReview.title;
+        newReview.author = metadata.author || newReview.author;
+        newReview.source = metadata.source || newReview.source;
+        newReview.imageUrl = metadata.image || newReview.imageUrl;
+        if (metadata.date) {
+          try {
+            // Try to format the date
+            const formattedDate = new Date(metadata.date).toISOString().split('T')[0];
+            newReview.date = formattedDate;
+          } catch (e) {
+            console.error("Error formatting date:", e);
+            // Keep the default date
           }
         }
-        
-        const metaAuthor = 
-          doc.querySelector('meta[name="author"]')?.getAttribute('content') ||
-          doc.querySelector('meta[property="article:author"]')?.getAttribute('content') ||
-          doc.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
-        
-        if (metaAuthor) {
-          newReview.author = metaAuthor;
-        } else {
-          const authorElements = doc.querySelectorAll('.author, .byline, [rel="author"]');
-          if (authorElements.length > 0) {
-            const authorText = authorElements[0].textContent?.trim();
-            if (authorText) {
-              newReview.author = authorText;
-            }
-          }
-        }
-        
-        const dateElements = doc.querySelectorAll('time, .date, .published, meta[property="article:published_time"]');
-        if (dateElements.length > 0) {
-          const dateElement = dateElements[0];
-          
-          if (dateElement.tagName === 'META') {
-            const dateContent = dateElement.getAttribute('content');
-            if (dateContent) {
-              try {
-                newReview.date = new Date(dateContent).toISOString().split('T')[0];
-              } catch (e) {
-                console.error("Failed to parse date from meta tag:", e);
-              }
-            }
-          } else if (dateElement.hasAttribute('datetime')) {
-            const dateTime = dateElement.getAttribute('datetime');
-            if (dateTime) {
-              try {
-                newReview.date = new Date(dateTime).toISOString().split('T')[0];
-              } catch (e) {
-                console.error("Failed to parse datetime attribute:", e);
-              }
-            }
-          } else {
-            const dateText = dateElement.textContent?.trim();
-            if (dateText) {
-              try {
-                newReview.date = new Date(dateText).toISOString().split('T')[0];
-              } catch (e) {
-                console.error("Failed to parse date from text:", e);
-              }
-            }
-          }
-        }
-        
-        console.log("Extracted review data:", newReview);
-      } catch (error) {
-        console.error("Error extracting metadata:", error);
-        toast({
-          title: "메타데이터 추출 문제",
-          description: "페이지 정보를 추출하는 데 어려움이 있습니다. 기본 정보를 사용합니다.",
-        });
       }
       
       const updatedReviews = [...reviews, newReview];

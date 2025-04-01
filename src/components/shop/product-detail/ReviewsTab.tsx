@@ -45,6 +45,13 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
   const indexOfFirstReview = indexOfLastReview - ITEMS_PER_PAGE;
   const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
   
+  // Reset to first page if current page is out of bounds after deletion
+  React.useEffect(() => {
+    if (currentPage > 1 && indexOfFirstReview >= reviews.length) {
+      setCurrentPage(Math.max(1, Math.ceil(reviews.length / ITEMS_PER_PAGE)));
+    }
+  }, [reviews.length, currentPage, indexOfFirstReview]);
+
   // Handle page changes
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

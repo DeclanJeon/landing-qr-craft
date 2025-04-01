@@ -67,7 +67,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
           onClick={() => setIsAddingReview(true)}
         >
           <Plus className="h-4 w-4 mr-1" />
-          <span>리뷰 링크 추가</span>
+          <span>리뷰 추가</span>
         </Button>
       </div>
       
@@ -105,15 +105,17 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
                       </Button>
                     </div>
                     <div className="mt-auto">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex items-center mt-2"
-                        onClick={() => window.open(review.linkUrl, '_blank')}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-1" />
-                        원문 보기
-                      </Button>
+                      {review.linkUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center mt-2"
+                          onClick={() => window.open(review.linkUrl, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          원문 보기
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -154,10 +156,10 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
       ) : (
         <div className="text-center py-10 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 리뷰가 없습니다</h3>
-          <p className="text-gray-500 mb-4">첫 번째 리뷰 링크를 추가해보세요.</p>
+          <p className="text-gray-500 mb-4">첫 번째 리뷰를 추가해보세요.</p>
           <Button onClick={() => setIsAddingReview(true)} className="flex items-center">
             <Plus className="h-4 w-4 mr-2" />
-            리뷰 링크 추가하기
+            리뷰 추가하기
           </Button>
         </div>
       )}

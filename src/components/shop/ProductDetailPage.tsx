@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -106,7 +105,7 @@ const ProductDetailPage: React.FC = () => {
           id: "2",
           title: "1개월 사용 후 정직한 리뷰",
           author: "일상리뷰",
-          source: "유튜브",
+          source: "유튜��",
           imageUrl: "https://placehold.co/200x150",
           linkUrl: "https://example.com/review2",
           date: "2023-09-20"
@@ -296,6 +295,29 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const handleAddManualReview = async (review: Omit<Review, 'id'>) => {
+    if (!product) return;
+    
+    try {
+      const newReview: Review = {
+        ...review,
+        id: Date.now().toString(),
+      };
+      
+      const updatedReviews = [...reviews, newReview];
+      setReviews(updatedReviews);
+      localStorage.setItem(`peermall-reviews-${product.id}`, JSON.stringify(updatedReviews));
+      
+      toast({
+        title: "리뷰가 추가되었습니다",
+        description: "제품 상세 페이지에 리뷰가 성공적으로 추가되었습니다.",
+      });
+    } catch (error) {
+      console.error("Error adding manual review:", error);
+      throw new Error("리뷰 추가 중 오류가 발생했습니다");
+    }
+  };
+
   const handleDeleteReview = (reviewId: string) => {
     if (!product) return;
     
@@ -402,6 +424,7 @@ const ProductDetailPage: React.FC = () => {
         isOpen={isAddingReview} 
         onOpenChange={setIsAddingReview}
         onAddLink={handleAddReviewLink}
+        onAddManualReview={handleAddManualReview}
       />
     </div>
   );

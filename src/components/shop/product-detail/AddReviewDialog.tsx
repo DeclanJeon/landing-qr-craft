@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Loader2, Link as LinkIcon } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,18 +12,45 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface AddReviewDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onAddLink: (link: string) => Promise<void>;
+  onAddManualReview: (review: ManualReviewData) => Promise<void>;
 }
+
+interface ManualReviewData {
+  title: string;
+  author: string;
+  source: string;
+  imageUrl: string;
+  linkUrl: string;
+  date: string;
+}
+
+const formSchema = z.object({
+  title: z.string().min(1, { message: "제목을 입력해주세요" }),
+  author: z.string().min(1, { message: "작성자를 입력해주세요" }),
+  source: z.string().min(1, { message: "출처를 입력해주세요" }),
+  imageUrl: z.string().url({ message: "유효한 이미지 URL을 입력해주세요" }).or(z.string().length(0)),
+  linkUrl: z.string().url({ message: "유효한 URL을 입력해주세요" }).or(z.string().length(0)),
+  date: z.string().min(1, { message: "날짜를 입력해주세요" })
+});
 
 const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
   isOpen,
   onOpenChange,
-  onAddLink
+  onAddLink,
+  onAddManualReview
 }) => {
+  const [activeTab, setActiveTab] = useState<string>("auto");
   const [newReviewLink, setNewReviewLink] = useState('');
   const [isLinkProcessing, setIsLinkProcessing] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
@@ -35,6 +62,19 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
     date: string;
   } | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      author: "",
+      source: "",
+      imageUrl: "",
+      linkUrl: "",
+      date: new Date().toISOString().split('T')[0]
+    }
+  });
 
   const handlePreviewLink = async () => {
     if (!newReviewLink.trim()) return;
@@ -85,6 +125,31 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
     }
   };
 
+  const handleAddManualReview = async (data: z.infer<typeof formSchema>) => {
+    try {
+      setIsLinkProcessing(true);
+      await onAddManualReview(data);
+      form.reset();
+      setImagePreview(null);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error adding manual review:", error);
+    } finally {
+      setIsLinkProcessing(false);
+    }
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    form.setValue("imageUrl", url);
+    
+    if (url && url.match(/^(https?:\/\/)/)) {
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!isLinkProcessing) {
@@ -93,113 +158,254 @@ const AddReviewDialog: React.FC<AddReviewDialogProps> = ({
           setNewReviewLink('');
           setLinkError(null);
           setPreviewData(null);
+          setImagePreview(null);
+          form.reset();
+          setActiveTab("auto");
         }
       }
     }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>리뷰 링크 추가</DialogTitle>
+          <DialogTitle>리뷰 추가</DialogTitle>
           <DialogDescription>
-            외부 사이트의 리뷰 링크를 추가하세요. 링크를 등록하면 자동으로 제목과 이미지 정보가 추출됩니다.
+            자동으로 리뷰 정보를 추출하거나 수동으로 리뷰 정보를 직접 입력할 수 있습니다.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
-          <div className="flex space-x-2">
-            <Input 
-              placeholder="https://example.com/review" 
-              value={newReviewLink}
-              onChange={(e) => {
-                setNewReviewLink(e.target.value);
-                setLinkError(null);
-              }}
-              className={linkError ? "border-red-500" : ""}
-            />
-            <Button 
-              type="button" 
-              variant="secondary"
-              onClick={handlePreviewLink}
-              disabled={isPreviewLoading || !newReviewLink.trim()}
-            >
-              {isPreviewLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "미리보기"}
-            </Button>
-          </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger value="auto">자동 추출</TabsTrigger>
+            <TabsTrigger value="manual">수동 입력</TabsTrigger>
+          </TabsList>
           
-          {linkError && <p className="text-sm text-red-500">{linkError}</p>}
-          
-          {isPreviewLoading && (
-            <div className="border rounded-md p-4 space-y-4">
-              <div className="flex gap-4">
-                <Skeleton className="h-[100px] w-[120px] rounded-md" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+          <TabsContent value="auto" className="space-y-4">
+            <div className="flex space-x-2">
+              <Input 
+                placeholder="https://example.com/review" 
+                value={newReviewLink}
+                onChange={(e) => {
+                  setNewReviewLink(e.target.value);
+                  setLinkError(null);
+                }}
+                className={linkError ? "border-red-500" : ""}
+              />
+              <Button 
+                type="button" 
+                variant="secondary"
+                onClick={handlePreviewLink}
+                disabled={isPreviewLoading || !newReviewLink.trim()}
+              >
+                {isPreviewLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "미리보기"}
+              </Button>
+            </div>
+            
+            {linkError && <p className="text-sm text-red-500">{linkError}</p>}
+            
+            {isPreviewLoading && (
+              <div className="border rounded-md p-4 space-y-4">
+                <div className="flex gap-4">
+                  <Skeleton className="h-[100px] w-[120px] rounded-md" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
                 </div>
               </div>
+            )}
+            
+            {previewData && !isPreviewLoading && (
+              <div className="border rounded-md p-4">
+                <div className="flex gap-4">
+                  <img 
+                    src={previewData.imageUrl} 
+                    alt={previewData.title}
+                    className="h-[100px] w-[120px] rounded-md object-cover"
+                  />
+                  <div>
+                    <h3 className="font-medium">{previewData.title}</h3>
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <span>{previewData.author}</span>
+                      <span className="mx-1">•</span>
+                      <span>{previewData.source}</span>
+                      <span className="mx-1">•</span>
+                      <span>{previewData.date}</span>
+                    </div>
+                    <div className="flex items-center mt-3 text-sm text-blue-600">
+                      <LinkIcon className="h-3 w-3 mr-1" />
+                      <span className="truncate max-w-[200px]">{newReviewLink}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="text-sm text-gray-500 flex items-start">
+              <div className="bg-blue-100 text-blue-800 p-1 rounded-full mr-2 flex-shrink-0">
+                <LinkIcon className="h-3 w-3" />
+              </div>
+              <p>링크를 추가하면 자동으로 제목, 작성자, 날짜, 이미지 등의 정보가 추출됩니다. 네이버 블로그, 유튜브, 인스타그램 등 주요 사이트의 링크를 지원합니다.</p>
             </div>
-          )}
+            
+            <DialogFooter className="mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                disabled={isLinkProcessing}
+              >
+                취소
+              </Button>
+              <Button 
+                onClick={handleAddReviewLink} 
+                disabled={isLinkProcessing || !newReviewLink.trim()}
+              >
+                {isLinkProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    처리 중...
+                  </>
+                ) : "추가"}
+              </Button>
+            </DialogFooter>
+          </TabsContent>
           
-          {previewData && !isPreviewLoading && (
-            <div className="border rounded-md p-4">
-              <div className="flex gap-4">
-                <img 
-                  src={previewData.imageUrl} 
-                  alt={previewData.title}
-                  className="h-[100px] w-[120px] rounded-md object-cover"
+          <TabsContent value="manual">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleAddManualReview)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>제목</FormLabel>
+                      <FormControl>
+                        <Input placeholder="리뷰 제목" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <div>
-                  <h3 className="font-medium">{previewData.title}</h3>
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <span>{previewData.author}</span>
-                    <span className="mx-1">•</span>
-                    <span>{previewData.source}</span>
-                    <span className="mx-1">•</span>
-                    <span>{previewData.date}</span>
-                  </div>
-                  <div className="flex items-center mt-3 text-sm text-blue-600">
-                    <LinkIcon className="h-3 w-3 mr-1" />
-                    <span className="truncate max-w-[200px]">{newReviewLink}</span>
-                  </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="author"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>작성자</FormLabel>
+                        <FormControl>
+                          <Input placeholder="작성자 이름" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="source"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>출처</FormLabel>
+                        <FormControl>
+                          <Input placeholder="블로그, 유튜브 등" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="text-sm text-gray-500 flex items-start">
-            <div className="bg-blue-100 text-blue-800 p-1 rounded-full mr-2 flex-shrink-0">
-              <LinkIcon className="h-3 w-3" />
-            </div>
-            <p>링크를 추가하면 자동으로 제목, 작성자, 날짜, 이미지 등의 정보가 추출됩니다. 네이버 블로그, 유튜브, 인스타그램 등 주요 사이트의 링크를 지원합니다.</p>
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              if (!isLinkProcessing) {
-                onOpenChange(false);
-                setLinkError(null);
-                setPreviewData(null);
-              }
-            }}
-            disabled={isLinkProcessing}
-          >
-            취소
-          </Button>
-          <Button 
-            onClick={handleAddReviewLink} 
-            disabled={isLinkProcessing || !newReviewLink.trim()}
-          >
-            {isLinkProcessing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                처리 중...
-              </>
-            ) : "추가"}
-          </Button>
-        </DialogFooter>
+                
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>이미지 URL</FormLabel>
+                      <FormControl>
+                        <div className="flex space-x-2">
+                          <Input 
+                            placeholder="https://example.com/image.jpg" 
+                            {...field}
+                            onChange={handleImageUrlChange}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      {imagePreview && (
+                        <div className="mt-2 border rounded p-2 bg-gray-50">
+                          <p className="text-xs mb-1 text-gray-500">이미지 미리보기:</p>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="h-[100px] w-auto object-cover rounded"
+                            onError={() => setImagePreview(null)}
+                          />
+                        </div>
+                      )}
+                      {!imagePreview && (
+                        <div className="flex items-center mt-1 text-sm text-gray-500">
+                          <ImageIcon className="h-3 w-3 mr-1" />
+                          <span>이미지 URL을 입력하면 미리보기가 표시됩니다</span>
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="linkUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>원문 링크 URL (선택사항)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com/review" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>작성일</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter className="mt-6">
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    onClick={() => onOpenChange(false)}
+                    disabled={isLinkProcessing}
+                  >
+                    취소
+                  </Button>
+                  <Button 
+                    type="submit"
+                    disabled={isLinkProcessing}
+                  >
+                    {isLinkProcessing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        처리 중...
+                      </>
+                    ) : "추가"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

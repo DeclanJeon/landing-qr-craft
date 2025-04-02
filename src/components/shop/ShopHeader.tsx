@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users } from 'lucide-react';
+import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Cart from './Cart';
 
@@ -28,6 +28,11 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
               />
               <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
+            <Link to={`/shop/${shopUrl}/admin`}>
+              <Button variant="ghost" size="icon" title="관리 페이지">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
             </Button>
@@ -55,7 +60,6 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
                 <span>서비스</span>
               </Link>
             </li>
-            
           </ul>
         </nav>
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -524,14 +523,12 @@ const ProductDetailPage: React.FC = () => {
       )}
       
       <div className="mt-10 border-t pt-8">
-        <ProductTabs 
+        <ProductTabs
           shopUrl={shopUrl}
           product={product}
           relatedProducts={relatedProducts}
           vendors={vendors}
           reviews={reviews}
-          myMalls={myMalls}
-          peerMalls={peerMalls}
           handleDeleteReview={handleDeleteReview}
           setIsAddingReview={setIsAddingReview}
           activeTab={activeTab}

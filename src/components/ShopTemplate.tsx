@@ -464,7 +464,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
         
         {(!page || page === 'home') && !productId && (
           <div className="mt-12">
-            <PeerMalls customerMalls={customerMalls} recommendedMalls={recommendedMalls} />
+            <CustomerPeerMalls customerMalls={customerMalls} recommendedMalls={recommendedMalls} />
           </div>
         )}
       </main>

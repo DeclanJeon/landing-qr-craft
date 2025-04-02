@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,8 @@ import ProductDetailPage from './shop/ProductDetailPage';
 import ProductRegistrationModal from './shop/ProductRegistrationModal';
 import AboutPage from './shop/AboutPage';
 import ServicePage from './shop/ServicePage';
+import CustomerPeerMalls from './shop/CustomerPeerMalls';
+import RecommendedPeerMalls from './shop/RecommendedPeerMalls';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
@@ -43,6 +44,67 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [isProductRegistrationOpen, setIsProductRegistrationOpen] = useState(false);
   const { getCartCount } = useCart();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
+
+  const customerMalls = [
+    {
+      id: '1',
+      userName: '김철수',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '철수의 피어몰',
+      url: 'chulsu',
+      comment: '다양한 제품을 한 곳에서 확인할 수 있어 편리합니다.',
+      date: '2023-04-15'
+    },
+    {
+      id: '2',
+      userName: '이영희',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '영희 컬렉션',
+      url: 'younghee',
+      comment: '제가 좋아하는 제품들을 모아놓은 컬렉션입니다.',
+      date: '2023-05-20'
+    },
+    {
+      id: '3',
+      userName: '박지민',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '지민의 추천',
+      url: 'jimin',
+      comment: '제가 직접 사용해보고 좋았던 제품들만 모았습니다.',
+      date: '2023-06-10'
+    }
+  ];
+
+  const recommendedMalls = [
+    {
+      id: '1',
+      name: '베스트 가전',
+      logo: 'https://placehold.co/100',
+      url: 'bestelectronics',
+      rating: 4.8,
+      category: '가전제품',
+      products: [
+        { id: 101, name: '스마트 TV', price: '599,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/tv' },
+        { id: 102, name: '무선 청소기', price: '329,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/cleaner' },
+        { id: 103, name: '에어프라이어', price: '129,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/airfryer' },
+        { id: 104, name: '로봇 청소기', price: '399,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/robotcleaner' }
+      ]
+    },
+    {
+      id: '2',
+      name: '패션 하우스',
+      logo: 'https://placehold.co/100',
+      url: 'fashionhouse',
+      rating: 4.5,
+      category: '패션',
+      products: [
+        { id: 201, name: '남성 코트', price: '189,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/coat' },
+        { id: 202, name: '여성 니트', price: '79,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/knit' },
+        { id: 203, name: '스니커즈', price: '99,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/sneakers' },
+        { id: 204, name: '가죽 백팩', price: '159,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/backpack' }
+      ]
+    }
+  ];
 
   useEffect(() => {
     const shopDataString = localStorage.getItem('peermallShopData');
@@ -82,20 +144,12 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   };
 
   const handleDeleteProduct = (productId: number) => {
-    // Filter out the product with the given id
     const updatedProducts = localProducts.filter(product => product.id !== productId);
-    
-    // Update local state
     setLocalProducts(updatedProducts);
-    
-    // Update localStorage
     localStorage.setItem('peermall-products', JSON.stringify(updatedProducts));
-    
-    // Also update QR codes list if needed
     const storedQRCodes = localStorage.getItem('peermall-qrcodes');
     if (storedQRCodes) {
       const qrCodes = JSON.parse(storedQRCodes);
-      // Find the product name to filter QR codes
       const productToDelete = localProducts.find(p => p.id === productId);
       if (productToDelete) {
         const updatedQRCodes = qrCodes.filter((qr: any) => qr.name !== productToDelete.name);
@@ -342,6 +396,13 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
             {renderContent()}
           </div>
         </div>
+        
+        {(!page || page === 'home') && !productId && (
+          <div className="mt-12">
+            <CustomerPeerMalls customerMalls={customerMalls} />
+            <RecommendedPeerMalls recommendedMalls={recommendedMalls} />
+          </div>
+        )}
       </main>
 
       <ShopFooter 

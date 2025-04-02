@@ -4,8 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import VendorsList from './VendorsList';
 import MyProductList from './MyProductList';
 import ReviewsTab from './ReviewsTab';
-import MyMallsTab from './MyMallsTab';
-import PeerMallRecommendations from './PeerMallRecommendations';
 import { Product } from '@/types/shop';
 
 interface Review {
@@ -20,30 +18,12 @@ interface Review {
   likes?: number;
 }
 
-interface MyMall {
-  id: string;
-  userName: string;
-  userImageUrl: string;
-  comment: string;
-  date: string;
-}
-
-interface PeerMall {
-  id: string;
-  name: string;
-  logo: string;
-  url: string;
-  products: Product[];
-}
-
 interface ProductTabsProps {
   shopUrl?: string;
   product: Product;
   relatedProducts: Product[];
   vendors: { name: string; rating: number; price: string; }[];
   reviews: Review[];
-  myMalls: MyMall[];
-  peerMalls: PeerMall[];
   handleDeleteReview: (reviewId: string) => void;
   setIsAddingReview: (isAdding: boolean) => void;
   activeTab: string;
@@ -56,8 +36,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
   relatedProducts,
   vendors,
   reviews,
-  myMalls,
-  peerMalls,
   handleDeleteReview,
   setIsAddingReview,
   activeTab,
@@ -65,11 +43,9 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid grid-cols-4 mb-8">
+      <TabsList className="grid grid-cols-2 mb-8">
         <TabsTrigger value="my-products">내 상품 목록</TabsTrigger>
         <TabsTrigger value="reviews">리뷰 모음</TabsTrigger>
-        <TabsTrigger value="my-malls">고객 피어몰</TabsTrigger>
-        <TabsTrigger value="peer-malls">추천 피어몰</TabsTrigger>
       </TabsList>
       
       <TabsContent value="my-products">
@@ -83,14 +59,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
           handleDeleteReview={handleDeleteReview}
           setIsAddingReview={setIsAddingReview}
         />
-      </TabsContent>
-      
-      <TabsContent value="my-malls">
-        <MyMallsTab myMalls={myMalls} />
-      </TabsContent>
-      
-      <TabsContent value="peer-malls">
-        <PeerMallRecommendations peerMalls={peerMalls} />
       </TabsContent>
     </Tabs>
   );

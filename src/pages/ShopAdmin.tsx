@@ -47,6 +47,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import HeroSettingsTab from '@/components/admin/HeroSettingsTab';
 
 const ShopAdmin = () => {
   const { shopUrl } = useParams();
@@ -58,6 +59,18 @@ const ShopAdmin = () => {
     description: "",
     buttonText: "상품 구경하기",
     buttonColor: "bg-white text-blue-600 hover:bg-gray-100",
+    imageUrl: "",
+    imagePosition: "right",
+    buttonIcon: true,
+    buttonSize: "medium",
+    buttonRadius: "rounded-full",
+    showDecorations: true,
+    widgets: {
+      showProductCount: false,
+      showRating: false,
+      showBadge: false,
+      badgeText: "신규",
+    }
   });
   const [footerSettings, setFooterSettings] = useState({
     background: "bg-gray-800",
@@ -98,6 +111,12 @@ const ShopAdmin = () => {
           ...prev,
           title: `${parsedShopData.shopName}에 오신 것을 환영합니다`,
           description: parsedShopData.shopDescription
+        }));
+      }
+      if (parsedShopData.heroSettings) {
+        setHeroSettings(prev => ({
+          ...prev,
+          ...parsedShopData.heroSettings
         }));
       }
       if (parsedShopData.ownerName || parsedShopData.contactNumber || parsedShopData.email) {
@@ -271,7 +290,36 @@ const ShopAdmin = () => {
                           </div>
                         </CardHeader>
                       </Card>
-                      {/* 나머지 카드들 */}
+                      <Card className="cursor-move hover:shadow-md transition-shadow">
+                        <CardHeader className="p-4 bg-gray-50">
+                          <div className="flex justify-between items-center">
+                            <CardTitle className="text-md">히어로 섹션</CardTitle>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                      <Card className="cursor-move hover:shadow-md transition-shadow">
+                        <CardHeader className="p-4 bg-gray-50">
+                          <div className="flex justify-between items-center">
+                            <CardTitle className="text-md">상품 섹션</CardTitle>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                      <Card className="cursor-move hover:shadow-md transition-shadow">
+                        <CardHeader className="p-4 bg-gray-50">
+                          <div className="flex justify-between items-center">
+                            <CardTitle className="text-md">푸터 섹션</CardTitle>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardHeader>
+                      </Card>
                     </div>
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                       <p className="text-sm text-blue-600">
@@ -282,38 +330,11 @@ const ShopAdmin = () => {
                 </TabsContent>
                 
                 <TabsContent value="hero" className="h-full">
-                  <div className="flex flex-col h-full">
-                    <h2 className="text-2xl font-bold mb-6">히어로 섹션 설정</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <div className="mb-4">
-                          <Label htmlFor="hero-title">제목</Label>
-                          <Input 
-                            id="hero-title" 
-                            value={heroSettings.title} 
-                            onChange={e => setHeroSettings({...heroSettings, title: e.target.value})}
-                            className="mt-1"
-                          />
-                        </div>
-                        {/* 나머지 입력 필드 */}
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h3 className="font-semibold mb-3">미리보기</h3>
-                        <div className={`relative rounded-xl overflow-hidden h-64 ${heroSettings.background}`}>
-                          <div className="absolute inset-0 p-8 flex flex-col justify-center text-white">
-                            <h1 className="text-3xl font-bold mb-2">{heroSettings.title || shopData.shopName}</h1>
-                            <p className="text-white/80 mb-6 max-w-lg">
-                              {heroSettings.description || '최고의 품질과 서비스로 고객님께 만족을 드리겠습니다. 다양한 상품을 둘러보세요.'}
-                            </p>
-                            <Button className={`w-fit ${heroSettings.buttonColor}`}>
-                              {heroSettings.buttonText} <ExternalLink className="ml-2 h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* 히어로 슬라이드 관리 */}
-                  </div>
+                  <HeroSettingsTab 
+                    shopName={shopData.shopName}
+                    heroSettings={heroSettings}
+                    setHeroSettings={setHeroSettings}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="ads" className="h-full">
@@ -328,7 +349,90 @@ const ShopAdmin = () => {
                     <div className="space-y-4">
                       {adSettings.map(ad => (
                         <Card key={ad.id} className="overflow-hidden">
-                          {/* 광고 관리 콘텐츠 */}
+                          <CardHeader>
+                            <CardTitle className="text-lg font-semibold">{ad.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor={`ad-title-${ad.id}`}>제목</Label>
+                                <Input 
+                                  type="text" 
+                                  id={`ad-title-${ad.id}`} 
+                                  value={ad.title} 
+                                  onChange={e => handleAdChange(ad.id, 'title', e.target.value)} 
+                                  className="mt-1" 
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`ad-description-${ad.id}`}>설명</Label>
+                                <Input 
+                                  type="text" 
+                                  id={`ad-description-${ad.id}`} 
+                                  value={ad.description} 
+                                  onChange={e => handleAdChange(ad.id, 'description', e.target.value)} 
+                                  className="mt-1" 
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`ad-image-url-${ad.id}`}>이미지 URL</Label>
+                                <Input 
+                                  type="text" 
+                                  id={`ad-image-url-${ad.id}`} 
+                                  value={ad.imageUrl} 
+                                  onChange={e => handleAdChange(ad.id, 'imageUrl', e.target.value)} 
+                                  className="mt-1" 
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`ad-position-${ad.id}`}>위치</Label>
+                                <select 
+                                  id={`ad-position-${ad.id}`} 
+                                  value={ad.position} 
+                                  onChange={e => handleAdChange(ad.id, 'position', e.target.value)} 
+                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
+                                >
+                                  <option value="hero">히어로 섹션</option>
+                                  <option value="sidebar">사이드바</option>
+                                  <option value="footer">푸터</option>
+                                </select>
+                              </div>
+                              <div>
+                                <Label htmlFor={`ad-start-date-${ad.id}`}>시작일</Label>
+                                <Input 
+                                  type="date" 
+                                  id={`ad-start-date-${ad.id}`} 
+                                  value={ad.startDate} 
+                                  onChange={e => handleAdChange(ad.id, 'startDate', e.target.value)} 
+                                  className="mt-1" 
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`ad-end-date-${ad.id}`}>종료일</Label>
+                                <Input 
+                                  type="date" 
+                                  id={`ad-end-date-${ad.id}`} 
+                                  value={ad.endDate} 
+                                  onChange={e => handleAdChange(ad.id, 'endDate', e.target.value)} 
+                                  className="mt-1" 
+                                />
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2 mt-4">
+                              <Label htmlFor={`ad-is-active-${ad.id}`}>활성화</Label>
+                              <Switch 
+                                id={`ad-is-active-${ad.id}`} 
+                                checked={ad.isActive} 
+                                onCheckedChange={checked => handleAdChange(ad.id, 'isActive', checked)} 
+                              />
+                            </div>
+                          </CardContent>
+                          <CardFooter className="justify-end">
+                            <Button variant="destructive" size="sm" onClick={() => deleteAd(ad.id)}>
+                              <Trash className="h-4 w-4 mr-2" />
+                              삭제
+                            </Button>
+                          </CardFooter>
                         </Card>
                       ))}
                     </div>
@@ -340,11 +444,61 @@ const ShopAdmin = () => {
                     <h2 className="text-2xl font-bold mb-6">테마 설정</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        {/* 테마 설정 입력 필드 */}
+                        <div>
+                          <Label htmlFor="primary-color">기본 색상</Label>
+                          <Input 
+                            type="color" 
+                            id="primary-color" 
+                            value={themeSettings.primaryColor} 
+                            onChange={e => setThemeSettings({...themeSettings, primaryColor: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="secondary-color">보조 색상</Label>
+                          <Input 
+                            type="color" 
+                            id="secondary-color" 
+                            value={themeSettings.secondaryColor} 
+                            onChange={e => setThemeSettings({...themeSettings, secondaryColor: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="font-family">글꼴</Label>
+                          <select 
+                            id="font-family" 
+                            value={themeSettings.fontFamily} 
+                            onChange={e => setThemeSettings({...themeSettings, fontFamily: e.target.value})} 
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
+                          >
+                            <option value="system-ui, sans-serif">System Sans</option>
+                            <option value="serif">Serif</option>
+                            <option value="monospace">Monospace</option>
+                          </select>
+                        </div>
+                        <div>
+                          <Label htmlFor="border-radius">테두리 반경</Label>
+                          <select 
+                            id="border-radius" 
+                            value={themeSettings.borderRadius} 
+                            onChange={e => setThemeSettings({...themeSettings, borderRadius: e.target.value})} 
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
+                          >
+                            <option value="rounded-none">없음</option>
+                            <option value="rounded-md">중간</option>
+                            <option value="rounded-lg">큰</option>
+                            <option value="rounded-full">원형</option>
+                          </select>
+                        </div>
                       </div>
                       <div>
                         <h3 className="font-semibold mb-3">테마 미리보기</h3>
-                        {/* 테마 미리보기 */}
+                        <div className="p-4 rounded-lg" style={{ backgroundColor: themeSettings.primaryColor, color: 'white', fontFamily: themeSettings.fontFamily }}>
+                          <h4 className="text-lg font-bold">미리보기 제목</h4>
+                          <p>이것은 테마 설정 미리보기입니다.</p>
+                          <Button style={{ backgroundColor: themeSettings.secondaryColor, color: 'white' }}>버튼</Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -355,11 +509,75 @@ const ShopAdmin = () => {
                     <h2 className="text-2xl font-bold mb-6">푸터 정보 설정</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        {/* 푸터 설정 입력 필드 */}
+                        <div>
+                          <Label htmlFor="owner-name">소유자 이름</Label>
+                          <Input 
+                            type="text" 
+                            id="owner-name" 
+                            value={footerSettings.ownerName} 
+                            onChange={e => setFooterSettings({...footerSettings, ownerName: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="contact-number">연락처</Label>
+                          <Input 
+                            type="text" 
+                            id="contact-number" 
+                            value={footerSettings.contactNumber} 
+                            onChange={e => setFooterSettings({...footerSettings, contactNumber: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">이메일</Label>
+                          <Input 
+                            type="email" 
+                            id="email" 
+                            value={footerSettings.email} 
+                            onChange={e => setFooterSettings({...footerSettings, email: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="address">주소</Label>
+                          <Input 
+                            type="text" 
+                            id="address" 
+                            value={footerSettings.address} 
+                            onChange={e => setFooterSettings({...footerSettings, address: e.target.value})} 
+                            className="mt-1" 
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="footer-background">배경 색상</Label>
+                          <Input 
+                            type="color"
+                            id="footer-background"
+                            value={footerSettings.background}
+                            onChange={e => setFooterSettings({...footerSettings, background: e.target.value})}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="footer-text-color">글자 색상</Label>
+                          <Input
+                            type="color"
+                            id="footer-text-color"
+                            value={footerSettings.textColor}
+                            onChange={e => setFooterSettings({...footerSettings, textColor: e.target.value})}
+                            className="mt-1"
+                          />
+                        </div>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-semibold mb-3">푸터 미리보기</h3>
-                        {/* 푸터 미리보기 */}
+                        <div className="p-4 rounded-lg" style={{ backgroundColor: footerSettings.background, color: footerSettings.textColor }}>
+                          <p>{footerSettings.ownerName}</p>
+                          <p>{footerSettings.contactNumber}</p>
+                          <p>{footerSettings.email}</p>
+                          <p>{footerSettings.address}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -370,11 +588,20 @@ const ShopAdmin = () => {
                     <h2 className="text-2xl font-bold mb-6">파비콘 설정</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        {/* 파비콘 설정 입력 필드 */}
+                        <div>
+                          <Label htmlFor="favicon-url">파비콘 URL</Label>
+                          <Input 
+                            type="text" 
+                            id="favicon-url" 
+                            value={faviconUrl} 
+                            onChange={e => setFaviconUrl(e.target.value)} 
+                            className="mt-1" 
+                          />
+                        </div>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <h3 className="font-semibold mb-3">파비콘 미리보기</h3>
-                        {/* 파비콘 미리보기 */}
+                        {faviconUrl && <img src={faviconUrl} alt="파비콘 미리보기" className="h-8 w-8" />}
                       </div>
                     </div>
                   </div>

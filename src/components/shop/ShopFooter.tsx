@@ -86,9 +86,7 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl, shopData }) 
                 {(shopData?.email || footerSettings.email) && 
                   <li>이메일: {footerSettings.email || shopData?.email}</li>
                 }
-                {footerSettings.address && 
-                  <li>주소: {footerSettings.address}</li>
-                }
+                
               </ul>
             </div>
           </div>

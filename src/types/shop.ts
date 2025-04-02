@@ -4,7 +4,7 @@ export interface Product {
   name: string;
   price: string;
   imageUrl: string;
-  externalUrl: string;
+  externalUrl?: string; // Make externalUrl optional
   categoryId: number;
   distributor?: string;
   manufacturer?: string;

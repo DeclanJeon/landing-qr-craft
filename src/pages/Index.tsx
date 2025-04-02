@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { QrCode, Store, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
 import Navigation from '@/components/Navigation';
+import ShopFooter from '@/components/shop/ShopFooter';
 import { 
   Pagination, 
   PaginationContent, 
@@ -18,9 +18,7 @@ import {
   PaginationPrevious 
 } from "@/components/ui/pagination";
 
-// Placeholder function to generate QR code image URL
 const generateQrCode = (content: string) => {
-  // In a real implementation, this would call a QR code generation API
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(content)}`;
 };
 
@@ -34,12 +32,10 @@ const Index = () => {
   const [currentPeerMallPage, setCurrentPeerMallPage] = useState(1);
   const peermallsPerPage = 4;
   
-  // Generate QR code when qrContent changes
   useEffect(() => {
     setQrImage(generateQrCode(qrContent));
   }, [qrContent]);
 
-  // Handle scroll events for header styling
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -48,7 +44,6 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle QR code generation
   const handleGenerateQR = () => {
     setQrImage(generateQrCode(qrContent));
     toast({
@@ -57,7 +52,6 @@ const Index = () => {
     });
   };
 
-  // Handle QR download
   const handleDownloadQR = () => {
     const link = document.createElement('a');
     link.href = qrImage;
@@ -75,7 +69,6 @@ const Index = () => {
     featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Sample peer mall data
   const peerMalls = [
     {
       id: 1,
@@ -135,7 +128,6 @@ const Index = () => {
     }
   ];
 
-  // Calculate pagination
   const totalPages = Math.ceil(peerMalls.length / peermallsPerPage);
   const indexOfLastPeerMall = currentPeerMallPage * peermallsPerPage;
   const indexOfFirstPeerMall = indexOfLastPeerMall - peermallsPerPage;
@@ -143,10 +135,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen font-sans">
-      {/* Use the Navigation component instead of inline header */}
       <Navigation />
 
-      {/* Hero Section */}
       <section ref={heroRef} className="pt-32 pb-24 bg-gradient-to-br from-blue-50 to-indigo-100 animate-fade-in">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
@@ -198,7 +188,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Tabs Section */}
       <section ref={featuresRef} id="features" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Peermall 기능 살펴보기</h2>
@@ -446,7 +435,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Quick Access Section - NEW SECTION FOR BETTER NAVIGATION */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-10">빠른 기능 접근</h2>
@@ -491,7 +479,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="story" className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Peermall 이야기</h2>
@@ -503,7 +490,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision & Mission Section */}
       <section id="vision" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
@@ -523,7 +509,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Values Section */}
       <section id="values" className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">우리의 가치</h2>
@@ -552,7 +537,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section id="contact" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">문의하기</h2>
@@ -563,6 +547,17 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <ShopFooter 
+        shopName="Peermall" 
+        shopUrl="" 
+        shopData={{
+          ownerName: "Peermall Team",
+          contactNumber: "1-800-PEERMALL",
+          email: "contact@peermall.com",
+          address: "123 Commerce St, Digital City"
+        }}
+      />
     </div>
   );
 };

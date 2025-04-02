@@ -3,11 +3,13 @@ import React from 'react';
 import { 
   LayoutDashboard, 
   Image, 
-  Store, 
+  Store,
+  Settings, // Add Settings icon
   Palette, 
   Box, 
   MousePointerClick,
-  Database
+  Database,
+  Image as ImageIcon // Renaming Image to avoid conflict with Hero section icon
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -36,6 +38,14 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
             <LayoutDashboard className="h-4 w-4 mr-2" />
             레이아웃 관리
           </TabsTrigger>
+          {/* Add Basic Info Tab Trigger */}
+          <TabsTrigger 
+            value="basicInfo" 
+            className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
+          >
+            <Settings className="h-4 w-4 mr-2" /> 
+            기본 정보
+          </TabsTrigger>
           <TabsTrigger 
             value="hero" 
             className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
@@ -63,6 +73,14 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
           >
             <Box className="h-4 w-4 mr-2" />
             푸터 정보
+          </TabsTrigger>
+          {/* Add Logo Settings Tab Trigger */}
+          <TabsTrigger 
+            value="logo" 
+            className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
+          >
+            <ImageIcon className="h-4 w-4 mr-2" /> 
+            로고 설정
           </TabsTrigger>
           <TabsTrigger 
             value="favicon" 

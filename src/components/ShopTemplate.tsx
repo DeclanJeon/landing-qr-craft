@@ -174,13 +174,38 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   ];
 
   useEffect(() => {
-    const shopDataString = localStorage.getItem('peermallShopData');
-    const parsedShopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
-    
-    if (!parsedShopData || (actualShopUrl && parsedShopData.shopUrl !== actualShopUrl)) {
-      if (window.location.pathname.includes('/shop/')) {
+    console.log(`[ShopTemplate] useEffect running for shopUrl: ${actualShopUrl}`); // Log 1: URL check
+
+    if (!actualShopUrl) {
+        console.warn("[ShopTemplate] actualShopUrl is undefined, cannot load data.");
         setShopData(null);
-      }
+        return;
+    }
+
+    const uniqueShopKey = `peermallShopData_${actualShopUrl}`;
+    console.log(`[ShopTemplate] Attempting to load data with key: ${uniqueShopKey}`); // Log 2: Key check
+
+    const shopDataString = localStorage.getItem(uniqueShopKey);
+    console.log(`[ShopTemplate] Raw data string from localStorage:`, shopDataString); // Log 3: Raw data
+
+    let parsedShopData: ShopData | null = null;
+    if (shopDataString) {
+        try {
+            parsedShopData = JSON.parse(shopDataString);
+            console.log("[ShopTemplate] Parsed shop data:", parsedShopData); // Log 4: Parsed data
+        } catch (error) {
+            console.error(`[ShopTemplate] Error parsing shop data for key ${uniqueShopKey}:`, error);
+            setShopData(null); // Set to null if parsing fails
+            return;
+        }
+    } else {
+        console.warn(`[ShopTemplate] No data found in localStorage for key: ${uniqueShopKey}`);
+    }
+    
+    // Check if data was found and matches the expected URL (redundant check now, but safe)
+    if (!parsedShopData || parsedShopData.shopUrl !== actualShopUrl) {
+        console.warn(`[ShopTemplate] Loaded data mismatch or not found. Setting shopData to null. Parsed URL: ${parsedShopData?.shopUrl}, Expected URL: ${actualShopUrl}`); // Log 5: Mismatch check
+        setShopData(null);
     } else {
       setShopData(parsedShopData);
       
@@ -465,7 +490,12 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ShopHeader shopName={shopData?.shopName || ''} shopUrl={actualShopUrl || ''} page={page} />
+      <ShopHeader 
+        shopName={shopData?.shopName || ''} 
+        shopUrl={actualShopUrl || ''} 
+        logoUrl={shopData?.logoUrl} // Pass logoUrl
+        page={page} 
+      />
 
       <ProductRegistrationModal 
         open={isProductRegistrationOpen} 
@@ -494,7 +524,11 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
 
       <main className="container mx-auto px-4 py-8">
         {page !== 'about' && page !== 'service' && !productId && (
-          <ShopHero shopName={shopData?.shopName || ''} description={shopData?.shopDescription} />
+          <ShopHero 
+            shopName={shopData?.shopName || ''} 
+            description={shopData?.shopDescription || ''} 
+            settings={shopData?.heroSettings} // Pass heroSettings from loaded shopData
+          />
         )}
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">

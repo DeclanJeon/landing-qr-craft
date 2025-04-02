@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -14,11 +13,12 @@ import {
     Edit,
     Trash,
     Plus,
-    ExternalLink
+    ExternalLink,
+    Settings // Added Settings icon import implicitly by AdminSidebar changes
 } from 'lucide-react';
 import { ShopData } from '@/types/shop';
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import AdminTabContent from '@/components/admin/AdminTabContent';
+import AdminTabContent from '@/components/admin/AdminTabContent'; // This seems unused, consider removing later
 import {
     Tabs,
     TabsContent,
@@ -54,11 +54,15 @@ import {
 import HeroSettingsTab from '@/components/admin/HeroSettingsTab';
 import AdManagementTab from '@/components/admin/AdManagementTab';
 import StorageManagementTab from '@/components/admin/StorageManagementTab';
+import FaviconSettingsTab from '@/components/admin/FaviconSettingsTab';
+import LogoSettingsTab from '@/components/admin/LogoSettingsTab';
+import BasicInfoSettingsTab from '@/components/admin/BasicInfoSettingsTab'; // Import Basic Info tab
 
 const ShopAdmin = () => {
     const { shopUrl } = useParams();
     const [shopData, setShopData] = useState<ShopData | null>(null);
-    const [activeTab, setActiveTab] = useState("layout");
+    // Default to 'basicInfo' if layout is not the primary focus anymore
+    const [activeTab, setActiveTab] = useState("basicInfo"); 
     const [heroSettings, setHeroSettings] = useState({
         background: "bg-gradient-to-r from-blue-500 to-indigo-600",
         title: "",
@@ -100,7 +104,8 @@ const ShopAdmin = () => {
             isActive: true
         }
     ]);
-    const [faviconUrl, setFaviconUrl] = useState("");
+    const [faviconUrl, setFaviconUrl] = useState(""); // State for favicon URL
+    const [logoUrl, setLogoUrl] = useState(""); // State for logo URL
     const [themeSettings, setThemeSettings] = useState({
         primaryColor: "#3B82F6",
         secondaryColor: "#6366F1",
@@ -109,93 +114,96 @@ const ShopAdmin = () => {
     });
 
     useEffect(() => {
-        const shopDataString = localStorage.getItem('peermallShopData');
-        const parsedShopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
-
-        if (parsedShopData && parsedShopData.shopUrl === shopUrl) {
-            setShopData(parsedShopData);
-            if (parsedShopData.shopDescription) {
-                setHeroSettings(prev => ({
-                    ...prev,
-                    title: `${parsedShopData.shopName}에 오신 것을 환영합니다`,
-                    description: parsedShopData.shopDescription
-                }));
-            }
-            if (parsedShopData.heroSettings) {
-                // Create a deep copy with default widgets to ensure all properties are defined
-                const heroWithDefaults = {
-                    ...heroSettings,
-                    ...(parsedShopData.heroSettings || {}),
-                    widgets: {
-                        showProductCount: false,
-                        showRating: false,
-                        showBadge: false,
-                        badgeText: "신규",
-                        ...(parsedShopData.heroSettings?.widgets || {})
-                    }
-                };
-                setHeroSettings(heroWithDefaults);
-            }
-            if (parsedShopData.ownerName || parsedShopData.contactNumber || parsedShopData.email) {
-                setFooterSettings(prev => ({
-                    ...prev,
-                    ownerName: parsedShopData.ownerName || '',
-                    contactNumber: parsedShopData.contactNumber || '',
-                    email: parsedShopData.email || '',
-                    address: parsedShopData.address || ''
-                }));
-            }
-            if (parsedShopData.themeSettings) {
-                setThemeSettings({
-                    primaryColor: parsedShopData.themeSettings.primaryColor || "#3B82F6",
-                    secondaryColor: parsedShopData.themeSettings.secondaryColor || "#6366F1",
-                    fontFamily: parsedShopData.themeSettings.fontFamily || "system-ui, sans-serif",
-                    borderRadius: parsedShopData.themeSettings.borderRadius || "rounded-lg",
-                });
-            }
-            if (parsedShopData.footerSettings) {
-                setFooterSettings({
-                    background: parsedShopData.footerSettings.background || "bg-gray-800",
-                    textColor: parsedShopData.footerSettings.textColor || "text-white",
-                    ownerName: parsedShopData.footerSettings.ownerName || '',
-                    contactNumber: parsedShopData.footerSettings.contactNumber || '',
-                    email: parsedShopData.footerSettings.email || '',
-                    address: parsedShopData.footerSettings.address || ''
-                });
-            }
-            if (parsedShopData.adSettings) {
-                const adSettingsWithDefaults = parsedShopData.adSettings.map(ad => ({
-                    ...ad,
-                    targetPages: ad.targetPages || ['home'],
-                    link: ad.link || '#'
-                }));
-                setAdSettings(adSettingsWithDefaults);
-            }
-            if (parsedShopData.faviconUrl) setFaviconUrl(parsedShopData.faviconUrl);
+        // --- Refactored Storage Logic ---
+        if (!shopUrl) {
+            console.error("Shop URL parameter is missing!");
+            setShopData(null); // Indicate not found if URL is missing
+            return;
         }
-    }, [shopUrl]);
+        const uniqueShopKey = `peermallShopData_${shopUrl}`;
+        const shopDataString = localStorage.getItem(uniqueShopKey);
+        // --- End Refactored Storage Logic ---
+
+        let parsedShopData: ShopData | null = shopDataString ? JSON.parse(shopDataString) : null;
+
+        // Ensure data was actually loaded for this specific shop
+        if (parsedShopData) { 
+            setShopData(parsedShopData);
+            // Initialize settings based on loaded data or defaults
+            setHeroSettings(prev => ({
+                ...prev, // Keep defaults
+                ...(parsedShopData?.heroSettings || {}), // Override with saved data
+                title: parsedShopData?.shopName ? `${parsedShopData.shopName}에 오신 것을 환영합니다` : prev.title,
+                description: parsedShopData?.shopDescription || prev.description,
+                widgets: { // Ensure widgets object exists
+                    ...prev.widgets,
+                    ...(parsedShopData?.heroSettings?.widgets || {})
+                }
+            }));
+            setFooterSettings(prev => ({
+                ...prev,
+                ...(parsedShopData?.footerSettings || {}), // Override with saved data
+                ownerName: parsedShopData?.ownerName || prev.ownerName,
+                contactNumber: parsedShopData?.contactNumber || prev.contactNumber,
+                email: parsedShopData?.email || prev.email,
+                address: parsedShopData?.address || prev.address
+            }));
+             setThemeSettings(prev => ({
+                ...prev,
+                ...(parsedShopData?.themeSettings || {}) // Override with saved data
+            }));
+             setAdSettings(
+                (parsedShopData?.adSettings || []).map((ad: any) => ({ // Ensure adSettings is an array
+                    id: ad.id || Date.now(), // Ensure ID exists
+                    title: ad.title || "새 광고",
+                    description: ad.description || "",
+                    position: ad.position || "sidebar",
+                    targetPages: ad.targetPages || ['home'],
+                    imageUrl: ad.imageUrl || "https://placehold.co/300x200",
+                    link: ad.link || "#",
+                    startDate: ad.startDate || new Date().toISOString().split('T')[0],
+                    endDate: ad.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    isActive: ad.isActive === undefined ? true : ad.isActive // Default to true if undefined
+                }))
+            );
+            setFaviconUrl(parsedShopData?.faviconUrl || "");
+            setLogoUrl(parsedShopData?.logoUrl || "");
+        } else {
+             // Handle case where no data found or URL mismatch (optional: redirect or show error)
+             console.warn(`No matching shop data found in localStorage for shopUrl: ${shopUrl}`);
+             // Maybe set shopData to null to trigger the 'not found' message
+             setShopData(null); 
+        }
+    }, [shopUrl]); // Rerun effect if shopUrl changes
 
     const saveChanges = () => {
-        if (!shopData) return;
+        if (!shopData || !shopUrl) return; // Ensure we have data and url
 
-        const updatedShopData = {
-            ...shopData,
-            shopDescription: heroSettings.description,
-            ownerName: footerSettings.ownerName,
+        // Create the object to save, ensuring all parts are included
+        const updatedShopData: ShopData = {
+            ...shopData, // Includes shopName, shopUrl (which should match), etc.
+            shopDescription: heroSettings.description, // Update description from hero settings
+            ownerName: footerSettings.ownerName, // Update owner info from footer settings
             contactNumber: footerSettings.contactNumber,
             email: footerSettings.email,
             address: footerSettings.address,
-            themeSettings,
-            heroSettings,
-            footerSettings,
-            adSettings,
-            faviconUrl
+            themeSettings, // Save current theme settings
+            heroSettings, // Save current hero settings
+            footerSettings, // Save current footer settings
+            adSettings, // Save current ad settings
+            faviconUrl, // Save current favicon URL
+            logoUrl // Save current logo URL
         };
 
-        localStorage.setItem('peermallShopData', JSON.stringify(updatedShopData));
+        // --- Refactored Storage Logic ---
+        const uniqueShopKey = `peermallShopData_${shopUrl}`;
+        localStorage.setItem(uniqueShopKey, JSON.stringify(updatedShopData));
+        // --- End Refactored Storage Logic ---
+        
         alert('설정이 저장되었습니다.');
     };
 
+    // Ad management functions remain the same...
     const addNewAd = () => {
         const newAd = {
             id: Date.now(),
@@ -209,25 +217,23 @@ const ShopAdmin = () => {
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             isActive: true
         };
-
         setAdSettings([...adSettings, newAd]);
     };
-
     const deleteAd = (adId: number) => {
         setAdSettings(adSettings.filter(ad => ad.id !== adId));
     };
-
     const handleAdChange = (adId: number, field: string, value: string | boolean) => {
         setAdSettings(adSettings.map(ad =>
             ad.id === adId ? { ...ad, [field]: value } : ad
         ));
     };
 
+
     if (!shopData) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <h1 className="text-2xl font-bold mb-4">피어몰을 찾을 수 없습니다</h1>
-                <p className="text-gray-600 mb-6">요청하신 피어몰이 존재하지 않거나 접근할 수 없습니다.</p>
+                <p className="text-gray-600 mb-6">요청하신 피어몰({shopUrl})이 존재하지 않거나 접근할 수 없습니다.</p>
                 <Link to="/personal-lounge">
                     <Button>피어몰 만들기로 돌아가기</Button>
                 </Link>
@@ -243,9 +249,9 @@ const ShopAdmin = () => {
                         <div className="flex items-center space-x-4">
                             <Link to={`/shop/${shopUrl}/home`} className="flex items-center text-gray-600 hover:text-blue-600">
                                 <ArrowLeft className="h-5 w-5 mr-2" />
-                                <span>돌아가기</span>
+                                <span>내 피어몰 보기</span>
                             </Link>
-                            <h1 className="text-xl font-bold">{shopData.shopName} 관리자 페이지</h1>
+                            <h1 className="text-xl font-bold">{shopData.shopName} 관리</h1>
                         </div>
                         <Button onClick={saveChanges} className="flex items-center bg-blue-600 hover:bg-blue-700">
                             <Save className="h-4 w-4 mr-2" />
@@ -257,7 +263,8 @@ const ShopAdmin = () => {
 
             <div className="container mx-auto px-4 py-8">
                 <Tabs
-                    defaultValue="layout"
+                    // Default to basicInfo tab
+                    defaultValue="basicInfo" 
                     value={activeTab}
                     onValueChange={setActiveTab}
                     className="w-full"
@@ -271,73 +278,36 @@ const ShopAdmin = () => {
 
                         <ResizablePanel defaultSize={80}>
                             <div className="h-full bg-white p-6 overflow-y-auto">
-                                <TabsContent value="layout" className="h-full">
+                                {/* Layout Tab Content */}
+                                <TabsContent value="layout" className="h-full mt-0">
                                     <div className="flex flex-col h-full">
                                         <h2 className="text-2xl font-bold mb-6">레이아웃 관리</h2>
                                         <p className="text-gray-600 mb-6">
-                                            드래그 앤 드롭으로 페이지 섹션의 순서를 변경할 수 있습니다. 각 요소를 클릭하여 세부 설정을 변경하세요.
+                                            페이지 섹션의 순서를 변경합니다. (드래그앤드롭 기능은 개발 중)
                                         </p>
+                                        {/* Simplified Layout Cards */}
                                         <div className="space-y-4">
-                                            <Card className="cursor-move hover:shadow-md transition-shadow">
-                                                <CardHeader className="p-4 bg-gray-50">
-                                                    <div className="flex justify-between items-center">
-                                                        <CardTitle className="text-md">헤더 섹션</CardTitle>
-                                                        <Button variant="ghost" size="sm" onClick={() => {/* Add edit logic or navigate */ }}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                            </Card>
-                                            <Card className="cursor-move hover:shadow-md transition-shadow">
-                                                <CardHeader className="p-4 bg-gray-50">
-                                                    <div className="flex justify-between items-center">
-                                                        <CardTitle className="text-md">히어로 섹션</CardTitle>
-                                                        <Button variant="ghost" size="sm" onClick={() => setActiveTab('hero')}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                            </Card>
-                                            <Card className="cursor-move hover:shadow-md transition-shadow">
-                                                <CardHeader className="p-4 bg-gray-50">
-                                                    <div className="flex justify-between items-center">
-                                                        <CardTitle className="text-md">상품 섹션</CardTitle>
-                                                        <Button variant="ghost" size="sm" onClick={() => {/* Add edit logic or navigate */ }}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                            </Card>
-                                            <Card className="cursor-move hover:shadow-md transition-shadow">
-                                                <CardHeader className="p-4 bg-gray-50">
-                                                    <div className="flex justify-between items-center">
-                                                        <CardTitle className="text-md">광고 섹션</CardTitle>
-                                                        <Button variant="ghost" size="sm" onClick={() => setActiveTab('ads')}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                            </Card>
-                                            <Card className="cursor-move hover:shadow-md transition-shadow">
-                                                <CardHeader className="p-4 bg-gray-50">
-                                                    <div className="flex justify-between items-center">
-                                                        <CardTitle className="text-md">푸터 섹션</CardTitle>
-                                                        <Button variant="ghost" size="sm" onClick={() => setActiveTab('footer')}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </CardHeader>
-                                            </Card>
-                                        </div>
-                                        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                            <p className="text-sm text-blue-600">
-                                                드래그 앤 드롭 기능은 현재 구현 중입니다. 곧 업데이트될 예정입니다.
-                                            </p>
+                                            {['헤더', '기본 정보', '히어로', '상품', '광고', '푸터'].map((section, index) => (
+                                                <Card key={index}>
+                                                    <CardHeader className="p-4 bg-gray-50">
+                                                        <CardTitle className="text-md">{section} 섹션</CardTitle>
+                                                    </CardHeader>
+                                                </Card>
+                                            ))}
                                         </div>
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="hero" className="h-full">
+                                {/* Basic Info Tab Content */}
+                                <TabsContent value="basicInfo" className="h-full mt-0">
+                                     <BasicInfoSettingsTab 
+                                        shopData={shopData} 
+                                        setShopData={setShopData} 
+                                    />
+                                </TabsContent>
+
+                                {/* Hero Tab Content */}
+                                <TabsContent value="hero" className="h-full mt-0">
                                     <HeroSettingsTab
                                         shopName={shopData.shopName}
                                         heroSettings={heroSettings}
@@ -345,46 +315,32 @@ const ShopAdmin = () => {
                                     />
                                 </TabsContent>
 
-                                <TabsContent value="ads" className="h-full">
+                                {/* Ads Tab Content */}
+                                <TabsContent value="ads" className="h-full mt-0">
                                     <AdManagementTab 
                                         adSettings={adSettings}
                                         setAdSettings={setAdSettings}
                                     />
                                 </TabsContent>
 
-                                <TabsContent value="theme" className="h-full">
+                                {/* Theme Tab Content */}
+                                <TabsContent value="theme" className="h-full mt-0">
                                     <div className="flex flex-col h-full">
                                         <h2 className="text-2xl font-bold mb-6">테마 설정</h2>
+                                        {/* Theme settings form */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-4">
                                                 <div>
                                                     <Label htmlFor="primary-color">기본 색상</Label>
-                                                    <Input
-                                                        type="color"
-                                                        id="primary-color"
-                                                        value={themeSettings.primaryColor}
-                                                        onChange={e => setThemeSettings({ ...themeSettings, primaryColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full"
-                                                    />
+                                                    <Input type="color" id="primary-color" value={themeSettings.primaryColor} onChange={e => setThemeSettings({ ...themeSettings, primaryColor: e.target.value })} className="mt-1 h-10 w-full"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="secondary-color">보조 색상</Label>
-                                                    <Input
-                                                        type="color"
-                                                        id="secondary-color"
-                                                        value={themeSettings.secondaryColor}
-                                                        onChange={e => setThemeSettings({ ...themeSettings, secondaryColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full"
-                                                    />
+                                                    <Input type="color" id="secondary-color" value={themeSettings.secondaryColor} onChange={e => setThemeSettings({ ...themeSettings, secondaryColor: e.target.value })} className="mt-1 h-10 w-full"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="font-family">글꼴</Label>
-                                                    <select
-                                                        id="font-family"
-                                                        value={themeSettings.fontFamily}
-                                                        onChange={e => setThemeSettings({ ...themeSettings, fontFamily: e.target.value })}
-                                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
-                                                    >
+                                                    <select id="font-family" value={themeSettings.fontFamily} onChange={e => setThemeSettings({ ...themeSettings, fontFamily: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1">
                                                         <option value="system-ui, sans-serif">System Sans</option>
                                                         <option value="serif">Serif</option>
                                                         <option value="monospace">Monospace</option>
@@ -392,12 +348,7 @@ const ShopAdmin = () => {
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="border-radius">테두리 반경</Label>
-                                                    <select
-                                                        id="border-radius"
-                                                        value={themeSettings.borderRadius}
-                                                        onChange={e => setThemeSettings({ ...themeSettings, borderRadius: e.target.value })}
-                                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
-                                                    >
+                                                    <select id="border-radius" value={themeSettings.borderRadius} onChange={e => setThemeSettings({ ...themeSettings, borderRadius: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1">
                                                         <option value="rounded-none">없음</option>
                                                         <option value="rounded-sm">작게</option>
                                                         <option value="rounded">기본</option>
@@ -412,125 +363,78 @@ const ShopAdmin = () => {
                                                 <div className={`p-4 ${themeSettings.borderRadius} shadow`} style={{ backgroundColor: themeSettings.primaryColor, color: 'white', fontFamily: themeSettings.fontFamily }}>
                                                     <h4 className="text-lg font-bold mb-2">미리보기 제목</h4>
                                                     <p className="mb-3">이것은 테마 설정 미리보기입니다.</p>
-                                                    <Button
-                                                        className={`${themeSettings.borderRadius}`}
-                                                        style={{ backgroundColor: themeSettings.secondaryColor, color: 'white' }}
-                                                    >
-                                                        미리보기 버튼
-                                                    </Button>
+                                                    <Button className={`${themeSettings.borderRadius}`} style={{ backgroundColor: themeSettings.secondaryColor, color: 'white' }}>미리보기 버튼</Button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="footer" className="h-full">
+                                {/* Footer Tab Content */}
+                                <TabsContent value="footer" className="h-full mt-0">
                                     <div className="flex flex-col h-full">
                                         <h2 className="text-2xl font-bold mb-6">푸터 정보 설정</h2>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Footer settings form */}
+                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-4">
                                                 <div>
                                                     <Label htmlFor="owner-name">대표자 이름</Label>
-                                                    <Input
-                                                        type="text"
-                                                        id="owner-name"
-                                                        value={footerSettings.ownerName}
-                                                        onChange={e => setFooterSettings({ ...footerSettings, ownerName: e.target.value })}
-                                                        className="mt-1"
-                                                    />
+                                                    <Input type="text" id="owner-name" value={footerSettings.ownerName} onChange={e => setFooterSettings({ ...footerSettings, ownerName: e.target.value })} className="mt-1"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="contact-number">연락처</Label>
-                                                    <Input
-                                                        type="text"
-                                                        id="contact-number"
-                                                        value={footerSettings.contactNumber}
-                                                        onChange={e => setFooterSettings({ ...footerSettings, contactNumber: e.target.value })}
-                                                        className="mt-1"
-                                                    />
+                                                    <Input type="text" id="contact-number" value={footerSettings.contactNumber} onChange={e => setFooterSettings({ ...footerSettings, contactNumber: e.target.value })} className="mt-1"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="email">이메일</Label>
-                                                    <Input
-                                                        type="email"
-                                                        id="email"
-                                                        value={footerSettings.email}
-                                                        onChange={e => setFooterSettings({ ...footerSettings, email: e.target.value })}
-                                                        className="mt-1"
-                                                    />
+                                                    <Input type="email" id="email" value={footerSettings.email} onChange={e => setFooterSettings({ ...footerSettings, email: e.target.value })} className="mt-1"/>
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="address">주소</Label>
+                                                    <Input type="text" id="address" value={footerSettings.address} onChange={e => setFooterSettings({ ...footerSettings, address: e.target.value })} className="mt-1"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="footer-background">배경 색상</Label>
-                                                    <Input
-                                                        type="color"
-                                                        id="footer-background"
-                                                        value={footerSettings.background.startsWith('#') ? footerSettings.background : '#374151'}
-                                                        onChange={e => setFooterSettings({ ...footerSettings, background: e.target.value })}
-                                                        className="mt-1 h-10 w-full"
-                                                    />
+                                                    <Input type="color" id="footer-background" value={footerSettings.background.startsWith('#') ? footerSettings.background : '#374151'} onChange={e => setFooterSettings({ ...footerSettings, background: e.target.value })} className="mt-1 h-10 w-full"/>
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="footer-text-color">글자 색상</Label>
-                                                    <Input
-                                                        type="color"
-                                                        id="footer-text-color"
-                                                        value={footerSettings.textColor.startsWith('#') ? footerSettings.textColor : '#ffffff'}
-                                                        onChange={e => setFooterSettings({ ...footerSettings, textColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full"
-                                                    />
+                                                    <Input type="color" id="footer-text-color" value={footerSettings.textColor.startsWith('#') ? footerSettings.textColor : '#ffffff'} onChange={e => setFooterSettings({ ...footerSettings, textColor: e.target.value })} className="mt-1 h-10 w-full"/>
                                                 </div>
                                             </div>
                                             <div className="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center">
                                                 <h3 className="font-semibold mb-3">푸터 미리보기</h3>
-                                                <div className="p-4 rounded-lg" style={{ backgroundColor: footerSettings.background, color: footerSettings.textColor }}>
-                                                    <p><strong>소유자:</strong> {footerSettings.ownerName || '미입력'}</p>
+                                                <div className="p-4 rounded-lg w-full" style={{ backgroundColor: footerSettings.background, color: footerSettings.textColor }}>
+                                                    <p><strong>대표자:</strong> {footerSettings.ownerName || '미입력'}</p>
                                                     <p><strong>연락처:</strong> {footerSettings.contactNumber || '미입력'}</p>
                                                     <p><strong>이메일:</strong> {footerSettings.email || '미입력'}</p>
+                                                    <p><strong>주소:</strong> {footerSettings.address || '미입력'}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </TabsContent>
-
-                                <TabsContent value="favicon" className="h-full">
-                                    <div className="flex flex-col h-full">
-                                        <h2 className="text-2xl font-bold mb-6">파비콘 설정</h2>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <Label htmlFor="favicon-url">파비콘 URL</Label>
-                                                    <Input
-                                                        type="text"
-                                                        id="favicon-url"
-                                                        value={faviconUrl}
-                                                        onChange={e => setFaviconUrl(e.target.value)}
-                                                        className="mt-1"
-                                                        placeholder="https://example.com/favicon.ico"
-                                                    />
-                                                    <p className="text-sm text-gray-500 mt-1">.ico, .png, .svg 형식의 URL을 입력하세요.</p>
-                                                </div>
-                                            </div>
-                                            <div className="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center">
-                                                <h3 className="font-semibold mb-3">파비콘 미리보기</h3>
-                                                {faviconUrl ? (
-                                                    <img
-                                                        src={faviconUrl}
-                                                        alt="파비콘 미리보기"
-                                                        className="h-8 w-8"
-                                                        onError={(e) => e.currentTarget.style.display = 'none'}
-                                                    />
-                                                ) : (
-                                                    <div className="h-8 w-8 bg-gray-300 rounded flex items-center justify-center text-gray-500 text-xs">
-                                                        아이콘
-                                                    </div>
-                                                )}
-                                                <p className="text-xs text-gray-500 mt-2">브라우저 탭에 표시될 아이콘입니다.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                
+                                {/* Logo Settings Tab Content */}
+                                <TabsContent value="logo" className="h-full mt-0">
+                                    <LogoSettingsTab 
+                                        shopName={shopData.shopName} 
+                                        logoUrl={logoUrl} 
+                                        // Pass setLogoUrl when save logic is implemented
+                                    />
                                 </TabsContent>
 
-                                <TabsContent value="storage" className="h-full">
+                                {/* Favicon Settings Tab Content */}
+                                <TabsContent value="favicon" className="h-full mt-0">
+                                    <FaviconSettingsTab 
+                                        shopName={shopData.shopName} 
+                                        faviconUrl={faviconUrl} 
+                                        // Pass setFaviconUrl when save logic is implemented
+                                    />
+                                </TabsContent>
+
+                                {/* Storage Tab Content */}
+                                <TabsContent value="storage" className="h-full mt-0">
                                     <StorageManagementTab />
                                 </TabsContent>
                             </div>

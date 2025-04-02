@@ -8,16 +8,29 @@ import Cart from './Cart';
 interface ShopHeaderProps {
   shopName: string;
   shopUrl: string;
+  logoUrl?: string; // Add optional logoUrl prop
   page?: string;
 }
 
-const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, page }) => {
+const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, logoUrl, page }) => {
   return (
     <header className="bg-white border-b border-gray-100">
       <div className="container mx-auto px-4 py-5">
         <div className="flex justify-between items-center">
-          <Link to={`/shop/${shopUrl}/home`} className="text-2xl font-serif font-bold text-gray-800 hover:text-blue-600 transition-colors">
-            {shopName}
+          {/* Link wrapping logo or name */}
+          <Link to={`/shop/${shopUrl}/home`} className="flex items-center group">
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={`${shopName} Logo`} 
+                className="max-h-10 mr-2 transition-opacity duration-300 group-hover:opacity-80" // Adjust max-h as needed
+                onError={(e) => (e.currentTarget.style.display = 'none')} // Hide if image fails to load
+              />
+            ) : (
+              <span className="text-2xl font-serif font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                {shopName}
+              </span>
+            )}
           </Link>
           <div className="flex items-center space-x-1 md:space-x-4">
             <div className="relative hidden md:block">

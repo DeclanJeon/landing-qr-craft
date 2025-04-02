@@ -5,27 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { QrCode, Store, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
-import Navigation from '@/components/Navigation';
-import ShopFooter from '@/components/shop/ShopFooter';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationEllipsis, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from "@/components/ui/pagination";
+import { QrCode, Store, ArrowRight, CheckCheck, User } from "lucide-react";
+
 
 const generateQrCode = (content: string) => {
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(content)}`;
 };
 
 const Index = () => {
-  const [qrContent, setQrContent] = useState('https://peermall.com');
+  const [qrContent, setQrContent] = useState('이곳에 URL을 입력 하세요.');
   const [qrImage, setQrImage] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
+  // Removed isScrolled, mobileMenuOpen, searchOpen, notificationsOpen states (moved to Navigation.tsx)
   const [activeFeatureTab, setActiveFeatureTab] = useState("mystore");
   const featuresRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -36,13 +26,7 @@ const Index = () => {
     setQrImage(generateQrCode(qrContent));
   }, [qrContent]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Removed scroll useEffect (moved to Navigation.tsx)
 
   const handleGenerateQR = () => {
     setQrImage(generateQrCode(qrContent));
@@ -68,6 +52,8 @@ const Index = () => {
   const scrollToFeatures = () => {
     featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Removed PremiumNavigation component definition
 
   const peerMalls = [
     {
@@ -135,8 +121,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen font-sans">
-      <Navigation />
-
       <section ref={heroRef} className="pt-32 pb-24 bg-gradient-to-br from-blue-50 to-indigo-100 animate-fade-in">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
@@ -157,7 +141,7 @@ const Index = () => {
             <div className="relative bg-white rounded-xl shadow-2xl p-6 animate-float">
               <div className="bg-blue-50 rounded-lg p-6 flex flex-col items-center">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800">나만의 QR 코드 만들기</h3>
-                <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+                 <div className="bg-white p-4 rounded-lg shadow-md mb-4">
                   {qrImage && <img src={qrImage} alt="QR 코드" className="w-48 h-48" />}
                 </div>
                 <div className="w-full space-y-4">
@@ -548,16 +532,7 @@ const Index = () => {
         </div>
       </section>
 
-      <ShopFooter 
-        shopName="Peermall" 
-        shopUrl="" 
-        shopData={{
-          ownerName: "Peermall Team",
-          contactNumber: "1-800-PEERMALL",
-          email: "contact@peermall.com",
-          address: "123 Commerce St, Digital City"
-        }}
-      />
+      {/* ShopFooter component removed as it's now in MainLayout */}
     </div>
   );
 };

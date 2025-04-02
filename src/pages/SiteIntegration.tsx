@@ -7,8 +7,6 @@ import { Link } from 'lucide-react';
 const SiteIntegration = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
       <div className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <PageUnderConstruction

@@ -3,8 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom"; // Import Outlet
 import { CartProvider } from "./contexts/CartContext";
+import Navigation from "@/components/Navigation"; // Import Navigation
+import ShopFooter from "@/components/shop/ShopFooter"; // Import ShopFooter
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -21,6 +23,27 @@ import ShopAdmin from "./pages/ShopAdmin";
 
 const queryClient = new QueryClient();
 
+// Define a layout component
+const MainLayout = () => (
+  <div className="flex flex-col min-h-screen">
+    <Navigation />
+    <main className="flex-grow"> {/* Add flex-grow to push footer down */}
+      <Outlet /> {/* Child routes will render here */}
+    </main>
+    {/* Use default/placeholder data for the global footer */}
+    <ShopFooter 
+      shopName="Peermall" 
+      shopUrl="/" 
+      shopData={{
+        ownerName: "Peermall Team",
+        contactNumber: "1-800-PEERMALL",
+        email: "contact@peermall.com",
+        address: "123 Commerce St, Digital City"
+      }}
+    />
+  </div>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -29,22 +52,27 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/lounge-admin" element={<LoungeAdmin />} />
-            <Route path="/personal-lounge" element={<PersonalLounge />} />
-            <Route path="/qr-generator" element={<QRCodeGenerator />} />
-            <Route path="/peermall-list" element={<PeermallList />} />
-            <Route path="/customer-service" element={<CustomerService />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/community/forum" element={<Community />} />
-            <Route path="/community/groupchat" element={<Community />} />
-            <Route path="/community/voicechat" element={<Community />} />
-            <Route path="/community/videochat" element={<Community />} />
-            <Route path="/site-integration" element={<SiteIntegration />} />
-            <Route path="/product-registration" element={<ProductRegistration />} />
-            
-            {/* Shop routes with new URL structure */}
+            {/* Routes using the global MainLayout (Nav + Footer) */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Index />} />
+              {/* Note: Login might eventually need its own layout without Nav/Footer, but keep here for now */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/lounge-admin" element={<LoungeAdmin />} />
+              <Route path="/personal-lounge" element={<PersonalLounge />} />
+              <Route path="/qr-generator" element={<QRCodeGenerator />} />
+              <Route path="/peermall-list" element={<PeermallList />} />
+              <Route path="/customer-service" element={<CustomerService />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/community/forum" element={<Community />} />
+              <Route path="/community/groupchat" element={<Community />} />
+              <Route path="/community/voicechat" element={<Community />} />
+              <Route path="/community/videochat" element={<Community />} />
+              <Route path="/site-integration" element={<SiteIntegration />} />
+              <Route path="/product-registration" element={<ProductRegistration />} />
+              {/* Add other non-shop routes here */}
+            </Route> {/* End of MainLayout routes */}
+
+            {/* Shop routes WITHOUT the global MainLayout */}
             <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
@@ -61,11 +89,9 @@ const App = () => (
             <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
-            
-            {/* Redirect old shop routes to new structure */}
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all route (outside MainLayout) */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

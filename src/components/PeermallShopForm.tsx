@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -85,6 +84,8 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
   };
 
   const onSubmit = (values: FormValues) => {
+    console.log("[PeermallShopForm] onSubmit called with values:", values); // Log 1
+
     // Fix: Ensure all required properties are provided
     const shopData: ShopData = {
       shopName: values.shopName,
@@ -97,17 +98,61 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
       faviconUrl: faviconPreview || undefined,
       location: values.address.split(' ')[0],
       category: values.shopDescription.split(' ')[0],
-      rating: 5.0
+      rating: 5.0,
+      // Add default empty settings objects if they aren't optional in ShopData
+      themeSettings: { primaryColor: "#3B82F6", secondaryColor: "#6366F1", fontFamily: "system-ui, sans-serif", borderRadius: "rounded-lg" },
+      heroSettings: { background: "bg-gradient-to-r from-blue-500 to-indigo-600", title: `${values.shopName}에 오신 것을 환영합니다`, description: values.shopDescription, buttonText: "상품 구경하기", buttonColor: "bg-white text-blue-600 hover:bg-gray-100", imageUrl: "", imagePosition: "right", buttonIcon: true, buttonSize: "medium", buttonRadius: "rounded-full", showDecorations: true, widgets: { showProductCount: false, showRating: false, showBadge: false, badgeText: "신규" } },
+      footerSettings: { background: "bg-gray-800", textColor: "text-white", ownerName: values.ownerName, contactNumber: values.contactNumber, email: values.email, address: values.address },
+      adSettings: [], // Start with empty ads
+      logoUrl: '', // Start with empty logo
+      // faviconUrl is already handled
     };
     
-    // Store the shop data in localStorage (for demo purposes)
-    localStorage.setItem('peermallShopData', JSON.stringify(shopData));
+    console.log("[PeermallShopForm] Constructed shopData:", shopData); // Log 2
+
+    // --- Refactored Storage Logic ---
+    const uniqueShopKey = `peermallShopData_${values.shopUrl}`;
+    const shopUrlsKey = 'peermallShopUrls';
+
+    // 1. Save shop data under unique key
+    try {
+        console.log(`[PeermallShopForm] Attempting to save data to localStorage with key: ${uniqueShopKey}`); // Log 3
+        localStorage.setItem(uniqueShopKey, JSON.stringify(shopData));
+        console.log("[PeermallShopForm] Data saved to localStorage."); // Log 4
+    } catch (error) {
+        console.error("[PeermallShopForm] Error saving shop data:", error);
+        toast({ title: "오류", description: "피어몰 데이터를 저장하는 중 오류가 발생했습니다.", variant: "destructive" });
+        return; // Stop execution if saving fails
+    }
+
+
+    // 2. Update the list of shop URLs
+    try {
+      console.log("[PeermallShopForm] Attempting to update shop URL list..."); // Log 5
+      const existingUrlsString = localStorage.getItem(shopUrlsKey);
+      let shopUrls: string[] = existingUrlsString ? JSON.parse(existingUrlsString) : [];
+      
+      // Add the new URL if it doesn't exist
+      if (!shopUrls.includes(values.shopUrl)) {
+        shopUrls.push(values.shopUrl);
+        localStorage.setItem(shopUrlsKey, JSON.stringify(shopUrls));
+      }
+      console.log("[PeermallShopForm] Shop URL list updated:", shopUrls); // Log 6
+    } catch (error) {
+      console.error("[PeermallShopForm] Error updating shop URL list:", error);
+      // Initialize if error occurs (e.g., corrupted data) - might be better to just log error here
+      // localStorage.setItem(shopUrlsKey, JSON.stringify([values.shopUrl])); 
+      toast({ title: "오류", description: "피어몰 목록을 업데이트하는 중 오류가 발생했습니다.", variant: "destructive" });
+      // Decide if we should proceed despite this error
+    }
+    // --- End Refactored Storage Logic ---
+
+    // Remove the old addPeermall utility call for now
+    // import('@/utils/peermallStorage').then(({ addPeermall }) => {
+    //   addPeermall(shopData);
+    // });
     
-    // Also add to peermall list
-    import('@/utils/peermallStorage').then(({ addPeermall }) => {
-      addPeermall(shopData);
-    });
-    
+    console.log("[PeermallShopForm] Calling toast notification..."); // Log 7
     toast({
       title: "피어몰이 생성되었습니다!",
       description: `${values.shopName} 피어몰이 성공적으로 생성되었습니다.`,
@@ -115,16 +160,19 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     
     // Call onSuccessfulSubmit callback if provided
     if (onSuccessfulSubmit) {
+      console.log("[PeermallShopForm] Calling onSuccessfulSubmit callback..."); // Log 8
       onSuccessfulSubmit();
     }
     
     // Navigate to the generated shop page with new URL structure
+    console.log(`[PeermallShopForm] Navigating to /shop/${values.shopUrl}/home`); // Log 9
     navigate(`/shop/${values.shopUrl}/home`);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Form fields remain the same */}
         <div className="space-y-6">
           <h2 className="text-xl font-semibold">쇼핑몰 기본 정보</h2>
           
@@ -263,9 +311,20 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
                 </FormItem>
               )}
             />
+             <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>주소</FormLabel>
+                  <FormControl>
+                    <Input placeholder="주소를 입력하세요" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          
-          
         </div>
         
         <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700">

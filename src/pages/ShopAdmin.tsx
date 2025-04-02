@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Layout, 
   LayoutDashboard, 
   Image, 
-  Footer, 
+  FooterIcon, 
   Palette, 
-  Ad, 
+  Store, 
   MousePointerClick, 
   ArrowLeft,
   Save,
@@ -95,7 +94,6 @@ const ShopAdmin = () => {
     if (parsedShopData && parsedShopData.shopUrl === shopUrl) {
       setShopData(parsedShopData);
       
-      // Initialize settings from stored data if available
       if (parsedShopData.shopDescription) {
         setHeroSettings(prev => ({
           ...prev,
@@ -126,7 +124,6 @@ const ShopAdmin = () => {
       contactNumber: footerSettings.contactNumber,
       email: footerSettings.email,
       address: footerSettings.address,
-      // Save additional settings as needed
       themeSettings,
       heroSettings,
       footerSettings,
@@ -135,7 +132,7 @@ const ShopAdmin = () => {
     };
     
     localStorage.setItem('peermallShopData', JSON.stringify(updatedShopData));
-    alert('설정이 저장되었습니다.');
+    alert('설정이 저��되었습니다.');
   };
 
   const addNewAd = () => {
@@ -228,7 +225,7 @@ const ShopAdmin = () => {
                     value="ads" 
                     className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
                   >
-                    <Ad className="h-4 w-4 mr-2" />
+                    <Store className="h-4 w-4 mr-2" />
                     광고 관리
                   </TabsTrigger>
                   <TabsTrigger 
@@ -242,7 +239,7 @@ const ShopAdmin = () => {
                     value="footer" 
                     className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
                   >
-                    <Footer className="h-4 w-4 mr-2" />
+                    <FooterIcon className="h-4 w-4 mr-2" />
                     푸터 정보
                   </TabsTrigger>
                   <TabsTrigger 

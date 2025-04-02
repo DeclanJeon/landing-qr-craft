@@ -4,7 +4,7 @@ import {
   Layout, 
   LayoutDashboard, 
   Image, 
-  FooterIcon, 
+  Footer, 
   Palette, 
   Store, 
   MousePointerClick, 
@@ -239,7 +239,7 @@ const ShopAdmin = () => {
                     value="footer" 
                     className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
                   >
-                    <FooterIcon className="h-4 w-4 mr-2" />
+                    <Footer className="h-4 w-4 mr-2" />
                     푸터 정보
                   </TabsTrigger>
                   <TabsTrigger 
@@ -625,7 +625,7 @@ const ShopAdmin = () => {
                           <option value="rounded">둥근 모서리</option>
                           <option value="rounded-lg">더 둥근 모서리</option>
                           <option value="rounded-xl">매우 둥근 모서리</option>
-                          <option value="rounded-2xl">특대 둥근 모서리</option>
+                          <option value="rounded-2xl">특대 둥��� 모서리</option>
                           <option value="rounded-full">완전 원형 모서리</option>
                         </select>
                       </div>

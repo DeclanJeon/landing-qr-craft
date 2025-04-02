@@ -489,8 +489,6 @@ const ProductDetailPage: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm relative">
       {/* Side Advertisements */}
-      <SideAdvertisement position="left" />
-      <SideAdvertisement position="right" />
       
       <Button 
         variant="ghost" 

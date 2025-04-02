@@ -17,6 +17,7 @@ import SiteIntegration from "./pages/SiteIntegration";
 import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import ProductRegistration from "./pages/ProductRegistration";
+import ShopAdmin from "./pages/ShopAdmin";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
+            <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
             
             {/* Redirect old shop routes to new structure */}
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />

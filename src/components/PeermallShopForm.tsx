@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Image } from 'lucide-react';
+import { ShopData } from '@/types/shop';
 
 const formSchema = z.object({
   shopName: z.string().min(2, {
@@ -83,10 +85,16 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
   };
 
   const onSubmit = (values: FormValues) => {
-    // Add favicon to the values
-    const shopData = {
-      ...values,
-      faviconUrl: faviconPreview,
+    // Fix: Ensure all required properties are provided
+    const shopData: ShopData = {
+      shopName: values.shopName,
+      shopDescription: values.shopDescription,
+      shopUrl: values.shopUrl,
+      ownerName: values.ownerName,
+      contactNumber: values.contactNumber,
+      email: values.email,
+      address: values.address,
+      faviconUrl: faviconPreview || undefined,
       location: values.address.split(' ')[0],
       category: values.shopDescription.split(' ')[0],
       rating: 5.0
@@ -257,19 +265,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
             />
           </div>
           
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>주소</FormLabel>
-                <FormControl>
-                  <Input placeholder="서울특별시 강남구..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          
         </div>
         
         <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700">

@@ -2,19 +2,33 @@
 import React from 'react';
 import { Product } from '@/types/shop';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ExternalLink, Truck, Factory } from 'lucide-react';
+import { ShoppingCart, ExternalLink, Truck, Factory, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { toast } from "@/hooks/use-toast";
 
 interface ProductItemProps {
   product: Product;
+  onDelete?: (productId: number) => void;
 }
 
-const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
+const ProductItem: React.FC<ProductItemProps> = ({ product, onDelete }) => {
   const { addToCart } = useCart();
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation to product detail
     addToCart(product);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to product detail
+    
+    if (onDelete) {
+      onDelete(product.id);
+      toast({
+        title: "상품이 삭제되었습니다",
+        description: `${product.name} 상품이 목록에서 제거되었습니다.`
+      });
+    }
   };
 
   return (
@@ -25,16 +39,29 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
           alt={product.name} 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {/* Add to cart button */}
-        <Button 
-          variant="secondary"
-          size="icon"
-          className="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100"
-          onClick={handleCartClick}
-        >
-          <ShoppingCart className="h-4 w-4" />
-        </Button>
+        {/* Action buttons */}
+        <div className="absolute top-2 right-2 flex gap-2">
+          <Button 
+            variant="secondary"
+            size="icon"
+            className="bg-white bg-opacity-80 hover:bg-opacity-100"
+            onClick={handleCartClick}
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </Button>
+          {onDelete && (
+            <Button 
+              variant="destructive"
+              size="icon"
+              className="bg-white bg-opacity-80 hover:bg-red-500"
+              onClick={handleDeleteClick}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
+      
       <div className="p-4">
         <h3 className="font-medium text-lg mb-1 truncate">{product.name}</h3>
         <p className="text-blue-600 font-bold">{product.price}</p>

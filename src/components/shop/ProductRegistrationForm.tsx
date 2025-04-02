@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,15 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Image, Link, ShoppingBag, Truck, Factory, Check, QrCode } from "lucide-react";
+import { 
+  Image, 
+  Link, 
+  ShoppingBag, 
+  Truck, 
+  Factory, 
+  Check, 
+  QrCode
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Product } from "@/types/shop";
 import { z } from "zod";
@@ -147,6 +156,23 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
+                name="externalUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>판매 URL *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/product" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      실제 상품이 판매되는 URL을 입력해주세요.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -182,26 +208,6 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
                     <FormControl>
                       <Input placeholder="상품 이미지 URL을 입력하세요" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      상품 이미지의 URL 주소를 입력하세요.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="externalUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>판매 URL *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/product" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      실제 상품이 판매되는 URL을 입력하세요.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -303,6 +309,12 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
                       </div>
                     )}
                   </div>
+                )}
+                
+                {form.watch("description") && (
+                  <p className="mt-3 text-sm text-gray-600 line-clamp-3">
+                    {form.watch("description")}
+                  </p>
                 )}
                 
                 <div className="mt-4 flex justify-between items-center">

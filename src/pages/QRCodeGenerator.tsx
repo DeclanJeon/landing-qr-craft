@@ -17,10 +17,10 @@ const QRCodeGenerator = () => {
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-bold">QR 코드 생성</h1>
               <Link to="/personal-lounge">
-                <Button variant="outline" className="flex items-center">
+                {/* <Button variant="outline" className="flex items-center">
                   <span>내 피어몰 관리</span>
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                </Button> */}
               </Link>
             </div>
             

@@ -13,8 +13,7 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ product }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   
   useEffect(() => {
-    // For demo purposes, we'll generate a QR code URL using a free QR code generation service
-    // In a production environment, you might want to use a library or your own backend service
+    // Generate QR code URL using a free QR code generation service
     const encodedUrl = encodeURIComponent(product.externalUrl);
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodedUrl}`;
     setQrCodeUrl(qrUrl);

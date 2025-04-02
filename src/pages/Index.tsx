@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { QrCode, Store, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
 import Navigation from '@/components/Navigation';
+import ShopFooter from '@/components/shop/ShopFooter';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationEllipsis, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
 
-// Placeholder function to generate QR code image URL
 const generateQrCode = (content: string) => {
-  // In a real implementation, this would call a QR code generation API
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(content)}`;
 };
 
@@ -22,13 +29,13 @@ const Index = () => {
   const [activeFeatureTab, setActiveFeatureTab] = useState("mystore");
   const featuresRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-
-  // Generate QR code when qrContent changes
+  const [currentPeerMallPage, setCurrentPeerMallPage] = useState(1);
+  const peermallsPerPage = 4;
+  
   useEffect(() => {
     setQrImage(generateQrCode(qrContent));
   }, [qrContent]);
 
-  // Handle scroll events for header styling
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -37,7 +44,6 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle QR code generation
   const handleGenerateQR = () => {
     setQrImage(generateQrCode(qrContent));
     toast({
@@ -46,7 +52,6 @@ const Index = () => {
     });
   };
 
-  // Handle QR download
   const handleDownloadQR = () => {
     const link = document.createElement('a');
     link.href = qrImage;
@@ -64,12 +69,74 @@ const Index = () => {
     featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const peerMalls = [
+    {
+      id: 1,
+      name: "패션 컬렉션",
+      owner: "김지은",
+      image: "https://placehold.co/300",
+      url: "fashion"
+    },
+    {
+      id: 2,
+      name: "홈 인테리어",
+      owner: "박민수",
+      image: "https://placehold.co/300",
+      url: "home"
+    },
+    {
+      id: 3,
+      name: "디지털 기기",
+      owner: "이승훈",
+      image: "https://placehold.co/300",
+      url: "digital"
+    },
+    {
+      id: 4,
+      name: "뷰티 제품",
+      owner: "최예린",
+      image: "https://placehold.co/300",
+      url: "beauty"
+    },
+    {
+      id: 5,
+      name: "스포츠 용품",
+      owner: "정태환",
+      image: "https://placehold.co/300",
+      url: "sports"
+    },
+    {
+      id: 6,
+      name: "취미 용품",
+      owner: "송지현",
+      image: "https://placehold.co/300",
+      url: "hobby"
+    },
+    {
+      id: 7,
+      name: "자동차 액세서리",
+      owner: "강민석",
+      image: "https://placehold.co/300",
+      url: "car"
+    },
+    {
+      id: 8,
+      name: "건강 식품",
+      owner: "유민지",
+      image: "https://placehold.co/300",
+      url: "health"
+    }
+  ];
+
+  const totalPages = Math.ceil(peerMalls.length / peermallsPerPage);
+  const indexOfLastPeerMall = currentPeerMallPage * peermallsPerPage;
+  const indexOfFirstPeerMall = indexOfLastPeerMall - peermallsPerPage;
+  const currentPeerMalls = peerMalls.slice(indexOfFirstPeerMall, indexOfLastPeerMall);
+
   return (
     <div className="min-h-screen font-sans">
-      {/* Use the Navigation component instead of inline header */}
       <Navigation />
 
-      {/* Hero Section */}
       <section ref={heroRef} className="pt-32 pb-24 bg-gradient-to-br from-blue-50 to-indigo-100 animate-fade-in">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
@@ -79,11 +146,11 @@ const Index = () => {
               <Button onClick={scrollToFeatures} className="bg-blue-600 hover:bg-blue-700 rounded-full px-8 py-6 text-lg flex items-center">
                 주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Link to="/personal-lounge">
+              {/* <Link to="/personal-lounge">
                 <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full px-8 py-6 text-lg">
                   무료로 시작하기
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
@@ -121,7 +188,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Tabs Section */}
       <section ref={featuresRef} id="features" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Peermall 기능 살펴보기</h2>
@@ -369,7 +435,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Quick Access Section - NEW SECTION FOR BETTER NAVIGATION */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-10">빠른 기능 접근</h2>
@@ -414,7 +479,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="story" className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Peermall 이야기</h2>
@@ -426,7 +490,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision & Mission Section */}
       <section id="vision" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
@@ -446,7 +509,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Values Section */}
       <section id="values" className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">우리의 가치</h2>
@@ -475,7 +537,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section id="contact" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">문의하기</h2>
@@ -487,36 +548,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Peermall</h3>
-              <p className="text-gray-400">귀한 고객들이 직접 사거나 팔 수 있는 새로운 쇼핑 플랫폼입니다.</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">주요 링크</h4>
-              <ul className="space-y-2">
-                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">주요 기능</a></li>
-                <li><a href="#story" className="text-gray-400 hover:text-white transition-colors">Peermall 이야기</a></li>
-                <li><a href="#vision" className="text-gray-400 hover:text-white transition-colors">비전</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">연락처</h4>
-              <ul className="space-y-2">
-                <li className="text-gray-400">이메일: info@peermall.com</li>
-                <li className="text-gray-400">전화: 1234-5678</li>
-                <li className="text-gray-400">주소: 서울시 강남구 테헤란로</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-            <p>© 2025 Peermall. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <ShopFooter 
+        shopName="Peermall" 
+        shopUrl="" 
+        shopData={{
+          ownerName: "Peermall Team",
+          contactNumber: "1-800-PEERMALL",
+          email: "contact@peermall.com",
+          address: "123 Commerce St, Digital City"
+        }}
+      />
     </div>
   );
 };

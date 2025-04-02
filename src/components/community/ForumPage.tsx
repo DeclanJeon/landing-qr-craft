@@ -2,6 +2,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MessageSquare, Users, ArrowUpRight } from 'lucide-react';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 
 interface ForumPost {
   id: number;
@@ -98,6 +106,14 @@ const ForumCategories = [
 
 const ForumPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const postsPerPage = 5;
+  
+  // Get current posts based on pagination
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = samplePosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(samplePosts.length / postsPerPage);
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -139,7 +155,7 @@ const ForumPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {samplePosts.map((post) => (
+            {currentPosts.map((post) => (
               <tr key={post.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-4">
                   <div className="flex items-start">
@@ -167,20 +183,35 @@ const ForumPage: React.FC = () => {
       </div>
       
       {/* Pagination */}
-      <div className="mt-6 flex justify-center">
-        <nav className="flex items-center space-x-1">
-          <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-            <span className="sr-only">Previous</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><path d="m15 18-6-6 6-6"/></svg>
-          </Button>
-          <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-blue-50 text-blue-600 border-blue-200">1</Button>
-          <Button variant="outline" size="sm" className="h-8 w-8 p-0">2</Button>
-          <Button variant="outline" size="sm" className="h-8 w-8 p-0">3</Button>
-          <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-            <span className="sr-only">Next</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><path d="m9 18 6-6-6-6"/></svg>
-          </Button>
-        </nav>
+      <div className="mt-6">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink 
+                  isActive={currentPage === index + 1}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
       
       {/* Popular Topics */}

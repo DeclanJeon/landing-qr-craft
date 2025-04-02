@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   ShieldCheck, 
@@ -10,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types/shop';
 import { toast } from '@/hooks/use-toast';
+import CustomerServiceButton from './CustomerServiceButton';
 
 interface ProductInfoProps {
   product: Product;
@@ -91,17 +91,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           장바구니에 담기
         </Button>
         
-        <div className="grid grid-cols-3 gap-2">
-          <Button variant="secondary" size="sm" onClick={handleConsultChat}>
-            채팅 상담
-          </Button>
-          <Button variant="secondary" size="sm" onClick={handleConsultVoice}>
-            음성 상담
-          </Button>
-          <Button variant="secondary" size="sm" onClick={handleConsultVideo}>
-            화상 상담
-          </Button>
-        </div>
+        <CustomerServiceButton 
+          onChatConsult={handleConsultChat}
+          onVoiceConsult={handleConsultVoice}
+          onVideoConsult={handleConsultVideo}
+        />
       </div>
       
       <div className="grid grid-cols-2 gap-2 mb-6">

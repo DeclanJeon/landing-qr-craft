@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -6,7 +7,7 @@ import { Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 
-// Import new components
+// Import components
 import ProductImage from './product-detail/ProductImage';
 import ProductInfo from './product-detail/ProductInfo';
 import ProductTabs from './product-detail/ProductTabs';
@@ -14,6 +15,8 @@ import RelatedProducts from './product-detail/RelatedProducts';
 import AddReviewDialog from './product-detail/AddReviewDialog';
 import LoadingState from './product-detail/LoadingState';
 import NotFoundState from './product-detail/NotFoundState';
+import BestReviews from './product-detail/BestReviews';
+import SideAdvertisement from './product-detail/SideAdvertisement';
 
 interface Review {
   id: string;
@@ -23,6 +26,8 @@ interface Review {
   imageUrl: string;
   linkUrl: string;
   date: string;
+  rating?: number;
+  likes?: number;
 }
 
 interface MyMall {
@@ -33,8 +38,16 @@ interface MyMall {
   date: string;
 }
 
+interface PeerMall {
+  id: string;
+  name: string;
+  logo: string;
+  url: string;
+  products: Product[];
+}
+
 const ProductDetailPage: React.FC = () => {
-  const { productId } = useParams<{ productId: string }>();
+  const { shopUrl, productId } = useParams<{ shopUrl: string; productId: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
@@ -43,8 +56,9 @@ const ProductDetailPage: React.FC = () => {
   const [vendors, setVendors] = useState<{name: string, rating: number, price: string}[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [myMalls, setMyMalls] = useState<MyMall[]>([]);
+  const [peerMalls, setpeerMalls] = useState<PeerMall[]>([]);
   const [isAddingReview, setIsAddingReview] = useState(false);
-  const [activeTab, setActiveTab] = useState('product-info');
+  const [activeTab, setActiveTab] = useState('my-products');
 
   useEffect(() => {
     const fetchProduct = () => {
@@ -63,7 +77,7 @@ const ProductDetailPage: React.FC = () => {
           
           const related = allProducts
             .filter(p => p.categoryId === foundProduct.categoryId && p.id !== foundProduct.id)
-            .slice(0, 3);
+            .slice(0, 6);
           setRelatedProducts(related);
           
           const mockVendors = [
@@ -75,6 +89,7 @@ const ProductDetailPage: React.FC = () => {
           
           loadReviews(foundProduct.id);
           loadMyMalls(foundProduct.id);
+          loadPeerMalls();
         }
         
         setIsLoading(false);
@@ -99,16 +114,42 @@ const ProductDetailPage: React.FC = () => {
           source: "블로그",
           imageUrl: "https://placehold.co/200x150",
           linkUrl: "https://example.com/review1",
-          date: "2023-10-15"
+          date: "2023-10-15",
+          rating: 4.8,
+          likes: 24
         },
         {
           id: "2",
           title: "1개월 사용 후 정직한 리뷰",
           author: "일상리뷰",
-          source: "유튜",
+          source: "유튜브",
           imageUrl: "https://placehold.co/200x150",
           linkUrl: "https://example.com/review2",
-          date: "2023-09-20"
+          date: "2023-09-20",
+          rating: 4.5,
+          likes: 18
+        },
+        {
+          id: "3",
+          title: "이 제품 추천합니다",
+          author: "소비자",
+          source: "쇼핑몰",
+          imageUrl: "https://placehold.co/200x150",
+          linkUrl: "https://example.com/review3",
+          date: "2023-11-05",
+          rating: 4.2,
+          likes: 12
+        },
+        {
+          id: "4",
+          title: "구매하기 전에 알았으면 좋았을 것들",
+          author: "실용파",
+          source: "인스타그램",
+          imageUrl: "https://placehold.co/200x150",
+          linkUrl: "https://example.com/review4",
+          date: "2023-10-25",
+          rating: 3.9,
+          likes: 8
         }
       ];
       setReviews(mockReviews);
@@ -135,6 +176,20 @@ const ProductDetailPage: React.FC = () => {
           userImageUrl: "https://placehold.co/40",
           comment: "저도 사용중인데 만족스러워요",
           date: "2023-10-10"
+        },
+        {
+          id: "3",
+          userName: "박준호",
+          userImageUrl: "https://placehold.co/40",
+          comment: "가성비 좋은 제품입니다",
+          date: "2023-11-01"
+        },
+        {
+          id: "4",
+          userName: "정소연",
+          userImageUrl: "https://placehold.co/40",
+          comment: "디자인이 정말 예쁘네요",
+          date: "2023-11-05"
         }
       ];
       setMyMalls(mockMyMalls);
@@ -142,52 +197,137 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const loadPeerMalls = () => {
+    // This would normally be from an API, but for demo we'll create mock data
+    const mockPeerMalls: PeerMall[] = [
+      {
+        id: "1",
+        name: "테크 마니아",
+        logo: "https://placehold.co/40",
+        url: "techmall",
+        products: [
+          {
+            id: 101,
+            name: "고급 블루투스 이어폰",
+            price: "89,000원",
+            imageUrl: "https://placehold.co/200/2E86C1/FFF?text=Earbuds",
+            description: "고품질 사운드의 블루투스 이어폰",
+            categoryId: 1
+          },
+          {
+            id: 102,
+            name: "스마트 홈 허브",
+            price: "129,000원",
+            imageUrl: "https://placehold.co/200/27AE60/FFF?text=SmartHome",
+            description: "모든 스마트 기기를 연결하는 허브",
+            categoryId: 1
+          },
+          {
+            id: 103,
+            name: "게이밍 마우스",
+            price: "79,000원",
+            imageUrl: "https://placehold.co/200/8E44AD/FFF?text=Mouse",
+            description: "정밀한 움직임을 지원하는 게이밍 마우스",
+            categoryId: 1
+          },
+          {
+            id: 104,
+            name: "4K 웹캠",
+            price: "92,000원",
+            imageUrl: "https://placehold.co/200/F39C12/FFF?text=Webcam",
+            description: "화상 회의를 위한 고화질 웹캠",
+            categoryId: 1
+          }
+        ]
+      },
+      {
+        id: "2",
+        name: "홈 스타일",
+        logo: "https://placehold.co/40",
+        url: "homestyle",
+        products: [
+          {
+            id: 201,
+            name: "모던 스탠드 조명",
+            price: "68,000원",
+            imageUrl: "https://placehold.co/200/E74C3C/FFF?text=Lamp",
+            description: "거실에 어울리는 모던한 스탠드 조명",
+            categoryId: 2
+          },
+          {
+            id: 202,
+            name: "원목 커피 테이블",
+            price: "215,000원",
+            imageUrl: "https://placehold.co/200/9A7D0A/FFF?text=Table",
+            description: "자연스러운 느낌의 원목 커피 테이블",
+            categoryId: 2
+          },
+          {
+            id: 203,
+            name: "북유럽 패브릭 소파",
+            price: "450,000원",
+            imageUrl: "https://placehold.co/200/1ABC9C/FFF?text=Sofa",
+            description: "편안함과 스타일을 겸비한 소파",
+            categoryId: 2
+          }
+        ]
+      }
+    ];
+    
+    setpeerMalls(mockPeerMalls);
+  };
+
   const extractMetadataFromUrl = async (url: string) => {
     try {
       console.log("Attempting to extract metadata from URL:", url);
       
-      // Simulate a call to the scraping API
-      const mockResponse = {
-        title: `리뷰 ${reviews.length + 1}`,
-        image: "https://placehold.co/200x150",
-        author: "불명",
-        source: "웹사이트",
-        date: new Date().toISOString().split('T')[0]
-      };
+      // In a real implementation, this would be a call to your scraping API
+      // For this demo, we'll simulate a response
       
       try {
         const parsedUrl = new URL(url);
         const domain = parsedUrl.hostname.replace('www.', '');
         const sourceName = domain.split('.')[0];
-        mockResponse.source = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
-
-        // This would be where you'd call your scraping API
-        // For this demo, we'll simulate the response
-        // In a real implementation, you'd make a fetch call to your API endpoint
-        // Example: const response = await fetch(`/api/scrape?url=${encodeURIComponent(url)}`);
         
-        // Simulate delay for API call
+        // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Simulate random metadata based on the URL
+        // Create mock response based on URL
+        let title = `${sourceName} 사이트의 리뷰`;
+        let author = `${sourceName} 작성자`;
+        let imageUrl = "https://placehold.co/200x150";
+        let source = sourceName.charAt(0).toUpperCase() + sourceName.slice(1);
+        let date = new Date().toISOString().split('T')[0];
+        let rating = (Math.random() * 2 + 3).toFixed(1); // Random rating between 3.0 and 5.0
+        
+        // Customize based on domain
         if (url.includes('blog')) {
-          mockResponse.title = "블로그에서 발견한 상세 리뷰";
-          mockResponse.author = "블로그 작성자";
+          title = "블로그에서 발견한 상세 리뷰";
+          author = "블로그 작성자";
+          source = "블로그";
         } else if (url.includes('youtube') || url.includes('youtu.be')) {
-          mockResponse.title = "유튜브 리뷰 영상";
-          mockResponse.author = "유튜버";
-          mockResponse.image = "https://placehold.co/200x150/FF0000/FFFFFF?text=YouTube";
+          title = "유튜브 제품 리뷰 영상";
+          author = "유튜브 크리에이터";
+          imageUrl = "https://placehold.co/200x150/FF0000/FFFFFF?text=YouTube";
+          source = "유튜브";
         } else if (url.includes('instagram')) {
-          mockResponse.title = "인스타그램 게시물";
-          mockResponse.author = "인스타그래머";
-          mockResponse.image = "https://placehold.co/200x150/E1306C/FFFFFF?text=Instagram";
+          title = "인스타그램 사용자 후기";
+          author = "인스타그래머";
+          imageUrl = "https://placehold.co/200x150/E1306C/FFFFFF?text=Instagram";
+          source = "인스타그램";
         }
         
-        console.log("Extracted metadata:", mockResponse);
-        return mockResponse;
+        return {
+          title,
+          image: imageUrl,
+          author,
+          source,
+          date,
+          rating: parseFloat(rating)
+        };
       } catch (parseError) {
         console.error("Error parsing URL:", parseError);
-        return mockResponse;
+        throw new Error("유효한 URL을 입력해주세요");
       }
     } catch (error) {
       console.error("Error extracting metadata:", error);
@@ -216,6 +356,9 @@ const ProductDetailPage: React.FC = () => {
         newReview.author = metadata.author || newReview.author;
         newReview.source = metadata.source || newReview.source;
         newReview.imageUrl = metadata.image || newReview.imageUrl;
+        newReview.rating = metadata.rating;
+        newReview.likes = Math.floor(Math.random() * 30); // Random likes
+        
         if (metadata.date) {
           try {
             // Try to format the date
@@ -238,7 +381,11 @@ const ProductDetailPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Error adding review link:", error);
-      throw new Error("유효한 URL을 입력해주세요");
+      toast({
+        title: "오류",
+        description: "리뷰 링크 추가 중 문제가 발생했습니다.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -249,6 +396,8 @@ const ProductDetailPage: React.FC = () => {
       const newReview: Review = {
         ...review,
         id: Date.now().toString(),
+        rating: review.rating || Math.floor(Math.random() * 2) + 4, // Random 4-5 if not provided
+        likes: Math.floor(Math.random() * 20) // Random likes
       };
       
       const updatedReviews = [...reviews, newReview];
@@ -261,7 +410,11 @@ const ProductDetailPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Error adding manual review:", error);
-      throw new Error("리뷰 추가 중 오류가 발생했습니다");
+      toast({
+        title: "오류",
+        description: "리뷰 추가 중 문제가 발생했습니다.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -328,7 +481,11 @@ const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
+    <div className="bg-white p-6 rounded-lg shadow-sm relative">
+      {/* Side Advertisements */}
+      <SideAdvertisement position="left" />
+      <SideAdvertisement position="right" />
+      
       <Button 
         variant="ghost" 
         size="sm" 
@@ -352,12 +509,22 @@ const ProductDetailPage: React.FC = () => {
         />
       </div>
       
+      {/* Best Reviews Section */}
+      {reviews.length >= 3 && (
+        <div className="mt-10">
+          <BestReviews reviews={reviews} />
+        </div>
+      )}
+      
       <div className="mt-10 border-t pt-8">
         <ProductTabs 
+          shopUrl={shopUrl}
           product={product}
+          relatedProducts={relatedProducts}
           vendors={vendors}
           reviews={reviews}
           myMalls={myMalls}
+          peerMalls={peerMalls}
           handleDeleteReview={handleDeleteReview}
           setIsAddingReview={setIsAddingReview}
           activeTab={activeTab}

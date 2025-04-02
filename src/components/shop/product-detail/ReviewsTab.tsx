@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
-import { Plus, Trash2, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Trash2, ExternalLink, Phone, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Pagination, 
   PaginationContent, 
@@ -11,6 +10,8 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import { toast } from '@/hooks/use-toast';
+import ReviewSearchBar from './ReviewSearchBar';
 
 interface Review {
   id: string;
@@ -20,6 +21,8 @@ interface Review {
   imageUrl: string;
   linkUrl: string;
   date: string;
+  rating?: number;
+  likes?: number;
 }
 
 interface ReviewsTabProps {
@@ -36,25 +39,58 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
   setIsAddingReview 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [filteredReviews, setFilteredReviews] = useState<Review[]>(reviews);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  
+  useEffect(() => {
+    setFilteredReviews(reviews);
+  }, [reviews]);
   
   // Calculate total pages
-  const totalPages = Math.ceil(reviews.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredReviews.length / ITEMS_PER_PAGE);
   
   // Get current reviews based on pagination
   const indexOfLastReview = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstReview = indexOfLastReview - ITEMS_PER_PAGE;
-  const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+  const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
   
-  // Reset to first page if current page is out of bounds after deletion
-  React.useEffect(() => {
-    if (currentPage > 1 && indexOfFirstReview >= reviews.length) {
-      setCurrentPage(Math.max(1, Math.ceil(reviews.length / ITEMS_PER_PAGE)));
+  // Reset to first page if current page is out of bounds after deletion or filtering
+  useEffect(() => {
+    if (currentPage > 1 && indexOfFirstReview >= filteredReviews.length) {
+      setCurrentPage(Math.max(1, Math.ceil(filteredReviews.length / ITEMS_PER_PAGE)));
     }
-  }, [reviews.length, currentPage, indexOfFirstReview]);
+  }, [filteredReviews.length, currentPage, indexOfFirstReview]);
 
   // Handle page changes
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // Handle search
+  const handleSearch = (keyword: string) => {
+    setSearchKeyword(keyword);
+    
+    if (!keyword.trim()) {
+      setFilteredReviews(reviews);
+      return;
+    }
+    
+    const lowerKeyword = keyword.toLowerCase();
+    const filtered = reviews.filter(review => 
+      review.title.toLowerCase().includes(lowerKeyword) ||
+      review.author.toLowerCase().includes(lowerKeyword) ||
+      review.source.toLowerCase().includes(lowerKeyword)
+    );
+    
+    setFilteredReviews(filtered);
+    setCurrentPage(1); // Reset to first page
+  };
+  
+  const handleCallReviewer = (author: string) => {
+    toast({
+      title: "통화 연결",
+      description: `${author}님과 통화를 연결합니다.`,
+    });
   };
 
   // Generate page numbers
@@ -78,7 +114,9 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
         </Button>
       </div>
       
-      {reviews.length > 0 ? (
+      <ReviewSearchBar onSearch={handleSearch} />
+      
+      {filteredReviews.length > 0 ? (
         <>
           <div className="space-y-4">
             {currentReviews.map(review => (
@@ -98,18 +136,38 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-medium text-lg mb-1 line-clamp-2">{review.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {review.author} • {review.source} • {review.date}
-                        </p>
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                          <span>{review.author}</span>
+                          <span className="mx-1">•</span>
+                          <span>{review.source}</span>
+                          <span className="mx-1">•</span>
+                          <span>{review.date}</span>
+                          {review.rating && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <span>평점: {review.rating}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="text-red-500 h-8 w-8"
-                        onClick={() => handleDeleteReview(review.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="text-blue-500 h-8 w-8"
+                          onClick={() => handleCallReviewer(review.author)}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="text-red-500 h-8 w-8"
+                          onClick={() => handleDeleteReview(review.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     <div className="mt-auto">
                       {review.linkUrl && (
@@ -162,12 +220,18 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
         </>
       ) : (
         <div className="text-center py-10 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 리뷰가 없습니다</h3>
-          <p className="text-gray-500 mb-4">첫 번째 리뷰를 추가해보세요.</p>
-          <Button onClick={() => setIsAddingReview(true)} className="flex items-center">
-            <Plus className="h-4 w-4 mr-2" />
-            리뷰 추가하기
-          </Button>
+          <h3 className="text-lg font-medium text-gray-700 mb-2">
+            {searchKeyword ? `"${searchKeyword}"에 대한 검색 결과가 없습니다` : '등록된 리뷰가 없습니다'}
+          </h3>
+          <p className="text-gray-500 mb-4">
+            {searchKeyword ? '다른 키워드로 검색해보세요.' : '첫 번째 리뷰를 추가해보세요.'}
+          </p>
+          {!searchKeyword && (
+            <Button onClick={() => setIsAddingReview(true)} className="flex items-center">
+              <Plus className="h-4 w-4 mr-2" />
+              리뷰 추가하기
+            </Button>
+          )}
         </div>
       )}
     </div>

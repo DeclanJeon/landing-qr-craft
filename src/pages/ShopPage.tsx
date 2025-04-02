@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import ShopTemplate from '@/components/ShopTemplate';
 
 const ShopPage = () => {
-  const { shopUrl, productId } = useParams();
+  const { shopUrl, productId, categoryId } = useParams();
 
   // 현재 경로에서 "about" 또는 "service"를 추출하기 위해 window.location 사용
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
@@ -15,7 +15,7 @@ const ShopPage = () => {
     <ShopTemplate 
       shopUrl={shopUrl} 
       page={page} // "about" 또는 "service", 없으면 undefined
-      categoryId={undefined} // 현재 경로에 categoryId가 없으므로 undefined
+      categoryId={categoryId ? Number(categoryId) : undefined} // Convert to number if exists
       productId={productId} // Pass the productId parameter
     />
   );

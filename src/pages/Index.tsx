@@ -146,11 +146,11 @@ const Index = () => {
               <Button onClick={scrollToFeatures} className="bg-blue-600 hover:bg-blue-700 rounded-full px-8 py-6 text-lg flex items-center">
                 주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Link to="/personal-lounge">
+              {/* <Link to="/personal-lounge">
                 <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full px-8 py-6 text-lg">
                   무료로 시작하기
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">

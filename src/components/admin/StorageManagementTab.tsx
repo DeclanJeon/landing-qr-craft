@@ -15,18 +15,9 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-
-interface StorageItem {
-  id: string;
-  name: string;
-  description: string;
-  used: number; // in kilobytes
-  capacity: number | null; // in kilobytes, null if unknown
-  capacityText: string;
-  status: 'ok' | 'warning' | 'error' | 'inactive';
-  statusText: string;
-  permissionGranted?: boolean;
-}
+import { Progress } from "@/components/ui/progress";
+import { toast } from "@/hooks/use-toast";
+import { StorageItem } from '@/types/shop';
 
 const StorageManagementTab: React.FC = () => {
   const [storageData, setStorageData] = useState<{
@@ -212,7 +203,11 @@ const StorageManagementTab: React.FC = () => {
       calculateLocalStorageUsage();
       
       // Show success message
-      alert("피어몰 관련 LocalStorage 데이터가 삭제되었습니다.");
+      toast({
+        title: "데이터 삭제 완료",
+        description: "피어몰 관련 LocalStorage 데이터가 삭제되었습니다.",
+        variant: "default",
+      });
     }
   };
 
@@ -251,7 +246,11 @@ const StorageManagementTab: React.FC = () => {
       `);
       dataWindow.document.close();
     } else {
-      alert("팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.");
+      toast({
+        title: "팝업 차단됨",
+        description: "팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -262,14 +261,32 @@ const StorageManagementTab: React.FC = () => {
         // @ts-ignore - TypeScript doesn't recognize showDirectoryPicker yet
         const dirHandle = await window.showDirectoryPicker();
         console.log("폴더 접근 권한 획득:", dirHandle.name);
-        alert(`폴더 "${dirHandle.name}"에 대한 접근 권한을 얻었습니다.`);
+        
+        toast({
+          title: "폴더 접근 권한 획득",
+          description: `폴더 "${dirHandle.name}"에 대한 접근 권한을 얻었습니다.`,
+          variant: "default",
+        });
+        
         updateFileSystemStatus(true);
       } catch (err) {
         console.error("폴더 접근 권한 요청 중 오류 발생:", err);
+        
+        toast({
+          title: "접근 권한 획득 실패",
+          description: "폴더 접근 권한을 얻지 못했습니다.",
+          variant: "destructive",
+        });
+        
         updateFileSystemStatus(false);
       }
     } else {
-      alert("현재 브라우저에서는 File System Access API를 지원하지 않습니다.");
+      toast({
+        title: "미지원 브라우저",
+        description: "현재 브라우저에서는 File System Access API를 지원하지 않습니다.",
+        variant: "destructive",
+      });
+      
       setStorageData(prev => ({
         ...prev,
         fileSystem: {
@@ -297,18 +314,11 @@ const StorageManagementTab: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <div className="h-6 w-full bg-gray-100 rounded-full overflow-hidden border">
-              <div 
-                className={`h-full ${
-                  usagePercentage > 90 ? 'bg-red-500' : 
-                  usagePercentage > 70 ? 'bg-yellow-500' : 
-                  'bg-blue-500'
-                } text-xs font-medium text-white flex items-center justify-center`}
-                style={{ width: `${usagePercentage}%` }}
-              >
-                {usagePercentage.toFixed(1)}%
-              </div>
-            </div>
+            <Progress value={usagePercentage} className={`h-6 ${
+              usagePercentage > 90 ? 'bg-red-500' : 
+              usagePercentage > 70 ? 'bg-yellow-500' : 
+              'bg-blue-500'
+            }`} />
             <div className="mt-2 text-sm text-gray-600">
               <span>총 사용량: <strong>{formatBytes(totalUsageKB)}</strong></span>
               <span className="mx-2">|</span>
@@ -377,7 +387,13 @@ const StorageManagementTab: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => alert("IndexedDB 관리 기능은 추후 업데이트 예정입니다.")}
+              onClick={() => {
+                toast({
+                  title: "기능 준비 중",
+                  description: "IndexedDB 관리 기능은 추후 업데이트 예정입니다.",
+                  variant: "default",
+                });
+              }}
             >
               데이터 관리
             </Button>
@@ -418,7 +434,13 @@ const StorageManagementTab: React.FC = () => {
               variant="outline" 
               size="sm" 
               disabled={!storageData.fileSystem.permissionGranted}
-              onClick={() => alert("파일 관리 기능은 추후 업데이트 예정입니다.")}
+              onClick={() => {
+                toast({
+                  title: "기능 준비 중",
+                  description: "파일 관리 기능은 추후 업데이트 예정입니다.",
+                  variant: "default",
+                });
+              }}
             >
               파일 관리
             </Button>

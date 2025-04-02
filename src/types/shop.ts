@@ -1,4 +1,3 @@
-
 export interface ShopData {
   shopName: string;
   shopUrl: string;
@@ -85,4 +84,16 @@ export interface Category {
   id: number;
   name: string;
   count: number;
+}
+
+export interface StorageItem {
+  id: string;
+  name: string;
+  description: string;
+  used: number; // in kilobytes
+  capacity: number | null; // in kilobytes, null if unknown
+  capacityText: string;
+  status: 'ok' | 'warning' | 'error' | 'inactive';
+  statusText: string;
+  permissionGranted?: boolean;
 }

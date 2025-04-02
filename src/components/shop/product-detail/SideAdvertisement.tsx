@@ -40,7 +40,7 @@ const SideAdvertisement: React.FC<SideAdvertisementProps> = ({
     <div 
       className={`fixed top-1/2 transform -translate-y-1/2 z-10 ${
         position === 'left' ? 'left-5' : 'right-5'
-      } transition-all duration-300`}
+      } transition-all duration-300 hover:opacity-95`}
     >
       <div className="relative">
         <Button 
@@ -55,7 +55,7 @@ const SideAdvertisement: React.FC<SideAdvertisementProps> = ({
           <img 
             src={imageUrl} 
             alt={altText} 
-            className="rounded-md shadow-md"
+            className="rounded-md shadow-md hover:shadow-lg transition-shadow"
             style={{ width: '120px', height: '400px' }}
           />
         </a>

@@ -3,8 +3,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Plus, Trash } from 'lucide-react';
+import { Plus, Trash, Link as LinkIcon } from 'lucide-react';
 
 interface AdSettings {
   id: number;
@@ -12,6 +13,7 @@ interface AdSettings {
   description: string;
   position: string;
   imageUrl: string;
+  link?: string;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -29,7 +31,8 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
       title: "새 광고",
       description: "광고 설명을 입력하세요",
       position: "sidebar",
-      imageUrl: "https://placehold.co/300x200",
+      imageUrl: "https://placehold.co/120x400",
+      link: "https://example.com",
       startDate: new Date().toISOString().split('T')[0],
       endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       isActive: true
@@ -83,9 +86,17 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <Button variant="outline" size="sm" className="w-full">
-                    이미지 변경
-                  </Button>
+                  <div className="space-y-2">
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => {
+                      const newUrl = prompt("광고 이미지 URL을 입력하세요", ad.imageUrl);
+                      if (newUrl) handleAdChange(ad.id, 'imageUrl', newUrl);
+                    }}>
+                      이미지 변경
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      사이드바 광고는 120x400 사이즈를 권장합니다
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="col-span-2 space-y-3">
@@ -109,6 +120,22 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
                     />
                   </div>
                   
+                  <div>
+                    <Label htmlFor={`ad-link-${ad.id}`}>광고 링크</Label>
+                    <div className="flex mt-1">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                        <LinkIcon className="h-4 w-4" />
+                      </span>
+                      <Input 
+                        id={`ad-link-${ad.id}`} 
+                        value={ad.link || ''} 
+                        onChange={(e) => handleAdChange(ad.id, 'link', e.target.value)}
+                        className="rounded-l-none"
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label htmlFor={`ad-position-${ad.id}`}>표시 위치</Label>
@@ -127,15 +154,16 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
                     
                     <div>
                       <Label htmlFor={`ad-active-${ad.id}`}>활성화 상태</Label>
-                      <select 
-                        id={`ad-active-${ad.id}`}
-                        value={ad.isActive ? "true" : "false"}
-                        onChange={(e) => handleAdChange(ad.id, 'isActive', e.target.value === "true")}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
-                      >
-                        <option value="true">활성화</option>
-                        <option value="false">비활성화</option>
-                      </select>
+                      <div className="flex items-center space-x-2 mt-3">
+                        <Switch
+                          id={`ad-active-${ad.id}`}
+                          checked={ad.isActive}
+                          onCheckedChange={(checked) => handleAdChange(ad.id, 'isActive', checked)}
+                        />
+                        <Label htmlFor={`ad-active-${ad.id}`}>
+                          {ad.isActive ? '활성화됨' : '비활성화됨'}
+                        </Label>
+                      </div>
                     </div>
                   </div>
                   

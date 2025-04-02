@@ -30,6 +30,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from "@/components/ui/switch";
 import {
     Card,
     CardContent,
@@ -47,9 +48,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-// **** Added Import ****
-import { Switch } from "@/components/ui/switch";
 import HeroSettingsTab from '@/components/admin/HeroSettingsTab';
+import AdManagementTab from '@/components/admin/AdManagementTab';
 
 const ShopAdmin = () => {
     const { shopUrl } = useParams();
@@ -118,7 +118,7 @@ const ShopAdmin = () => {
             if (parsedShopData.heroSettings) {
                 setHeroSettings(prev => ({
                     ...prev,
-                    ...parsedShopData.heroSettings
+                    ...(parsedShopData.heroSettings || {})
                 }));
             }
             if (parsedShopData.ownerName || parsedShopData.contactNumber || parsedShopData.email) {
@@ -130,12 +130,10 @@ const ShopAdmin = () => {
                     address: parsedShopData.address || ''
                 }));
             }
-            // Load saved settings if they exist
             if (parsedShopData.themeSettings) setThemeSettings(parsedShopData.themeSettings);
             if (parsedShopData.footerSettings) setFooterSettings(parsedShopData.footerSettings);
             if (parsedShopData.adSettings) setAdSettings(parsedShopData.adSettings);
             if (parsedShopData.faviconUrl) setFaviconUrl(parsedShopData.faviconUrl);
-
         }
     }, [shopUrl]);
 
@@ -144,7 +142,7 @@ const ShopAdmin = () => {
 
         const updatedShopData = {
             ...shopData,
-            shopDescription: heroSettings.description, // Keep description tied to hero settings for now
+            shopDescription: heroSettings.description,
             ownerName: footerSettings.ownerName,
             contactNumber: footerSettings.contactNumber,
             email: footerSettings.email,
@@ -280,7 +278,7 @@ const ShopAdmin = () => {
                         <ResizableHandle withHandle />
 
                         <ResizablePanel defaultSize={80}>
-                            <div className="h-full bg-white p-6 overflow-y-auto"> {/* Added overflow-y-auto */}
+                            <div className="h-full bg-white p-6 overflow-y-auto">
                                 <TabsContent value="layout" className="h-full">
                                     <div className="flex flex-col h-full">
                                         <h2 className="text-2xl font-bold mb-6">레이아웃 관리</h2>
@@ -288,7 +286,6 @@ const ShopAdmin = () => {
                                             드래그 앤 드롭으로 페이지 섹션의 순서를 변경할 수 있습니다. 각 요소를 클릭하여 세부 설정을 변경하세요.
                                         </p>
                                         <div className="space-y-4">
-                                            {/* Placeholder Cards - Replace with actual draggable components later */}
                                             <Card className="cursor-move hover:shadow-md transition-shadow">
                                                 <CardHeader className="p-4 bg-gray-50">
                                                     <div className="flex justify-between items-center">
@@ -319,7 +316,7 @@ const ShopAdmin = () => {
                                                     </div>
                                                 </CardHeader>
                                             </Card>
-                                             <Card className="cursor-move hover:shadow-md transition-shadow">
+                                            <Card className="cursor-move hover:shadow-md transition-shadow">
                                                 <CardHeader className="p-4 bg-gray-50">
                                                     <div className="flex justify-between items-center">
                                                         <CardTitle className="text-md">광고 섹션</CardTitle>
@@ -357,106 +354,10 @@ const ShopAdmin = () => {
                                 </TabsContent>
 
                                 <TabsContent value="ads" className="h-full">
-                                    <div className="flex flex-col h-full">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h2 className="text-2xl font-bold">광고 관리</h2>
-                                            <Button onClick={addNewAd} className="flex items-center">
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                새 광고 추가
-                                            </Button>
-                                        </div>
-                                        <div className="space-y-4">
-                                            {adSettings.map(ad => (
-                                                <Card key={ad.id} className="overflow-hidden">
-                                                    <CardHeader>
-                                                        <CardTitle className="text-lg font-semibold">{ad.title}</CardTitle>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <Label htmlFor={`ad-title-${ad.id}`}>제목</Label>
-                                                                <Input
-                                                                    type="text"
-                                                                    id={`ad-title-${ad.id}`}
-                                                                    value={ad.title}
-                                                                    onChange={e => handleAdChange(ad.id, 'title', e.target.value)}
-                                                                    className="mt-1"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Label htmlFor={`ad-description-${ad.id}`}>설명</Label>
-                                                                <Input
-                                                                    type="text"
-                                                                    id={`ad-description-${ad.id}`}
-                                                                    value={ad.description}
-                                                                    onChange={e => handleAdChange(ad.id, 'description', e.target.value)}
-                                                                    className="mt-1"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Label htmlFor={`ad-image-url-${ad.id}`}>이미지 URL</Label>
-                                                                <Input
-                                                                    type="text"
-                                                                    id={`ad-image-url-${ad.id}`}
-                                                                    value={ad.imageUrl}
-                                                                    onChange={e => handleAdChange(ad.id, 'imageUrl', e.target.value)}
-                                                                    className="mt-1"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Label htmlFor={`ad-position-${ad.id}`}>위치</Label>
-                                                                <select
-                                                                    id={`ad-position-${ad.id}`}
-                                                                    value={ad.position}
-                                                                    onChange={e => handleAdChange(ad.id, 'position', e.target.value)}
-                                                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
-                                                                >
-                                                                    <option value="hero">히어로 섹션</option>
-                                                                    <option value="sidebar">사이드바</option>
-                                                                    <option value="footer">푸터</option>
-                                                                </select>
-                                                            </div>
-                                                            <div>
-                                                                <Label htmlFor={`ad-start-date-${ad.id}`}>시작일</Label>
-                                                                <Input
-                                                                    type="date"
-                                                                    id={`ad-start-date-${ad.id}`}
-                                                                    value={ad.startDate}
-                                                                    onChange={e => handleAdChange(ad.id, 'startDate', e.target.value)}
-                                                                    className="mt-1"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <Label htmlFor={`ad-end-date-${ad.id}`}>종료일</Label>
-                                                                <Input
-                                                                    type="date"
-                                                                    id={`ad-end-date-${ad.id}`}
-                                                                    value={ad.endDate}
-                                                                    onChange={e => handleAdChange(ad.id, 'endDate', e.target.value)}
-                                                                    className="mt-1"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2 mt-4">
-                                                             {/* Use Label correctly with Switch */}
-                                                            <Switch
-                                                                id={`ad-is-active-${ad.id}`}
-                                                                checked={ad.isActive}
-                                                                onCheckedChange={checked => handleAdChange(ad.id, 'isActive', checked)}
-                                                            />
-                                                            <Label htmlFor={`ad-is-active-${ad.id}`}>활성화</Label>
-                                                        </div>
-                                                    </CardContent>
-                                                    <CardFooter className="justify-end">
-                                                        <Button variant="destructive" size="sm" onClick={() => deleteAd(ad.id)}>
-                                                            <Trash className="h-4 w-4 mr-2" />
-                                                            삭제
-                                                        </Button>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    </div>
+                                    <AdManagementTab 
+                                        adSettings={adSettings}
+                                        setAdSettings={setAdSettings}
+                                    />
                                 </TabsContent>
 
                                 <TabsContent value="theme" className="h-full">
@@ -471,7 +372,7 @@ const ShopAdmin = () => {
                                                         id="primary-color"
                                                         value={themeSettings.primaryColor}
                                                         onChange={e => setThemeSettings({ ...themeSettings, primaryColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full" // Ensure consistent height
+                                                        className="mt-1 h-10 w-full"
                                                     />
                                                 </div>
                                                 <div>
@@ -481,7 +382,7 @@ const ShopAdmin = () => {
                                                         id="secondary-color"
                                                         value={themeSettings.secondaryColor}
                                                         onChange={e => setThemeSettings({ ...themeSettings, secondaryColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full" // Ensure consistent height
+                                                        className="mt-1 h-10 w-full"
                                                     />
                                                 </div>
                                                 <div>
@@ -516,12 +417,11 @@ const ShopAdmin = () => {
                                             </div>
                                             <div>
                                                 <h3 className="font-semibold mb-3">테마 미리보기</h3>
-                                                {/* Apply border radius from theme settings */}
                                                 <div className={`p-4 ${themeSettings.borderRadius} shadow`} style={{ backgroundColor: themeSettings.primaryColor, color: 'white', fontFamily: themeSettings.fontFamily }}>
                                                     <h4 className="text-lg font-bold mb-2">미리보기 제목</h4>
                                                     <p className="mb-3">이것은 테마 설정 미리보기입니다.</p>
                                                     <Button
-                                                        className={`${themeSettings.borderRadius}`} // Apply border radius
+                                                        className={`${themeSettings.borderRadius}`}
                                                         style={{ backgroundColor: themeSettings.secondaryColor, color: 'white' }}
                                                     >
                                                         미리보기 버튼
@@ -567,33 +467,29 @@ const ShopAdmin = () => {
                                                         className="mt-1"
                                                     />
                                                 </div>
-                                                
                                                 <div>
                                                     <Label htmlFor="footer-background">배경 색상</Label>
-                                                    {/* Use actual hex color for input value */}
                                                     <Input
                                                         type="color"
                                                         id="footer-background"
-                                                        value={footerSettings.background.startsWith('#') ? footerSettings.background : '#374151'} // Default or convert Tailwind class
+                                                        value={footerSettings.background.startsWith('#') ? footerSettings.background : '#374151'}
                                                         onChange={e => setFooterSettings({ ...footerSettings, background: e.target.value })}
-                                                        className="mt-1 h-10 w-full" // Ensure consistent height
+                                                        className="mt-1 h-10 w-full"
                                                     />
                                                 </div>
                                                 <div>
                                                     <Label htmlFor="footer-text-color">글자 색상</Label>
-                                                    {/* Use actual hex color for input value */}
                                                     <Input
                                                         type="color"
                                                         id="footer-text-color"
-                                                        value={footerSettings.textColor.startsWith('#') ? footerSettings.textColor : '#ffffff'} // Default or convert Tailwind class
+                                                        value={footerSettings.textColor.startsWith('#') ? footerSettings.textColor : '#ffffff'}
                                                         onChange={e => setFooterSettings({ ...footerSettings, textColor: e.target.value })}
-                                                        className="mt-1 h-10 w-full" // Ensure consistent height
+                                                        className="mt-1 h-10 w-full"
                                                     />
                                                 </div>
                                             </div>
                                             <div className="bg-gray-50 p-4 rounded-lg">
                                                 <h3 className="font-semibold mb-3">푸터 미리보기</h3>
-                                                {/* Apply styles directly */}
                                                 <div className="p-4 rounded-lg" style={{ backgroundColor: footerSettings.background, color: footerSettings.textColor }}>
                                                     <p><strong>소유자:</strong> {footerSettings.ownerName || '미입력'}</p>
                                                     <p><strong>연락처:</strong> {footerSettings.contactNumber || '미입력'}</p>
@@ -625,12 +521,12 @@ const ShopAdmin = () => {
                                             <div className="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center">
                                                 <h3 className="font-semibold mb-3">파비콘 미리보기</h3>
                                                 {faviconUrl ? (
-                                                     <img
+                                                    <img
                                                         src={faviconUrl}
                                                         alt="파비콘 미리보기"
                                                         className="h-8 w-8"
-                                                        onError={(e) => e.currentTarget.style.display = 'none'} // Hide if image fails to load
-                                                     />
+                                                        onError={(e) => e.currentTarget.style.display = 'none'}
+                                                    />
                                                 ) : (
                                                     <div className="h-8 w-8 bg-gray-300 rounded flex items-center justify-center text-gray-500 text-xs">
                                                         아이콘

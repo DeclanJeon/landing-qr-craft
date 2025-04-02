@@ -19,6 +19,7 @@ import ServicePage from './shop/ServicePage';
 import CustomerPeerMalls from './shop/CustomerPeerMalls';
 import RecommendedPeerMalls from './shop/RecommendedPeerMalls';
 import PeerMalls from './shop/CustomerPeerMalls';
+import SideAdvertisement from './shop/product-detail/SideAdvertisement';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
@@ -45,6 +46,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [isProductRegistrationOpen, setIsProductRegistrationOpen] = useState(false);
   const { getCartCount } = useCart();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
+  const [sideAds, setSideAds] = useState<{left?: any, right?: any}>({});
 
   const customerMalls = [
     {
@@ -181,6 +183,25 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
       }
     } else {
       setShopData(parsedShopData);
+      
+      if (parsedShopData.adSettings) {
+        const activeAds = parsedShopData.adSettings.filter(ad => 
+          ad.isActive && 
+          ad.position === 'sidebar' && 
+          new Date(ad.startDate) <= new Date() && 
+          new Date(ad.endDate) >= new Date()
+        );
+        
+        if (activeAds.length > 0) {
+          const leftAd = activeAds[0];
+          const rightAd = activeAds.length > 1 ? activeAds[1] : null;
+          
+          setSideAds({
+            left: leftAd,
+            right: rightAd
+          });
+        }
+      }
     }
 
     const storedProducts = localStorage.getItem('peermall-products');
@@ -408,7 +429,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
                   <h4 className="font-medium">QR 코드는 어떻게 사용하나요?</h4>
                   <p className="text-gray-600 mt-2">
                     각 상품과 링크에 자동으로 생성된 QR 코드를 스캔하면 해당 외부 사이트로 바로 이동할 수 있습니다.
-                    이를 통해 오프라인에서도 손쉽게 온라인 콘텐츠에 접근할 수 있습니다.
+                    이를 통해 오프라인에서�� 손쉽게 온라인 콘텐츠에 접근할 수 있습니다.
                   </p>
                 </div>
               </div>
@@ -450,6 +471,24 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
         open={isProductRegistrationOpen} 
         onClose={() => setIsProductRegistrationOpen(false)} 
       />
+
+      {sideAds.left && (
+        <SideAdvertisement 
+          position="left"
+          imageUrl={sideAds.left.imageUrl}
+          link={sideAds.left.link || '#'}
+          altText={sideAds.left.title}
+        />
+      )}
+      
+      {sideAds.right && (
+        <SideAdvertisement 
+          position="right"
+          imageUrl={sideAds.right.imageUrl}
+          link={sideAds.right.link || '#'}
+          altText={sideAds.right.title}
+        />
+      )}
 
       <main className="container mx-auto px-4 py-8">
         {page !== 'about' && page !== 'service' && !productId && (

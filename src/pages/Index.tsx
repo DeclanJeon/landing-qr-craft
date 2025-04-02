@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { QrCode, Store, ArrowRight, ChevronDown, CheckCheck, User, Settings, MessageSquare, Users } from "lucide-react";
 import Navigation from '@/components/Navigation';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationEllipsis, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
 
 // Placeholder function to generate QR code image URL
 const generateQrCode = (content: string) => {
@@ -22,7 +30,9 @@ const Index = () => {
   const [activeFeatureTab, setActiveFeatureTab] = useState("mystore");
   const featuresRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-
+  const [currentPeerMallPage, setCurrentPeerMallPage] = useState(1);
+  const peermallsPerPage = 4;
+  
   // Generate QR code when qrContent changes
   useEffect(() => {
     setQrImage(generateQrCode(qrContent));
@@ -63,6 +73,72 @@ const Index = () => {
   const scrollToFeatures = () => {
     featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Sample peer mall data
+  const peerMalls = [
+    {
+      id: 1,
+      name: "패션 컬렉션",
+      owner: "김지은",
+      image: "https://placehold.co/300",
+      url: "fashion"
+    },
+    {
+      id: 2,
+      name: "홈 인테리어",
+      owner: "박민수",
+      image: "https://placehold.co/300",
+      url: "home"
+    },
+    {
+      id: 3,
+      name: "디지털 기기",
+      owner: "이승훈",
+      image: "https://placehold.co/300",
+      url: "digital"
+    },
+    {
+      id: 4,
+      name: "뷰티 제품",
+      owner: "최예린",
+      image: "https://placehold.co/300",
+      url: "beauty"
+    },
+    {
+      id: 5,
+      name: "스포츠 용품",
+      owner: "정태환",
+      image: "https://placehold.co/300",
+      url: "sports"
+    },
+    {
+      id: 6,
+      name: "취미 용품",
+      owner: "송지현",
+      image: "https://placehold.co/300",
+      url: "hobby"
+    },
+    {
+      id: 7,
+      name: "자동차 액세서리",
+      owner: "강민석",
+      image: "https://placehold.co/300",
+      url: "car"
+    },
+    {
+      id: 8,
+      name: "건강 식품",
+      owner: "유민지",
+      image: "https://placehold.co/300",
+      url: "health"
+    }
+  ];
+
+  // Calculate pagination
+  const totalPages = Math.ceil(peerMalls.length / peermallsPerPage);
+  const indexOfLastPeerMall = currentPeerMallPage * peermallsPerPage;
+  const indexOfFirstPeerMall = indexOfLastPeerMall - peermallsPerPage;
+  const currentPeerMalls = peerMalls.slice(indexOfFirstPeerMall, indexOfLastPeerMall);
 
   return (
     <div className="min-h-screen font-sans">
@@ -414,6 +490,73 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Popular Peer Malls Section - NEW SECTION WITH PAGINATION */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-10">인기 피어몰</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {currentPeerMalls.map(mall => (
+              <Link to={`/shop/${mall.url}/home`} key={mall.id}>
+                <Card className="hover:shadow-lg transition-shadow overflow-hidden h-full">
+                  <div className="aspect-video bg-gray-100">
+                    <img src={mall.image} alt={mall.name} className="w-full h-full object-cover" />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-lg">{mall.name}</h3>
+                    <p className="text-sm text-gray-500">by {mall.owner}</p>
+                    <div className="flex mt-3">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Store className="h-4 w-4 mr-1" />
+                        방문하기
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPeerMallPage(prev => Math.max(1, prev - 1))}
+                  className={currentPeerMallPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink 
+                    isActive={currentPeerMallPage === i + 1}
+                    onClick={() => setCurrentPeerMallPage(i + 1)}
+                    className="cursor-pointer"
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPeerMallPage(prev => Math.min(totalPages, prev + 1))}
+                  className={currentPeerMallPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          
+          <div className="text-center mt-8">
+            <Link to="/peermall-list">
+              <Button variant="outline">
+                더 많은 피어몰 보기
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* About Section */}
       <section id="story" className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
@@ -482,43 +625,4 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Peermall에 대해 더 궁금한 점이 있으신가요? 지금 바로 문의하세요!</p>
           <div className="flex flex-col md:flex-row justify-center gap-4 max-w-md mx-auto">
             <Input placeholder="이메일을 입력하세요" className="md:flex-1" />
-            <Button className="bg-blue-600 hover:bg-blue-700">문의하기</Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Peermall</h3>
-              <p className="text-gray-400">귀한 고객들이 직접 사거나 팔 수 있는 새로운 쇼핑 플랫폼입니다.</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">주요 링크</h4>
-              <ul className="space-y-2">
-                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">주요 기능</a></li>
-                <li><a href="#story" className="text-gray-400 hover:text-white transition-colors">Peermall 이야기</a></li>
-                <li><a href="#vision" className="text-gray-400 hover:text-white transition-colors">비전</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold mb-4">연락처</h4>
-              <ul className="space-y-2">
-                <li className="text-gray-400">이메일: info@peermall.com</li>
-                <li className="text-gray-400">전화: 1234-5678</li>
-                <li className="text-gray-400">주소: 서울시 강남구 테헤란로</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-            <p>© 2025 Peermall. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default Index;
+            <Button className="bg-blue-600 hover:bg-blue-

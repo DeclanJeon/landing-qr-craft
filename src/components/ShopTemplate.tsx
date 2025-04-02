@@ -18,6 +18,7 @@ import AboutPage from './shop/AboutPage';
 import ServicePage from './shop/ServicePage';
 import CustomerPeerMalls from './shop/CustomerPeerMalls';
 import RecommendedPeerMalls from './shop/RecommendedPeerMalls';
+import PeerMalls from './shop/CustomerPeerMalls';
 import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
@@ -72,6 +73,42 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
       url: 'jimin',
       comment: '제가 직접 사용해보고 좋았던 제품들만 모았습니다.',
       date: '2023-06-10'
+    },
+    {
+      id: '4',
+      userName: '최수진',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '수진의 쇼핑몰',
+      url: 'soojin',
+      comment: '트렌디한 제품들을 모아놓은 컬렉션입니다.',
+      date: '2023-07-05'
+    },
+    {
+      id: '5',
+      userName: '정민준',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '민준의 추천',
+      url: 'minjun',
+      comment: '가성비 좋은 제품들만 엄선했습니다.',
+      date: '2023-08-15'
+    },
+    {
+      id: '6',
+      userName: '김서연',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '서연의 피어몰',
+      url: 'seoyeon',
+      comment: '고품질 제품들을 소개합니다.',
+      date: '2023-09-20'
+    },
+    {
+      id: '7',
+      userName: '이준호',
+      userImageUrl: 'https://placehold.co/100',
+      mallName: '준호의 피어몰',
+      url: 'junho',
+      comment: '다양한 카테고리의 제품을 확인할 수 있습니다.',
+      date: '2023-10-10'
     }
   ];
 
@@ -102,6 +139,34 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
         { id: 202, name: '여성 니트', price: '79,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/knit' },
         { id: 203, name: '스니커즈', price: '99,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/sneakers' },
         { id: 204, name: '가죽 백팩', price: '159,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/backpack' }
+      ]
+    },
+    {
+      id: '3',
+      name: '홈 데코',
+      logo: 'https://placehold.co/100',
+      url: 'homedeco',
+      rating: 4.3,
+      category: '인테리어',
+      products: [
+        { id: 301, name: '북유럽 스타일 쿠션', price: '39,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/cushion' },
+        { id: 302, name: '원목 테이블 램프', price: '89,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/lamp' },
+        { id: 303, name: '모던 벽시계', price: '59,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/clock' },
+        { id: 304, name: '패브릭 러그', price: '129,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/rug' }
+      ]
+    },
+    {
+      id: '4',
+      name: '베이커리 숍',
+      logo: 'https://placehold.co/100',
+      url: 'bakery',
+      rating: 4.7,
+      category: '식품',
+      products: [
+        { id: 401, name: '크로와상', price: '4,500원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/croissant' },
+        { id: 402, name: '소금빵', price: '3,200원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/saltbread' },
+        { id: 403, name: '초코 머핀', price: '3,800원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/muffin' },
+        { id: 404, name: '바게트', price: '4,000원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/baguette' }
       ]
     }
   ];
@@ -399,8 +464,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
         
         {(!page || page === 'home') && !productId && (
           <div className="mt-12">
-            <CustomerPeerMalls customerMalls={customerMalls} />
-            <RecommendedPeerMalls recommendedMalls={recommendedMalls} />
+            <PeerMalls customerMalls={customerMalls} recommendedMalls={recommendedMalls} />
           </div>
         )}
       </main>

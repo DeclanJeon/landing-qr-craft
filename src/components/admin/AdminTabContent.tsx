@@ -7,6 +7,7 @@ import AdManagementTab from './AdManagementTab';
 import ThemeSettingsTab from './ThemeSettingsTab';
 import FooterSettingsTab from './FooterSettingsTab';
 import FaviconSettingsTab from './FaviconSettingsTab';
+import StorageManagementTab from './StorageManagementTab';
 
 interface AdminTabContentProps {
   shopName: string;
@@ -49,6 +50,7 @@ interface AdminTabContentProps {
     startDate: string;
     endDate: string;
     isActive: boolean;
+    targetPages: string[];
   }>;
   setAdSettings: React.Dispatch<React.SetStateAction<Array<{
     id: number;
@@ -59,6 +61,7 @@ interface AdminTabContentProps {
     startDate: string;
     endDate: string;
     isActive: boolean;
+    targetPages: string[];
   }>>>;
   themeSettings: {
     primaryColor: string;
@@ -131,6 +134,10 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({
           faviconUrl={faviconUrl}
           setFaviconUrl={setFaviconUrl}
         />
+      </TabsContent>
+      
+      <TabsContent value="storage" className="h-full">
+        <StorageManagementTab />
       </TabsContent>
     </div>
   );

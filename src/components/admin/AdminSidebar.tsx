@@ -6,7 +6,8 @@ import {
   Store, 
   Palette, 
   Box, 
-  MousePointerClick
+  MousePointerClick,
+  Database
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -69,6 +70,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
           >
             <MousePointerClick className="h-4 w-4 mr-2" />
             파비콘 설정
+          </TabsTrigger>
+          <TabsTrigger 
+            value="storage" 
+            className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
+          >
+            <Database className="h-4 w-4 mr-2" />
+            스토리지 관리
           </TabsTrigger>
         </TabsList>
       </Tabs>

@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -149,6 +151,27 @@
   box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
 }
 
+/* Premium design styles */
+.card-premium {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent;
+}
+
+.btn-premium {
+  @apply rounded-full px-6 py-2.5 font-medium transition-all duration-300;
+}
+
+.image-hover-zoom {
+  @apply overflow-hidden;
+}
+
+.image-hover-zoom img {
+  @apply transition-transform duration-500 hover:scale-105;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .container {
@@ -156,4 +179,3 @@
     padding-right: 1rem;
   }
 }
-

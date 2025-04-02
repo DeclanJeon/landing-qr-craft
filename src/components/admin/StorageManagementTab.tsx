@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
-import { 
-  Database, 
-  Box, 
-  Table, 
+import {
+  Database,
+  Box,
+  Table,
   Network,
   Info,
   FolderOpen,
@@ -16,14 +15,36 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Progress } from "@/components/ui/progress";
-import { toast } from "@/hooks/use-toast";
-import { StorageItem } from '@/types/shop';
+import { toast } from "@/hooks/use-toast"; // Assuming use-toast is correctly set up
+import { StorageItem } from '@/types/shop'; // Assuming StorageItem type path
+
+// Type definition for window object with File System Access API
+// This might be included in modern DOM typings already
+declare global {
+  interface Window {
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+  }
+  // Ensure FileSystemDirectoryHandle is recognized if not built-in
+  interface FileSystemDirectoryHandle {
+    values(): AsyncIterableIterator<FileSystemHandle>;
+    name: string;
+    kind: 'directory';
+    // Add other methods if needed, like removeEntry, getDirectoryHandle, etc.
+  }
+  interface FileSystemFileHandle {
+      kind: 'file';
+      name: string;
+      // Add other methods if needed
+  }
+  type FileSystemHandle = FileSystemDirectoryHandle | FileSystemFileHandle;
+}
+
 
 const StorageManagementTab: React.FC = () => {
   const [storageData, setStorageData] = useState<{
     localStorage: StorageItem;
     indexedDB: StorageItem;
-    fileSystem: StorageItem;
+    fileSystem: StorageItem & { dirHandle?: FileSystemDirectoryHandle | null }; // Added dirHandle
     ipfs: StorageItem;
   }>({
     localStorage: {
@@ -55,7 +76,8 @@ const StorageManagementTab: React.FC = () => {
       capacityText: '사용자 디스크 공간',
       status: 'warning',
       statusText: '권한 필요',
-      permissionGranted: false
+      permissionGranted: false,
+      dirHandle: null // Initialize dirHandle
     },
     ipfs: {
       id: 'ipfs',
@@ -69,16 +91,20 @@ const StorageManagementTab: React.FC = () => {
     }
   });
 
-  // Calculate local storage usage on component mount
+  // Calculate local storage usage and estimate IndexedDB on mount
   useEffect(() => {
     calculateLocalStorageUsage();
     estimateIndexedDBUsage();
   }, []);
 
   // Calculate total storage usage
-  const totalUsageKB = Object.values(storageData).reduce((total, item) => total + item.used, 0);
+  const totalUsageKB = Object.values(storageData).reduce((total, item) => {
+      // Exclude IPFS from local total, or adjust logic as needed
+      if (item.id === 'ipfs') return total;
+      return total + (item.used || 0); // Ensure used is a number
+  }, 0);
   const totalCapacityKB = storageData.localStorage.capacity || 5 * 1024; // Use localStorage as baseline
-  const usagePercentage = Math.min((totalUsageKB / totalCapacityKB) * 100, 100);
+  const usagePercentage = totalCapacityKB > 0 ? Math.min((totalUsageKB / totalCapacityKB) * 100, 100) : 0;
 
   const calculateLocalStorageUsage = () => {
     try {
@@ -88,14 +114,15 @@ const StorageManagementTab: React.FC = () => {
         if (key) {
           const value = localStorage.getItem(key) || '';
           // Calculate approximate size in bytes, then convert to KB
-          const size = (key.length + value.length) * 2; // Unicode characters are ~2 bytes
+          // Using TextEncoder is more accurate for byte length
+          const size = new TextEncoder().encode(key).length + new TextEncoder().encode(value).length;
           total += size;
         }
       }
-      
+
       // Convert bytes to kilobytes
       const usedKB = Math.ceil(total / 1024);
-      
+
       setStorageData(prev => ({
         ...prev,
         localStorage: {
@@ -105,6 +132,7 @@ const StorageManagementTab: React.FC = () => {
       }));
     } catch (error) {
       console.error("Error calculating localStorage usage:", error);
+      // Optionally update status to 'error'
     }
   };
 
@@ -113,30 +141,45 @@ const StorageManagementTab: React.FC = () => {
       // Try to use the navigator.storage API if available
       if (navigator.storage && navigator.storage.estimate) {
         const estimate = await navigator.storage.estimate();
-        if (estimate.usage) {
-          // Convert bytes to kilobytes
-          const usedKB = Math.ceil(estimate.usage / 1024);
-          setStorageData(prev => ({
-            ...prev,
-            indexedDB: {
-              ...prev.indexedDB,
-              used: usedKB
-            }
-          }));
-        }
-      } else {
-        // Fallback: Use a rough estimate based on known IndexedDB databases
-        // This is a simplified example - in a real app you would check specific database usage
+        // estimate.usage contains total usage (incl. Cache API, Service Workers etc.)
+        // estimate.usageDetails contains usage per storage type
+        const indexedDBUsageBytes = estimate.usageDetails?.indexedDB || 0;
+
+        // Convert bytes to kilobytes
+        const usedKB = Math.ceil(indexedDBUsageBytes / 1024);
         setStorageData(prev => ({
           ...prev,
           indexedDB: {
             ...prev.indexedDB,
-            used: 50 * 1024 // Default to 50MB as an example
+            used: usedKB
           }
         }));
+
+      } else {
+        // Fallback: No direct way to estimate only IndexedDB without Storage API
+        // Set a placeholder or indicate estimation is unavailable
+        console.warn("navigator.storage.estimate() not available. Cannot estimate IndexedDB usage accurately.");
+        setStorageData(prev => ({
+           ...prev,
+           indexedDB: {
+             ...prev.indexedDB,
+             used: 0, // Or null, or keep previous estimate if any
+             statusText: '사용량 추정 불가',
+             status: 'warning'
+           }
+         }));
       }
     } catch (error) {
       console.error("Error estimating IndexedDB usage:", error);
+       setStorageData(prev => ({
+         ...prev,
+         indexedDB: {
+           ...prev.indexedDB,
+           used: 0, // Or null
+           statusText: '오류 발생',
+           status: 'error'
+         }
+       }));
     }
   };
 
@@ -161,19 +204,6 @@ const StorageManagementTab: React.FC = () => {
     }
   };
 
-  const updateFileSystemStatus = (permissionGranted: boolean, usedKB: number = 200 * 1024) => {
-    setStorageData(prev => ({
-      ...prev,
-      fileSystem: {
-        ...prev.fileSystem,
-        permissionGranted,
-        used: permissionGranted ? usedKB : 0,
-        status: permissionGranted ? 'ok' : 'warning',
-        statusText: permissionGranted ? '활성 (권한 있음)' : '권한 필요'
-      }
-    }));
-  };
-
   const updateIpfsStatus = () => {
     setStorageData(prev => {
       const isActive = prev.ipfs.status === 'inactive';
@@ -183,7 +213,7 @@ const StorageManagementTab: React.FC = () => {
           ...prev.ipfs,
           status: isActive ? 'ok' : 'inactive',
           statusText: isActive ? '연결됨 (예시)' : '비활성/설정 필요',
-          used: isActive ? 10 * 1024 : 0
+          used: isActive ? 10 * 1024 : 0 // Example usage update
         }
       };
     });
@@ -191,41 +221,44 @@ const StorageManagementTab: React.FC = () => {
 
   const clearLocalStorage = () => {
     if (window.confirm("LocalStorage의 모든 피어몰 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 브라우저 캐시/데이터 삭제 시에도 지워질 수 있습니다.")) {
-      // Only clear localStorage keys that start with "peermall_"
-      for (let i = localStorage.length - 1; i >= 0; i--) {
+      // Clear only specific Peermall keys to avoid deleting unrelated data
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
+        // Add more specific keys or prefixes as needed
         if (key && (key.startsWith('peermall_') || key === 'peermallShopData' || key === 'peermall-products' || key === 'peermall-qrcodes')) {
-          localStorage.removeItem(key);
+          keysToRemove.push(key);
         }
       }
-      
+
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
       // Update the UI to reflect the changes
       calculateLocalStorageUsage();
-      
-      // Show success message
+
       toast({
         title: "데이터 삭제 완료",
         description: "피어몰 관련 LocalStorage 데이터가 삭제되었습니다.",
-        variant: "default",
+        variant: "default", // Use appropriate variant from your setup
       });
     }
   };
 
   const viewLocalStorageData = () => {
-    // Collect all localStorage keys related to Peermall
     const peermallData: Record<string, any> = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
+      // Use the same key identification logic as clearLocalStorage
       if (key && (key.startsWith('peermall_') || key === 'peermallShopData' || key === 'peermall-products' || key === 'peermall-qrcodes')) {
         try {
-          peermallData[key] = JSON.parse(localStorage.getItem(key) || '{}');
+          // Attempt to parse JSON, otherwise store as string
+          peermallData[key] = JSON.parse(localStorage.getItem(key) || 'null');
         } catch (e) {
           peermallData[key] = localStorage.getItem(key);
         }
       }
     }
-    
-    // Format and display the data
+
     const formattedData = JSON.stringify(peermallData, null, 2);
     const dataWindow = window.open('', '_blank');
     if (dataWindow) {
@@ -234,13 +267,14 @@ const StorageManagementTab: React.FC = () => {
           <head>
             <title>피어몰 LocalStorage 데이터</title>
             <style>
-              body { font-family: monospace; padding: 20px; }
-              pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow: auto; }
+              body { font-family: monospace; padding: 20px; background-color: #f8f9fa; color: #212529; }
+              pre { background: #fff; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+              h2 { color: #0d6efd; }
             </style>
           </head>
           <body>
             <h2>피어몰 LocalStorage 데이터</h2>
-            <pre>${formattedData}</pre>
+            <pre>${formattedData.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre> 
           </body>
         </html>
       `);
@@ -255,30 +289,54 @@ const StorageManagementTab: React.FC = () => {
   };
 
   const requestFileSystemPermission = async () => {
-    // Check if File System Access API is available
     if ('showDirectoryPicker' in window) {
       try {
-        // @ts-ignore - TypeScript doesn't recognize showDirectoryPicker yet
-        const dirHandle = await window.showDirectoryPicker();
+        const dirHandle: FileSystemDirectoryHandle = await window.showDirectoryPicker();
         console.log("폴더 접근 권한 획득:", dirHandle.name);
-        
+
         toast({
           title: "폴더 접근 권한 획득",
           description: `폴더 "${dirHandle.name}"에 대한 접근 권한을 얻었습니다.`,
           variant: "default",
         });
-        
-        updateFileSystemStatus(true);
-      } catch (err) {
+
+        // Estimate usage after getting permission (placeholder logic)
+        // In a real app, you'd iterate and sum file sizes here
+        const estimatedUsageKB = 200 * 1024; // Replace with actual calculation if needed
+
+        setStorageData(prev => ({
+          ...prev,
+          fileSystem: {
+            ...prev.fileSystem,
+            permissionGranted: true,
+            used: estimatedUsageKB, // Update usage based on folder content
+            status: 'ok',
+            statusText: '활성 (권한 있음)',
+            dirHandle: dirHandle // Store the handle
+          }
+        }));
+
+      } catch (err: any) {
         console.error("폴더 접근 권한 요청 중 오류 발생:", err);
-        
+        const isAbortError = err.name === 'AbortError';
+
         toast({
-          title: "접근 권한 획득 실패",
-          description: "폴더 접근 권한을 얻지 못했습니다.",
-          variant: "destructive",
+          title: isAbortError ? "권한 요청 취소됨" : "접근 권한 획득 실패",
+          description: isAbortError ? "사용자가 폴더 선택을 취소했습니다." : "폴더 접근 권한을 얻지 못했습니다.",
+          variant: isAbortError ? "default" : "destructive",
         });
-        
-        updateFileSystemStatus(false);
+
+        setStorageData(prev => ({
+          ...prev,
+          fileSystem: {
+            ...prev.fileSystem,
+            permissionGranted: false,
+            used: 0,
+            status: 'warning',
+            statusText: '권한 필요',
+            dirHandle: null // Reset the handle
+          }
+        }));
       }
     } else {
       toast({
@@ -286,61 +344,124 @@ const StorageManagementTab: React.FC = () => {
         description: "현재 브라우저에서는 File System Access API를 지원하지 않습니다.",
         variant: "destructive",
       });
-      
       setStorageData(prev => ({
         ...prev,
         fileSystem: {
           ...prev.fileSystem,
           status: 'error',
           statusText: '미지원 브라우저',
-          permissionGranted: false
+          permissionGranted: false,
+          dirHandle: null
         }
       }));
     }
   };
 
+  const manageFileSystemFiles = async () => {
+    const dirHandle = storageData.fileSystem.dirHandle;
+
+    if (!dirHandle) {
+      toast({
+        title: "오류",
+        description: "폴더 핸들을 찾을 수 없습니다. 권한을 다시 요청해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      let fileListHtml = `<h2 style="color: #0d6efd;">폴더 내용: ${dirHandle.name}</h2><ul>`;
+      let count = 0;
+
+      // @ts-ignore - values() might still need ignore depending on exact TS/lib setup
+      for await (const entry of dirHandle.values()) {
+        const icon = entry.kind === 'directory' ? '📁' : '📄';
+        fileListHtml += `<li style="margin-bottom: 5px;">${icon} ${entry.name}</li>`;
+        count++;
+      }
+
+      fileListHtml += `</ul><p style="margin-top: 15px; color: #6c757d;">${count}개의 항목을 찾았습니다.</p>`;
+
+      const dataWindow = window.open('', '_blank');
+      if (dataWindow) {
+        dataWindow.document.write(`
+          <html>
+            <head>
+              <title>피어몰 파일 관리 (${dirHandle.name})</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 20px; background-color: #f8f9fa; color: #212529; }
+                ul { list-style: none; padding-left: 0; }
+                li { background: #fff; padding: 8px 12px; border-radius: 4px; margin-bottom: 6px; border: 1px solid #dee2e6; }
+              </style>
+            </head>
+            <body>
+              ${fileListHtml}
+            </body>
+          </html>
+        `);
+        dataWindow.document.close();
+      } else {
+        toast({
+          title: "팝업 차단됨",
+          description: "팝업이 차단되었습니다. 팝업 차단을 해제하고 다시 시도해주세요.",
+          variant: "destructive",
+        });
+      }
+
+    } catch (error: any) {
+      console.error("Error listing file system entries:", error);
+      toast({
+        title: "파일 목록 조회 실패",
+        description: `폴더 내용을 읽는 중 오류가 발생했습니다: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6"> {/* Added padding */}
       <div>
-        <h2 className="text-2xl font-bold mb-2"><Database className="inline mr-2 h-6 w-6" /> 피어몰 스토리지 관리</h2>
-        <p className="text-gray-600 mb-6">내 피어몰의 데이터는 아래와 같이 로컬 환경에 분산되어 저장됩니다.</p>
+        <h2 className="text-2xl font-bold mb-2 flex items-center"><Database className="mr-2 h-6 w-6" /> 피어몰 스토리지 관리</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">내 피어몰의 데이터는 아래와 같이 로컬 환경에 분산되어 저장됩니다.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-lg"> {/* Adjusted size */}
             <BarChart3 className="mr-2 h-5 w-5 text-blue-500" /> 전체 사용량 요약
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Progress value={usagePercentage} className={`h-6 ${
-              usagePercentage > 90 ? 'bg-red-500' : 
-              usagePercentage > 70 ? 'bg-yellow-500' : 
-              'bg-blue-500'
-            }`} />
-            <div className="mt-2 text-sm text-gray-600">
+            {/* Progress component usage might depend on the specific library (e.g., Shadcn UI) */}
+            <Progress value={usagePercentage} className="h-4" /> {/* Adjusted height */}
+            {/* Optional: Add text inside progress bar if library supports it */}
+             <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
+               <span>{usagePercentage.toFixed(1)}% 사용 중</span>
+             </div>
+             <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               <span>총 사용량: <strong>{formatBytes(totalUsageKB)}</strong></span>
               <span className="mx-2">|</span>
-              <span>추정 총 용량: <strong>{formatBytes(totalCapacityKB)}</strong></span>
+              {/* Displaying localStorage capacity as the reference total here */}
+              <span>참조 용량 (LocalStorage): <strong>{formatBytes(totalCapacityKB)}</strong></span>
             </div>
           </div>
-          
-          <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 border-l-4 border-blue-500">
-            <Info className="inline mr-2 h-4 w-4" /> 
+
+          <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-md text-sm text-blue-700 dark:text-blue-300 border-l-4 border-blue-500">
+            <Info className="inline mr-2 h-4 w-4" />
             브라우저 및 시스템 용량은 환경에 따라 다르며, 일부는 사용자가 직접 관리해야 합니다. 캐시 삭제 시 일부 데이터가 손실될 수 있습니다.
           </div>
         </CardContent>
       </Card>
 
-      <h3 className="text-xl font-semibold mt-6 mb-4 flex items-center">
+      <h3 className="text-xl font-semibold mt-8 mb-4 flex items-center"> {/* Increased top margin */}
         <Boxes className="mr-2 h-5 w-5" /> 스토리지 유형별 상세 정보
       </h3>
 
       {/* LocalStorage Card */}
       <Card>
         <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap justify-between items-center gap-2"> {/* Added gap and wrap */}
             <CardTitle className="text-lg flex items-center">
               <Box className="mr-2 h-5 w-5 text-blue-500" /> {storageData.localStorage.name}
             </CardTitle>
@@ -349,17 +470,17 @@ const StorageManagementTab: React.FC = () => {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-600">{storageData.localStorage.description}</p>
+        <CardContent className="space-y-4 pt-2"> {/* Added pt-2 */}
+          <p className="text-sm text-gray-600 dark:text-gray-400">{storageData.localStorage.description}</p>
           <div className="text-sm">
-            <span>사용량: <strong>{formatBytes(storageData.localStorage.used)}</strong></span> / 
+            <span>사용량: <strong>{formatBytes(storageData.localStorage.used)}</strong></span> /
             <span> 용량: <strong>{storageData.localStorage.capacityText}</strong></span>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={viewLocalStorageData}>데이터 보기</Button>
             <Button variant="destructive" size="sm" onClick={clearLocalStorage}>캐시 주의! 비우기</Button>
           </div>
-          <div className="bg-yellow-50 p-2 text-xs text-yellow-700 rounded border-l-3 border-yellow-400">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 text-xs text-yellow-700 dark:text-yellow-300 rounded border-l-4 border-yellow-400"> {/* Adjusted border */}
             <FileWarning className="inline mr-1 h-3 w-3" /> 브라우저 캐시 삭제 시 데이터가 유실될 수 있습니다.
           </div>
         </CardContent>
@@ -367,8 +488,8 @@ const StorageManagementTab: React.FC = () => {
 
       {/* IndexedDB Card */}
       <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+         <CardHeader className="pb-2">
+          <div className="flex flex-wrap justify-between items-center gap-2">
             <CardTitle className="text-lg flex items-center">
               <Table className="mr-2 h-5 w-5 text-blue-500" /> {storageData.indexedDB.name}
             </CardTitle>
@@ -377,16 +498,16 @@ const StorageManagementTab: React.FC = () => {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-600">{storageData.indexedDB.description}</p>
+        <CardContent className="space-y-4 pt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">{storageData.indexedDB.description}</p>
           <div className="text-sm">
-            <span>사용량: <strong>{formatBytes(storageData.indexedDB.used)}</strong></span> / 
+            <span>사용량: <strong>{formatBytes(storageData.indexedDB.used)}</strong></span> /
             <span> 용량: <strong>{storageData.indexedDB.capacityText}</strong></span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 toast({
                   title: "기능 준비 중",
@@ -398,7 +519,7 @@ const StorageManagementTab: React.FC = () => {
               데이터 관리
             </Button>
           </div>
-          <div className="bg-yellow-50 p-2 text-xs text-yellow-700 rounded border-l-3 border-yellow-400">
+           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 text-xs text-yellow-700 dark:text-yellow-300 rounded border-l-4 border-yellow-400">
             <FileWarning className="inline mr-1 h-3 w-3" /> 디바이스 의존적이며, 백업이 없으면 손실될 수 있습니다.
           </div>
         </CardContent>
@@ -406,8 +527,8 @@ const StorageManagementTab: React.FC = () => {
 
       {/* File System Card */}
       <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+         <CardHeader className="pb-2">
+          <div className="flex flex-wrap justify-between items-center gap-2">
             <CardTitle className="text-lg flex items-center">
               <FolderOpen className="mr-2 h-5 w-5 text-blue-500" /> {storageData.fileSystem.name}
             </CardTitle>
@@ -416,36 +537,31 @@ const StorageManagementTab: React.FC = () => {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-600">{storageData.fileSystem.description}</p>
+        <CardContent className="space-y-4 pt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">{storageData.fileSystem.description}</p>
           <div className="text-sm">
-            <span>사용량: <strong>{formatBytes(storageData.fileSystem.used)}</strong></span> / 
+            <span>사용량: <strong>{formatBytes(storageData.fileSystem.used)}</strong></span> /
             <span> 용량: <strong>{storageData.fileSystem.capacityText}</strong></span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button 
-              variant={storageData.fileSystem.permissionGranted ? "outline" : "default"} 
+            <Button
+              variant={storageData.fileSystem.permissionGranted ? "outline" : "default"}
               size="sm"
               onClick={requestFileSystemPermission}
+              disabled={storageData.fileSystem.status === 'error'} // Disable if browser not supported
             >
               {storageData.fileSystem.permissionGranted ? "폴더 권한 재설정" : "폴더 접근 권한 요청"}
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              disabled={!storageData.fileSystem.permissionGranted}
-              onClick={() => {
-                toast({
-                  title: "기능 준비 중",
-                  description: "파일 관리 기능은 추후 업데이트 예정입니다.",
-                  variant: "default",
-                });
-              }}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!storageData.fileSystem.permissionGranted || !storageData.fileSystem.dirHandle}
+              onClick={manageFileSystemFiles} // Updated onClick
             >
-              파일 관리
+              파일 목록 보기 {/* Changed text slightly */}
             </Button>
           </div>
-          <div className="bg-yellow-50 p-2 text-xs text-yellow-700 rounded border-l-3 border-yellow-400">
+           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 text-xs text-yellow-700 dark:text-yellow-300 rounded border-l-4 border-yellow-400">
             <UserCheck className="inline mr-1 h-3 w-3" /> 사용자의 명시적인 허용이 필요하며, 지정된 폴더 외에는 접근할 수 없습니다.
           </div>
         </CardContent>
@@ -453,8 +569,8 @@ const StorageManagementTab: React.FC = () => {
 
       {/* IPFS Card */}
       <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
+         <CardHeader className="pb-2">
+          <div className="flex flex-wrap justify-between items-center gap-2">
             <CardTitle className="text-lg flex items-center">
               <Network className="mr-2 h-5 w-5 text-blue-500" /> {storageData.ipfs.name}
             </CardTitle>
@@ -463,18 +579,18 @@ const StorageManagementTab: React.FC = () => {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-gray-600">{storageData.ipfs.description}</p>
+        <CardContent className="space-y-4 pt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">{storageData.ipfs.description}</p>
           <div className="text-sm">
-            <span>사용량: <strong>{formatBytes(storageData.ipfs.used)}</strong></span> / 
+            <span>사용량: <strong>{formatBytes(storageData.ipfs.used)}</strong></span> /
             <span> 용량: <strong>{storageData.ipfs.capacityText}</strong></span>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={updateIpfsStatus}>
-              {storageData.ipfs.status === 'inactive' ? '설정/연결' : '연결 해제'}
+              {storageData.ipfs.status === 'inactive' ? '설정/연결 (예시)' : '연결 해제 (예시)'}
             </Button>
           </div>
-          <div className="bg-yellow-50 p-2 text-xs text-yellow-700 rounded border-l-3 border-yellow-400">
+           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 text-xs text-yellow-700 dark:text-yellow-300 rounded border-l-4 border-yellow-400">
             <LinkIcon className="inline mr-1 h-3 w-3" /> 별도 설정 및 외부 네트워크 연결이 필요합니다.
           </div>
         </CardContent>
@@ -484,10 +600,3 @@ const StorageManagementTab: React.FC = () => {
 };
 
 export default StorageManagementTab;
-
-// Type definition for window object with File System Access API
-declare global {
-  interface Window {
-    showDirectoryPicker?: () => Promise<any>;
-  }
-}

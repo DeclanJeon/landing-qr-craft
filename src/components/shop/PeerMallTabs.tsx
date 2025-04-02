@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import CustomerPeerMalls from './CustomerPeerMalls';
+import RecommendedPeerMalls from './RecommendedPeerMalls';
 
 interface PeerMallTabsProps {
   shopUrl: string;
@@ -32,7 +33,7 @@ const PeerMallTabs: React.FC<PeerMallTabsProps> = ({ shopUrl }) => {
         </TabsList>
         
         <TabsContent value="customer">
-          <CustomerPeerMalls />
+          <CustomerPeerMalls currentPage={currentPage} itemsPerPage={itemsPerPage} />
           
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
@@ -60,23 +61,7 @@ const PeerMallTabs: React.FC<PeerMallTabsProps> = ({ shopUrl }) => {
         </TabsContent>
         
         <TabsContent value="recommended">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                <div className="aspect-video bg-gray-100">
-                  <img 
-                    src={`https://placehold.co/600x400/9BB5CE/FFF?text=추천몰${item}`} 
-                    alt={`추천몰 ${item}`} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="font-medium">추천 피어몰 {item}</div>
-                  <div className="text-sm text-gray-500">다양한 신상품</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <RecommendedPeerMalls currentPage={currentPage} itemsPerPage={itemsPerPage} />
           
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">

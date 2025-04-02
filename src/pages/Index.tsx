@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -625,4 +626,12 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Peermall에 대해 더 궁금한 점이 있으신가요? 지금 바로 문의하세요!</p>
           <div className="flex flex-col md:flex-row justify-center gap-4 max-w-md mx-auto">
             <Input placeholder="이메일을 입력하세요" className="md:flex-1" />
-            <Button className="bg-blue-600 hover:bg-blue-
+            <Button className="bg-blue-600 hover:bg-blue-700">문의하기</Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Index;

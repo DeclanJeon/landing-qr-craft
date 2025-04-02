@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ExternalLink, Phone, Search } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Phone, Search, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Pagination, 
@@ -53,6 +53,25 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
   const indexOfLastReview = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstReview = indexOfLastReview - ITEMS_PER_PAGE;
   const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
+  
+  // Get best reviews
+  const getBestReviews = (reviewsList: Review[]) => {
+    return [...reviewsList]
+      .sort((a, b) => {
+        // First sort by rating
+        const ratingA = a.rating || 0;
+        const ratingB = b.rating || 0;
+        if (ratingB !== ratingA) return ratingB - ratingA;
+        
+        // Then by likes
+        const likesA = a.likes || 0;
+        const likesB = b.likes || 0;
+        return likesB - likesA;
+      })
+      .slice(0, 3); // Take top 3
+  };
+  
+  const bestReviews = getBestReviews(reviews);
   
   // Reset to first page if current page is out of bounds after deletion or filtering
   useEffect(() => {
@@ -118,6 +137,56 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
       
       {filteredReviews.length > 0 ? (
         <>
+          {/* Best Reviews Section */}
+          {bestReviews.length > 0 && !searchKeyword && (
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-3">베스트 리뷰</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {bestReviews.map((review) => (
+                  <div key={`best-${review.id}`} className="border rounded-lg p-4 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium line-clamp-1">{review.title}</h3>
+                      <div className="flex items-center">
+                        {review.rating && (
+                          <div className="flex items-center text-yellow-500 mr-2">
+                            <Star className="h-4 w-4 fill-current" />
+                            <span className="ml-1 text-sm">{review.rating}</span>
+                          </div>
+                        )}
+                        {review.likes && (
+                          <span className="text-sm text-gray-500">+{review.likes}</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="relative h-24 mb-2 bg-gray-100">
+                      <img 
+                        src={review.imageUrl} 
+                        alt={review.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://placehold.co/200x150";
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-sm text-gray-600">{review.author} • {review.source}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8 text-blue-600"
+                        onClick={() => handleCallReviewer(review.author)}
+                      >
+                        <Phone className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
             {currentReviews.map(review => (
               <div key={review.id} className="border rounded-lg overflow-hidden">
@@ -145,7 +214,10 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
                           {review.rating && (
                             <>
                               <span className="mx-1">•</span>
-                              <span>평점: {review.rating}</span>
+                              <span className="flex items-center">
+                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-1" />
+                                {review.rating}
+                              </span>
                             </>
                           )}
                         </div>

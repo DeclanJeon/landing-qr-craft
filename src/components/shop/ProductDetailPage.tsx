@@ -212,7 +212,8 @@ const ProductDetailPage: React.FC = () => {
             price: "89,000원",
             imageUrl: "https://placehold.co/200/2E86C1/FFF?text=Earbuds",
             description: "고품질 사운드의 블루투스 이어폰",
-            categoryId: 1
+            categoryId: 1,
+            externalUrl: "https://example.com/earbuds"
           },
           {
             id: 102,
@@ -220,7 +221,8 @@ const ProductDetailPage: React.FC = () => {
             price: "129,000원",
             imageUrl: "https://placehold.co/200/27AE60/FFF?text=SmartHome",
             description: "모든 스마트 기기를 연결하는 허브",
-            categoryId: 1
+            categoryId: 1,
+            externalUrl: "https://example.com/smarthome"
           },
           {
             id: 103,
@@ -228,7 +230,8 @@ const ProductDetailPage: React.FC = () => {
             price: "79,000원",
             imageUrl: "https://placehold.co/200/8E44AD/FFF?text=Mouse",
             description: "정밀한 움직임을 지원하는 게이밍 마우스",
-            categoryId: 1
+            categoryId: 1,
+            externalUrl: "https://example.com/mouse"
           },
           {
             id: 104,
@@ -236,7 +239,8 @@ const ProductDetailPage: React.FC = () => {
             price: "92,000원",
             imageUrl: "https://placehold.co/200/F39C12/FFF?text=Webcam",
             description: "화상 회의를 위한 고화질 웹캠",
-            categoryId: 1
+            categoryId: 1,
+            externalUrl: "https://example.com/webcam"
           }
         ]
       },
@@ -252,7 +256,8 @@ const ProductDetailPage: React.FC = () => {
             price: "68,000원",
             imageUrl: "https://placehold.co/200/E74C3C/FFF?text=Lamp",
             description: "거실에 어울리는 모던한 스탠드 조명",
-            categoryId: 2
+            categoryId: 2,
+            externalUrl: "https://example.com/lamp"
           },
           {
             id: 202,
@@ -260,7 +265,8 @@ const ProductDetailPage: React.FC = () => {
             price: "215,000원",
             imageUrl: "https://placehold.co/200/9A7D0A/FFF?text=Table",
             description: "자연스러운 느낌의 원목 커피 테이블",
-            categoryId: 2
+            categoryId: 2,
+            externalUrl: "https://example.com/table"
           },
           {
             id: 203,
@@ -268,7 +274,8 @@ const ProductDetailPage: React.FC = () => {
             price: "450,000원",
             imageUrl: "https://placehold.co/200/1ABC9C/FFF?text=Sofa",
             description: "편안함과 스타일을 겸비한 소파",
-            categoryId: 2
+            categoryId: 2,
+            externalUrl: "https://example.com/sofa"
           }
         ]
       }

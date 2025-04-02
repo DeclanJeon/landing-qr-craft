@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -16,6 +17,8 @@ import {
     ExternalLink
 } from 'lucide-react';
 import { ShopData } from '@/types/shop';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminTabContent from '@/components/admin/AdminTabContent';
 import {
     Tabs,
     TabsContent,
@@ -50,6 +53,7 @@ import {
 } from "@/components/ui/form";
 import HeroSettingsTab from '@/components/admin/HeroSettingsTab';
 import AdManagementTab from '@/components/admin/AdManagementTab';
+import StorageManagementTab from '@/components/admin/StorageManagementTab';
 
 const ShopAdmin = () => {
     const { shopUrl } = useParams();
@@ -118,10 +122,19 @@ const ShopAdmin = () => {
                 }));
             }
             if (parsedShopData.heroSettings) {
-                setHeroSettings(prev => ({
-                    ...prev,
-                    ...(parsedShopData.heroSettings || {})
-                }));
+                // Create a deep copy with default widgets to ensure all properties are defined
+                const heroWithDefaults = {
+                    ...heroSettings,
+                    ...(parsedShopData.heroSettings || {}),
+                    widgets: {
+                        showProductCount: false,
+                        showRating: false,
+                        showBadge: false,
+                        badgeText: "신규",
+                        ...(parsedShopData.heroSettings?.widgets || {})
+                    }
+                };
+                setHeroSettings(heroWithDefaults);
             }
             if (parsedShopData.ownerName || parsedShopData.contactNumber || parsedShopData.email) {
                 setFooterSettings(prev => ({
@@ -151,11 +164,12 @@ const ShopAdmin = () => {
                 });
             }
             if (parsedShopData.adSettings) {
-                const updatedAds = parsedShopData.adSettings.map(ad => ({
+                const adSettingsWithDefaults = parsedShopData.adSettings.map(ad => ({
                     ...ad,
-                    targetPages: ad.targetPages || ['home']
+                    targetPages: ad.targetPages || ['home'],
+                    link: ad.link || '#'
                 }));
-                setAdSettings(updatedAds);
+                setAdSettings(adSettingsWithDefaults);
             }
             if (parsedShopData.faviconUrl) setFaviconUrl(parsedShopData.faviconUrl);
         }
@@ -189,6 +203,8 @@ const ShopAdmin = () => {
             description: "광고 설명을 입력하세요",
             position: "sidebar",
             imageUrl: "https://placehold.co/300x200",
+            link: "#",
+            targetPages: ["home"],
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             isActive: true
@@ -248,55 +264,7 @@ const ShopAdmin = () => {
                 >
                     <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border">
                         <ResizablePanel defaultSize={20} minSize={15}>
-                            <div className="flex h-full flex-col bg-white">
-                                <div className="border-b p-4">
-                                    <h2 className="text-lg font-semibold">관리 메뉴</h2>
-                                </div>
-                                <TabsList className="w-full flex flex-col h-auto rounded-none border-r bg-white p-0 justify-start">
-                                    <TabsTrigger
-                                        value="layout"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <LayoutDashboard className="h-4 w-4 mr-2" />
-                                        레이아웃 관리
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="hero"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <Image className="h-4 w-4 mr-2" />
-                                        히어로 섹션
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="ads"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <Store className="h-4 w-4 mr-2" />
-                                        광고 관리
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="theme"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <Palette className="h-4 w-4 mr-2" />
-                                        테마 설정
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="footer"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <Box className="h-4 w-4 mr-2" />
-                                        푸터 정보
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="favicon"
-                                        className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
-                                    >
-                                        <MousePointerClick className="h-4 w-4 mr-2" />
-                                        파비콘 설정
-                                    </TabsTrigger>
-                                </TabsList>
-                            </div>
+                            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                         </ResizablePanel>
 
                         <ResizableHandle withHandle />
@@ -560,6 +528,10 @@ const ShopAdmin = () => {
                                             </div>
                                         </div>
                                     </div>
+                                </TabsContent>
+
+                                <TabsContent value="storage" className="h-full">
+                                    <StorageManagementTab />
                                 </TabsContent>
                             </div>
                         </ResizablePanel>

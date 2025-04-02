@@ -8,6 +8,9 @@ export interface ShopData {
   email?: string;
   address?: string;
   logoUrl?: string;
+  location?: string;
+  category?: string;
+  rating?: number;
   heroSettings?: {
     background?: string;
     title?: string;
@@ -74,6 +77,8 @@ export interface Product {
   isNew?: boolean;
   vendor?: string;
   tags?: string[];
+  distributor?: string;
+  manufacturer?: string;
 }
 
 export interface Category {

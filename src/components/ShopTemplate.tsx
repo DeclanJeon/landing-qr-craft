@@ -478,6 +478,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           imageUrl={sideAds.left.imageUrl}
           link={sideAds.left.link || '#'}
           altText={sideAds.left.title}
+          id={sideAds.left.id}
         />
       )}
       
@@ -487,6 +488,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           imageUrl={sideAds.right.imageUrl}
           link={sideAds.right.link || '#'}
           altText={sideAds.right.title}
+          id={sideAds.right.id}
         />
       )}
 

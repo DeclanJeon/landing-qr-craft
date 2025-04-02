@@ -8,7 +8,7 @@ interface SideAdvertisementProps {
   imageUrl?: string;
   link?: string;
   altText?: string;
-  id: number;
+  id?: number;
 }
 
 const SideAdvertisement: React.FC<SideAdvertisementProps> = ({

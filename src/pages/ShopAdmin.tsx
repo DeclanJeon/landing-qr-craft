@@ -88,7 +88,9 @@ const ShopAdmin = () => {
             title: "신규 회원 할인",
             description: "가입 후 첫 구매 시 10% 할인",
             position: "hero",
+            targetPages: ["home"],
             imageUrl: "https://placehold.co/600x300",
+            link: "#",
             startDate: new Date().toISOString().split('T')[0],
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             isActive: true
@@ -130,9 +132,31 @@ const ShopAdmin = () => {
                     address: parsedShopData.address || ''
                 }));
             }
-            if (parsedShopData.themeSettings) setThemeSettings(parsedShopData.themeSettings);
-            if (parsedShopData.footerSettings) setFooterSettings(parsedShopData.footerSettings);
-            if (parsedShopData.adSettings) setAdSettings(parsedShopData.adSettings);
+            if (parsedShopData.themeSettings) {
+                setThemeSettings({
+                    primaryColor: parsedShopData.themeSettings.primaryColor || "#3B82F6",
+                    secondaryColor: parsedShopData.themeSettings.secondaryColor || "#6366F1",
+                    fontFamily: parsedShopData.themeSettings.fontFamily || "system-ui, sans-serif",
+                    borderRadius: parsedShopData.themeSettings.borderRadius || "rounded-lg",
+                });
+            }
+            if (parsedShopData.footerSettings) {
+                setFooterSettings({
+                    background: parsedShopData.footerSettings.background || "bg-gray-800",
+                    textColor: parsedShopData.footerSettings.textColor || "text-white",
+                    ownerName: parsedShopData.footerSettings.ownerName || '',
+                    contactNumber: parsedShopData.footerSettings.contactNumber || '',
+                    email: parsedShopData.footerSettings.email || '',
+                    address: parsedShopData.footerSettings.address || ''
+                });
+            }
+            if (parsedShopData.adSettings) {
+                const updatedAds = parsedShopData.adSettings.map(ad => ({
+                    ...ad,
+                    targetPages: ad.targetPages || ['home']
+                }));
+                setAdSettings(updatedAds);
+            }
             if (parsedShopData.faviconUrl) setFaviconUrl(parsedShopData.faviconUrl);
         }
     }, [shopUrl]);
@@ -488,7 +512,7 @@ const ShopAdmin = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="bg-gray-50 p-4 rounded-lg">
+                                            <div className="bg-gray-50 p-4 rounded-lg flex flex-col items-center justify-center">
                                                 <h3 className="font-semibold mb-3">푸터 미리보기</h3>
                                                 <div className="p-4 rounded-lg" style={{ backgroundColor: footerSettings.background, color: footerSettings.textColor }}>
                                                     <p><strong>소유자:</strong> {footerSettings.ownerName || '미입력'}</p>

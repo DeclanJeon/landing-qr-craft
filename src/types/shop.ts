@@ -46,6 +46,7 @@ export interface ShopData {
     title: string;
     description: string;
     position: string;
+    targetPages: string[];
     imageUrl: string;
     link?: string;
     startDate: string;
@@ -73,4 +74,10 @@ export interface Product {
   isNew?: boolean;
   vendor?: string;
   tags?: string[];
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  count: number;
 }

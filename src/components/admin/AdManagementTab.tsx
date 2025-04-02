@@ -5,13 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Plus, Trash, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash, Link as LinkIcon, Edit } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface AdSettings {
   id: number;
   title: string;
   description: string;
   position: string;
+  targetPages: string[];
   imageUrl: string;
   link?: string;
   startDate: string;
@@ -31,6 +33,7 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
       title: "새 광고",
       description: "광고 설명을 입력하세요",
       position: "sidebar",
+      targetPages: ["home"],
       imageUrl: "https://placehold.co/120x400",
       link: "https://example.com",
       startDate: new Date().toISOString().split('T')[0],
@@ -45,11 +48,43 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
     setAdSettings(adSettings.filter(ad => ad.id !== adId));
   };
 
-  const handleAdChange = (adId: number, field: string, value: string | boolean) => {
+  const handleAdChange = (adId: number, field: string, value: string | boolean | string[]) => {
     setAdSettings(adSettings.map(ad => 
       ad.id === adId ? { ...ad, [field]: value } : ad
     ));
   };
+
+  const handleTargetPagesChange = (adId: number, page: string, checked: boolean) => {
+    setAdSettings(adSettings.map(ad => {
+      if (ad.id === adId) {
+        let newTargetPages = [...ad.targetPages];
+        
+        if (checked && !newTargetPages.includes(page)) {
+          newTargetPages.push(page);
+        } else if (!checked && newTargetPages.includes(page)) {
+          newTargetPages = newTargetPages.filter(p => p !== page);
+        }
+        
+        return { ...ad, targetPages: newTargetPages };
+      }
+      return ad;
+    }));
+  };
+  
+  const adPositions = [
+    { value: "left", label: "왼쪽 사이드바" },
+    { value: "right", label: "오른쪽 사이드바" },
+    { value: "hero", label: "히어로 섹션" },
+    { value: "products", label: "상품 목록 사이" },
+    { value: "footer", label: "푸터 위" }
+  ];
+  
+  const pageOptions = [
+    { value: "home", label: "홈페이지" },
+    { value: "product", label: "상품 상세 페이지" },
+    { value: "about", label: "소개 페이지" },
+    { value: "service", label: "서비스 페이지" }
+  ];
   
   return (
     <div className="flex flex-col h-full">
@@ -145,10 +180,9 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
                         onChange={(e) => handleAdChange(ad.id, 'position', e.target.value)}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
                       >
-                        <option value="hero">히어로 섹션</option>
-                        <option value="sidebar">사이드바</option>
-                        <option value="products">상품 목록 사이</option>
-                        <option value="footer">푸터 위</option>
+                        {adPositions.map(pos => (
+                          <option key={pos.value} value={pos.value}>{pos.label}</option>
+                        ))}
                       </select>
                     </div>
                     
@@ -164,6 +198,29 @@ const AdManagementTab: React.FC<AdManagementTabProps> = ({ adSettings, setAdSett
                           {ad.isActive ? '활성화됨' : '비활성화됨'}
                         </Label>
                       </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="block mb-2">노출 페이지</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {pageOptions.map(page => (
+                        <div key={page.value} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`page-${ad.id}-${page.value}`}
+                            checked={ad.targetPages?.includes(page.value) || false}
+                            onCheckedChange={(checked) => 
+                              handleTargetPagesChange(ad.id, page.value, !!checked)
+                            }
+                          />
+                          <Label 
+                            htmlFor={`page-${ad.id}-${page.value}`}
+                            className="text-sm font-normal"
+                          >
+                            {page.label}
+                          </Label>
+                        </div>
+                      ))}
                     </div>
                   </div>
                   

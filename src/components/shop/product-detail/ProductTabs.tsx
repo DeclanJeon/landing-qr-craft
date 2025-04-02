@@ -49,7 +49,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
       </TabsList>
       
       <TabsContent value="my-products">
-        <VendorsList vendors={vendors} />
         <MyProductList shopUrl={shopUrl} products={relatedProducts} />
       </TabsContent>
       

@@ -23,7 +23,7 @@ const CustomerPeerMalls: React.FC<PeerMallsProps> = ({
   
   return (
     <div className="mt-10">
-      <h2 className="text-2xl font-serif font-medium mb-6 text-gray-800">고객 큐레이션 컬렉션</h2>
+      <h2 className="text-2xl font-serif font-medium mb-6 text-gray-800">다른 피어몰 리스트</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {malls.map((item, index) => {
           // Handle both array of objects and array of numbers

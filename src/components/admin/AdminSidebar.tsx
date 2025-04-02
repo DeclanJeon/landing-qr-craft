@@ -5,7 +5,7 @@ import {
   Image, 
   Store, 
   Palette, 
-  Footer, 
+  Box, 
   MousePointerClick
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,7 +60,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
             value="footer" 
             className="justify-start rounded-none border-b px-4 py-3 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600"
           >
-            <Footer className="h-4 w-4 mr-2" />
+            <Box className="h-4 w-4 mr-2" />
             푸터 정보
           </TabsTrigger>
           <TabsTrigger 

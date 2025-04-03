@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom
 import { CartProvider } from "./contexts/CartContext";
 import Navigation from "@/components/Navigation"; // Import Navigation
 import ShopFooter from "@/components/shop/ShopFooter"; // Import ShopFooter
+import Preloader from "@/components/Preloader"; // Import Preloader
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -20,6 +22,7 @@ import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import ProductRegistration from "./pages/ProductRegistration";
 import ShopAdmin from "./pages/ShopAdmin";
+import ForumPostDetail from "./pages/ForumPostDetail"; // Import the new detail page
 
 const queryClient = new QueryClient();
 
@@ -44,10 +47,26 @@ const MainLayout = () => (
   </div>
 );
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CartProvider>
+const App = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500); // Adjust time as needed (e.g., 1500ms)
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, []);
+
+  if (loading) {
+    return <Preloader />;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <CartProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -57,8 +76,6 @@ const App = () => (
               <Route path="/" element={<Index />} />
               {/* Note: Login might eventually need its own layout without Nav/Footer, but keep here for now */}
               <Route path="/login" element={<Login />} />
-              <Route path="/lounge-admin" element={<LoungeAdmin />} />
-              <Route path="/personal-lounge" element={<PersonalLounge />} />
               <Route path="/qr-generator" element={<QRCodeGenerator />} />
               <Route path="/peermall-list" element={<PeermallList />} />
               <Route path="/customer-service" element={<CustomerService />} />
@@ -67,8 +84,8 @@ const App = () => (
               <Route path="/community/groupchat" element={<Community />} />
               <Route path="/community/voicechat" element={<Community />} />
               <Route path="/community/videochat" element={<Community />} />
+              <Route path="/community/post/:postId" element={<ForumPostDetail />} /> {/* Add route for post detail */}
               <Route path="/site-integration" element={<SiteIntegration />} />
-              <Route path="/product-registration" element={<ProductRegistration />} />
               {/* Add other non-shop routes here */}
             </Route> {/* End of MainLayout routes */}
 
@@ -88,6 +105,8 @@ const App = () => (
             <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
+            {/* Add shop-specific community post detail route */}
+            <Route path="/shop/:shopUrl/community/post/:postId" element={<ForumPostDetail />} /> 
             <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
 
@@ -96,8 +115,8 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </CartProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
+        </TooltipProvider>
+      </QueryClientProvider>
+  );
+};
 export default App;

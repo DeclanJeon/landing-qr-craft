@@ -24,6 +24,18 @@ import { sampleProducts, categories } from '@/constants/sampleData';
 import { ShopData, Product } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
 
+// Define a basic type for Ad Settings if not already defined/imported
+interface AdSetting {
+  id: number; // Change ID back to number to match usage
+  title: string;
+  imageUrl: string;
+  link?: string;
+  isActive: boolean;
+  position: string; // e.g., 'sidebar', 'banner'
+  startDate: string;
+  endDate: string;
+}
+
 interface ShopTemplateProps {
   shopUrl?: string;
   page?: string;
@@ -46,7 +58,8 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
   const [isProductRegistrationOpen, setIsProductRegistrationOpen] = useState(false);
   const { getCartCount } = useCart();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
-  const [sideAds, setSideAds] = useState<{left?: any, right?: any}>({});
+  // Use the defined AdSetting type for sideAds state
+  const [sideAds, setSideAds] = useState<{left?: AdSetting, right?: AdSetting}>({}); 
 
   const customerMalls = [
     {
@@ -263,7 +276,8 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
       const qrCodes = JSON.parse(storedQRCodes);
       const productToDelete = localProducts.find(p => p.id === productId);
       if (productToDelete) {
-        const updatedQRCodes = qrCodes.filter((qr: any) => qr.name !== productToDelete.name);
+        // Add a basic type for the qr object in filter
+        const updatedQRCodes = qrCodes.filter((qr: { name: string }) => qr.name !== productToDelete.name); 
         localStorage.setItem('peermall-qrcodes', JSON.stringify(updatedQRCodes));
       }
     }
@@ -418,7 +432,8 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
               </TabsList>
 
               <TabsContent value="forum">
-                <ForumPage />
+                {/* Pass shopUrl to ForumPage */}
+                <ForumPage shopUrl={actualShopUrl} /> 
               </TabsContent>
 
               <TabsContent value="groupchat">
@@ -508,7 +523,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           imageUrl={sideAds.left.imageUrl}
           link={sideAds.left.link || '#'}
           altText={sideAds.left.title}
-          id={sideAds.left.id}
+          id={sideAds.left.id} // ID is now number
         />
       )}
       
@@ -518,7 +533,7 @@ const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }
           imageUrl={sideAds.right.imageUrl}
           link={sideAds.right.link || '#'}
           altText={sideAds.right.title}
-          id={sideAds.right.id}
+          id={sideAds.right.id} // ID is now number
         />
       )}
 

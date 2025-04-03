@@ -21,13 +21,15 @@ const PageUnderConstruction: React.FC<PageUnderConstructionProps> = ({
 }) => {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="mb-6">
-        {icon}
+      <div className="mb-8"> {/* Increased margin */}
+        {icon} {/* Icon color is passed as prop from parent */}
       </div>
-      <h1 className="text-3xl font-bold mb-3">{title}</h1>
-      <p className="text-gray-600 max-w-md mb-8">{description}</p>
+      {/* Updated text colors */}
+      <h1 className="text-3xl font-bold mb-4 text-white">{title}</h1> 
+      <p className="text-gray-400 max-w-md mb-10">{description}</p> 
       <Link to={returnPath}>
-        <Button variant="outline" className="flex items-center">
+         {/* Updated button style */}
+        <Button variant="outline" className="flex items-center border-gray-600 text-gray-300 hover:bg-gray-700/50"> 
           <ArrowLeft className="mr-2 h-4 w-4" />
           <span>{returnLabel}</span>
         </Button>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Navigation from '@/components/Navigation';
-import { 
-  Card, 
-  CardContent, 
+// Removed redundant Navigation import
+import {
+  Card,
+  CardContent,
   CardFooter
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ const PeermallList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showQR, setShowQR] = useState<string | null>(null); // Changed showQR state to hold shopUrl (string)
   const [peermalls, setPeermalls] = useState<PeermallWithExtras[]>([]);
-  
+
   useEffect(() => {
     // --- Refactored Loading Logic ---
     const shopUrlsKey = 'peermallShopUrls';
@@ -62,12 +62,12 @@ const PeermallList = () => {
     } catch (error) {
       console.error("Error loading peermall list:", error);
     }
-    
+
     setPeermalls(loadedPeermalls);
     // --- End Refactored Loading Logic ---
   }, []); // Empty dependency array means this runs once on mount
-  
-  const filteredPeermalls = peermalls.filter(peermall => 
+
+  const filteredPeermalls = peermalls.filter(peermall =>
     peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     peermall.shopDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (peermall.category && peermall.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -75,118 +75,135 @@ const PeermallList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="pt-32 pb-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
-              <h1 className="text-3xl font-bold">등록된 피어몰 리스트</h1>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input 
-                  placeholder="피어몰 검색..." 
-                  className="pl-10 w-full md:w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+    // Apply dark theme background and adjust padding
+    <div className="min-h-screen bg-gray-900 pt-24 md:pt-32 pb-16">
+      <div className="container mx-auto px-6"> {/* Consistent padding */}
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10"> {/* Increased margin */}
+             {/* Update text color */}
+            <h1 className="text-3xl font-bold text-white">등록된 피어몰 리스트</h1>
+            <div className="relative">
+               {/* Update icon color */}
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+               {/* Update input style */}
+              <Input
+                placeholder="피어몰 검색..."
+                className="pl-10 w-full md:w-64 bg-gray-800 border-gray-700 text-gray-200 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            
-            <div className="flex flex-wrap -mx-3 mb-4">
-              <div className="px-3 mb-4">
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <span>모든 카테고리</span>
-                </Button>
-              </div>
-              <div className="px-3 mb-4">
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <span>모든 지역</span>
-                </Button>
-              </div>
-              <div className="px-3 mb-4">
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <span>평점순</span>
-                </Button>
-              </div>
+          </div>
+
+          {/* Filter Buttons - Dark theme */}
+          <div className="flex flex-wrap -mx-2 mb-8">
+            <div className="px-2 mb-3">
+              <Button variant="outline" size="sm" className="flex items-center border-gray-600 ">
+                <Filter className="h-4 w-4 mr-2" />
+                <span>모든 카테고리</span>
+              </Button>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPeermalls.map(peermall => (
-                // Use shopUrl (now stored in peermall.id) as the key
-                <Card key={peermall.id} className="overflow-hidden hover:shadow-md transition-all duration-300"> 
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={peermall.image} 
-                      alt={peermall.shopName} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-0 right-0 m-2">
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-8 w-8 bg-white rounded-full shadow-sm"
-                        // Toggle QR based on shopUrl (stored in id)
-                        onClick={() => setShowQR(showQR === peermall.id ? null : peermall.id)} 
-                      >
-                        <QrCode className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {/* Show QR if showQR matches the shopUrl (stored in id) */}
-                    {showQR === peermall.id && ( 
-                      <div className="absolute inset-0 bg-white flex items-center justify-center p-4" onClick={() => setShowQR(null)}>
-                        <div className="text-center">
-                          <img src={peermall.qrCode} alt="QR Code" className="w-32 h-32 mx-auto mb-2" />
-                          <p className="text-sm font-medium">{peermall.shopName} QR 코드</p>
-                          <p className="text-xs text-gray-500">클릭하여 닫기</p>
-                        </div>
+            <div className="px-2 mb-3">
+              <Button variant="outline" size="sm" className="flex items-center border-gray-600 ">
+                <Filter className="h-4 w-4 mr-2" />
+                <span>모든 지역</span>
+              </Button>
+            </div>
+            <div className="px-2 mb-3">
+              <Button variant="outline" size="sm" className="flex items-center border-gray-600 ">
+                <Filter className="h-4 w-4 mr-2" />
+                <span>평점순</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Grid - Increased gap */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPeermalls.map(peermall => (
+              // Use shopUrl (now stored in peermall.id) as the key
+               /* Card styling updated */
+              <Card key={peermall.id} className="overflow-hidden bg-gray-800/50 border-gray-700 hover:border-gray-600 transition-all duration-300 flex flex-col">
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={peermall.image}
+                    alt={peermall.shopName}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-0 right-0 m-2">
+                     {/* QR Button styling updated */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 bg-black/50 backdrop-blur-sm border-gray-600 text-gray-200 hover:bg-black/70 rounded-full shadow-sm"
+                      // Toggle QR based on shopUrl (stored in id)
+                      onClick={() => setShowQR(showQR === peermall.id ? null : peermall.id)}
+                    >
+                      <QrCode className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {/* Show QR if showQR matches the shopUrl (stored in id) */}
+                  {showQR === peermall.id && (
+                     /* QR Overlay styling updated */
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer" onClick={() => setShowQR(null)}>
+                      <div className="text-center bg-gray-900 p-4 rounded-lg border border-gray-700">
+                        <img src={peermall.qrCode} alt="QR Code" className="w-32 h-32 mx-auto mb-2 border rounded bg-white p-1" />
+                        <p className="text-sm font-medium text-gray-100">{peermall.shopName} QR 코드</p>
+                        <p className="text-xs text-gray-500">클릭하여 닫기</p>
                       </div>
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                      <h3 className="text-lg font-bold text-white">{peermall.shopName}</h3>
-                      <p className="text-sm text-white/90">{peermall.category}</p>
+                    </div>
+                  )}
+                  {/* Gradient overlay adjusted */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <h3 className="text-lg font-bold text-white">{peermall.shopName}</h3>
+                    <p className="text-sm text-gray-300">{peermall.category}</p>
+                  </div>
+                </div>
+                 {/* Card content styling updated */}
+                <CardContent className="p-4 flex-grow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                       {/* Icon color updated */}
+                      <MapPin className="h-4 w-4 text-gray-400 mr-1" />
+                       {/* Text color updated */}
+                      <span className="text-sm text-gray-400">{peermall.location}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-500 mr-1 fill-current" />
+                       {/* Text color updated */}
+                      <span className="text-sm font-medium text-gray-200">{peermall.rating}</span>
                     </div>
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 text-gray-500 mr-1" />
-                        <span className="text-sm text-gray-600">{peermall.location}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 text-yellow-500 mr-1 fill-current" />
-                        <span className="text-sm font-medium">{peermall.rating}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">{peermall.shopDescription}</p>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex justify-end">
-                    <Link to={`/shop/${peermall.shopUrl}/home`}>
-                      <Button variant="ghost" size="sm" className="text-blue-600">
-                        방문하기
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-            
-            {filteredPeermalls.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-                <Store className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-medium text-gray-700 mb-2">검색 결과가 없습니다</h3>
-                <p className="text-gray-500 mb-6">
-                  다른 검색어로 다시 시도해보세요.
-                </p>
-                <Button onClick={() => setSearchTerm('')}>
-                  모든 피어몰 보기
-                </Button>
-              </div>
-            )}
+                   {/* Text color updated */}
+                  <p className="text-sm text-gray-400 line-clamp-2">{peermall.shopDescription}</p>
+                </CardContent>
+                 {/* Card footer styling updated */}
+                <CardFooter className="p-4 pt-0 flex justify-end mt-auto">
+                  <Link to={`/shop/${peermall.shopUrl}/home`}>
+                     {/* Button styling updated */}
+                    <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-gray-700/50">
+                      방문하기
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
+
+          {/* No results message - Dark theme */}
+          {filteredPeermalls.length === 0 && (
+            <div className="text-center py-16 bg-gray-800/50 rounded-lg border border-gray-700">
+              <Store className="h-16 w-16 mx-auto text-gray-600 mb-4" />
+              <h3 className="text-xl font-medium text-gray-200 mb-2">검색 결과가 없습니다</h3>
+              <p className="text-gray-500 mb-6">
+                다른 검색어로 다시 시도해보세요.
+              </p>
+               {/* Button styling updated */}
+              <Button onClick={() => setSearchTerm('')} className="bg-blue-600 hover:bg-blue-700 text-white">
+                모든 피어몰 보기
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

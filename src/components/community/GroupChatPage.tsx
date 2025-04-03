@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,35 +129,37 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    // Apply dark theme: main container
+    <div className="bg-gray-800/30 rounded-lg border border-gray-700 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-4">
-        {/* Sidebar - Chat Rooms */}
-        <div className="border-r border-gray-200 p-4 space-y-4">
+        {/* Sidebar - Chat Rooms - Dark theme */}
+        <div className="border-r border-gray-700 p-4 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold">채팅방</h3>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <h3 className="font-semibold text-gray-200">채팅방</h3>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
               <UserPlus className="h-4 w-4" />
             </Button>
           </div>
           
-          <Input placeholder="채팅방 검색..." className="h-8" />
+          {/* Dark theme input */}
+          <Input placeholder="채팅방 검색..." className="h-8 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400" />
           
           <div className="space-y-1">
             {chatRooms.map(room => (
               <button
                 key={room.id}
                 className={`w-full flex items-center justify-between p-2 rounded-md text-left ${
-                  room.isActive ? 'bg-blue-50' : 'hover:bg-gray-100'
+                  room.isActive ? 'bg-blue-900/50 text-white' : 'text-gray-300 hover:bg-gray-700/50'
                 }`}
               >
                 <div>
                   <div className="font-medium text-sm">{room.name}</div>
-                  <div className="text-xs text-gray-500 truncate">{room.lastMessage}</div>
+                  <div className="text-xs text-gray-400 truncate">{room.lastMessage}</div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-500">{room.time}</span>
+                  <span className="text-xs text-gray-400">{room.time}</span>
                   {room.unread > 0 && (
-                    <span className="bg-blue-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
+                    <span className="bg-blue-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center leading-tight mt-1">
                       {room.unread}
                     </span>
                   )}
@@ -168,10 +169,11 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
           </div>
         </div>
         
+        
         {/* Main Chat Area */}
         <div className="md:col-span-3 flex flex-col h-[70vh]">
-          {/* Chat Header */}
-          <div className="border-b border-gray-200 p-4 flex justify-between items-center bg-white">
+          {/* Chat Header - Dark theme */}
+          <div className="border-b border-gray-700 p-4 flex justify-between items-center bg-gray-800">
             <div className="flex items-center">
               <div className="mr-3">
                 <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
@@ -179,10 +181,11 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold">피어몰 {type === 'text' ? '그룹 채팅' : type === 'voice' ? '음성 채팅' : '화상 채팅'}</h3>
-                <p className="text-xs text-gray-500">{participants.length}명 참여 중</p>
+                <h3 className="font-semibold text-gray-100">피어몰 {type === 'text' ? '그룹 채팅' : type === 'voice' ? '음성 채팅' : '화상 채팅'}</h3>
+                <p className="text-xs text-gray-400">{participants.length}명 참여 중</p>
               </div>
             </div>
+            
             
             <div className="flex items-center space-x-2">
               {(type === 'voice' || type === 'video') && (
@@ -190,7 +193,7 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className={isMuted ? 'bg-red-50 text-red-600 border-red-200' : ''}
+                    className={`border-gray-600 text-gray-300 hover:bg-gray-700 ${isMuted ? 'bg-red-900/50 text-red-400 border-red-700 hover:bg-red-900' : ''}`}
                     onClick={() => setIsMuted(!isMuted)}
                   >
                     {isMuted ? <MicOff className="h-4 w-4 mr-1" /> : <Mic className="h-4 w-4 mr-1" />}
@@ -199,12 +202,13 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                 </>
               )}
               
+              
               {type === 'video' && (
                 <>
                   <Button
                     variant="outline"
                     size="sm"
-                    className={isVideoOff ? 'bg-red-50 text-red-600 border-red-200' : ''}
+                    className={`border-gray-600 text-gray-300 hover:bg-gray-700 ${isVideoOff ? 'bg-red-900/50 text-red-400 border-red-700 hover:bg-red-900' : ''}`}
                     onClick={() => setIsVideoOff(!isVideoOff)}
                   >
                     {isVideoOff ? <VideoOff className="h-4 w-4 mr-1" /> : <Video className="h-4 w-4 mr-1" />}
@@ -214,7 +218,7 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className={isScreenSharing ? 'bg-green-50 text-green-600 border-green-200' : ''}
+                    className={`border-gray-600 text-gray-300 hover:bg-gray-700 ${isScreenSharing ? 'bg-green-900/50 text-green-400 border-green-700 hover:bg-green-900' : ''}`}
                     onClick={() => setIsScreenSharing(!isScreenSharing)}
                   >
                     <ScreenShare className="h-4 w-4 mr-1" />
@@ -223,23 +227,23 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                 </>
               )}
               
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
                 <Settings className="h-4 w-4" />
               </Button>
               
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </div>
           </div>
           
-          {/* Chat/Video Content */}
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          {/* Chat/Video Content - Dark theme */}
+          <div className="flex-1 overflow-y-auto p-4 bg-gray-900">
             {(type === 'voice' || type === 'video') ? (
               // Voice/Video Grid
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 h-full">
                 {participants.slice(0, 6).map((participant, index) => (
-                  <div key={index} className="relative bg-gray-800 rounded-lg overflow-hidden aspect-video">
+                  <div key={index} className="relative bg-gray-700 rounded-lg overflow-hidden aspect-video">
                     {type === 'video' && !isVideoOff && (
                       <div className="absolute inset-0 flex items-center justify-center text-white text-opacity-80 bg-gradient-to-b from-transparent to-black/40">
                         {index !== 7 ? (
@@ -256,7 +260,6 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                       </div>
                     )}
                     
-                    {/* Name Label */}
                     <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-white text-xs">
                       {participant}
                       {isMuted && index === 7 && <MicOff className="inline h-3 w-3 ml-1" />}
@@ -265,7 +268,7 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                 ))}
               </div>
             ) : (
-              // Text Messages
+              // Text Messages - Dark theme
               <div className="space-y-4">
                 {messages.map((msg) => (
                   <div
@@ -273,7 +276,7 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                     className={`flex ${msg.isCurrentUser ? 'justify-end' : 'justify-start'}`}
                   >
                     {!msg.isCurrentUser && (
-                      <div className="mr-2">
+                      <div className="mr-2 flex-shrink-0">
                         <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
                           {msg.sender.charAt(0)}
                         </div>
@@ -281,18 +284,18 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                     )}
                     <div className={`max-w-[70%]`}>
                       {!msg.isCurrentUser && (
-                        <div className="text-xs text-gray-500 ml-2 mb-1">{msg.sender}</div>
+                        <div className="text-xs text-gray-400 ml-2 mb-1">{msg.sender}</div>
                       )}
                       <div
                         className={`rounded-lg px-3 py-2 inline-block ${
                           msg.isCurrentUser
-                            ? 'bg-blue-600 text-white rounded-tr-none'
-                            : 'bg-gray-200 text-gray-800 rounded-tl-none'
+                            ? 'bg-blue-600 text-white rounded-tr-none' // Current user bubble
+                            : 'bg-gray-700 text-gray-200 rounded-tl-none' // Other user bubble
                         }`}
                       >
                         {msg.content}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className={`text-xs text-gray-500 mt-1 ${msg.isCurrentUser ? 'text-right mr-1' : 'ml-2'}`}>
                         {msg.time}
                       </div>
                     </div>
@@ -302,18 +305,18 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
             )}
           </div>
           
-          {/* Message Input (Text Chat) */}
+          {/* Message Input (Text Chat) - Dark theme */}
           {type === 'text' && (
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-700 bg-gray-800">
               <div className="flex items-center">
                 <div className="flex space-x-1 mr-2">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
                     <Paperclip className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
                     <Image className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:bg-gray-700">
                     <Smile className="h-4 w-4" />
                   </Button>
                 </div>
@@ -323,13 +326,13 @@ const GroupChatPage: React.FC<GroupChatPageProps> = ({ type }) => {
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="메시지 입력..."
-                  className="flex-1"
+                  className="flex-1 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400"
                 />
                 
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 ml-2 text-blue-600" 
+                  className="h-8 w-8 ml-2 text-blue-400 hover:bg-gray-700" 
                   onClick={handleSendMessage}
                 >
                   <Send className="h-4 w-4" />

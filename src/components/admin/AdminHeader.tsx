@@ -1,34 +1,31 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Bell, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save } from 'lucide-react';
 
 interface AdminHeaderProps {
-  shopName: string;
-  shopUrl: string;
-  onSaveChanges: () => void;
+  title: string;
+  subtitle?: string;
 }
 
-const AdminHeader: React.FC<AdminHeaderProps> = ({ shopName, shopUrl, onSaveChanges }) => {
+const AdminHeader: React.FC<AdminHeaderProps> = ({ title, subtitle }) => {
   return (
-    <header className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <Link to={`/shop/${shopUrl}/home`} className="flex items-center text-gray-600 hover:text-blue-600">
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              <span>돌아가기</span>
-            </Link>
-            <h1 className="text-xl font-bold">{shopName} 관리자 페이지</h1>
-          </div>
-          <Button onClick={onSaveChanges} className="flex items-center bg-blue-600 hover:bg-blue-700">
-            <Save className="h-4 w-4 mr-2" />
-            <span>변경사항 저장</span>
-          </Button>
-        </div>
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+      <div>
+        <h1 className="text-3xl font-bold">{title}</h1>
+        {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
       </div>
-    </header>
+      <div className="mt-4 md:mt-0 flex space-x-2">
+        <Button variant="outline" size="sm">
+          <Bell className="h-4 w-4 mr-2" />
+          알림
+        </Button>
+        <Button variant="outline" size="sm">
+          <Settings className="h-4 w-4 mr-2" />
+          설정
+        </Button>
+      </div>
+    </div>
   );
 };
 

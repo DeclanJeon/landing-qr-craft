@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Database,
@@ -30,18 +31,23 @@ import { Separator } from "@/components/ui/separator";
 // TypeScript declarations for the File System Access API
 // Using type aliases to avoid declaration conflicts
 declare global {
-  // Use interface extension instead of redefinition
-  interface FileSystemDirectoryHandlePrototype {
-    values(): AsyncIterableIterator<FileSystemHandlePrototype>;
+  interface FileSystemDirectoryHandle {
+    values(): AsyncIterableIterator<FileSystemHandle>;
     name: string;
+    kind: 'directory';
   }
   
-  interface FileSystemFileHandlePrototype {
+  interface FileSystemFileHandle {
     name: string;
+    kind: 'file';
   }
   
-  type FileSystemHandlePrototype = FileSystemDirectoryHandlePrototype | FileSystemFileHandlePrototype;
+  type FileSystemHandle = FileSystemDirectoryHandle | FileSystemFileHandle;
   
+  interface Window {
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+  }
+
   interface StorageEstimate {
     quota?: number;
     usage?: number;
@@ -50,7 +56,7 @@ declare global {
 
 const StorageManagementTab = () => {
   const [storageInfo, setStorageInfo] = useState<{ quota?: number; usage?: number }>({});
-  const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandlePrototype | null>(null);
+  const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileCount, setFileCount] = useState(0);
   const [folderCount, setFolderCount] = useState(0);
   const [selectedDirectory, setSelectedDirectory] = useState<string>('');
@@ -78,10 +84,14 @@ const StorageManagementTab = () => {
 
   const handleDirectorySelection = async () => {
     try {
-      const handle = await window.showDirectoryPicker();
-      setDirectoryHandle(handle);
-      setSelectedDirectory(handle.name);
-      await countFilesAndFolders(handle);
+      if (window.showDirectoryPicker) {
+        const handle = await window.showDirectoryPicker();
+        setDirectoryHandle(handle);
+        setSelectedDirectory(handle.name);
+        await countFilesAndFolders(handle);
+      } else {
+        console.error("File System Access API is not supported in this browser");
+      }
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         console.error("Error selecting directory:", error);
@@ -91,13 +101,13 @@ const StorageManagementTab = () => {
     }
   };
 
-  const countFilesAndFolders = async (dirHandle: FileSystemDirectoryHandlePrototype) => {
+  const countFilesAndFolders = async (dirHandle: FileSystemDirectoryHandle) => {
     let fileCount = 0;
     let folderCount = 0;
     setIsCalculating(true);
 
     try {
-      for await (const entry of (dirHandle as any).values()) {
+      for await (const entry of dirHandle.values()) {
         if (entry.kind === 'file') {
           fileCount++;
         } else if (entry.kind === 'directory') {

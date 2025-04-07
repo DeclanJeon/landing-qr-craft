@@ -420,16 +420,15 @@ const ShopAdmin = () => {
                                     <LogoSettingsTab 
                                         shopName={shopData.shopName} 
                                         logoUrl={logoUrl} 
-                                        // Pass setLogoUrl when save logic is implemented
                                     />
                                 </TabsContent>
 
-                                {/* Favicon Settings Tab Content */}
+                                {/* Favicon Settings Tab Content - Fixed by adding setFaviconUrl */}
                                 <TabsContent value="favicon" className="h-full mt-0">
                                     <FaviconSettingsTab 
                                         shopName={shopData.shopName} 
                                         faviconUrl={faviconUrl} 
-                                        // Pass setFaviconUrl when save logic is implemented
+                                        setFaviconUrl={setFaviconUrl} // Add missing prop
                                     />
                                 </TabsContent>
 

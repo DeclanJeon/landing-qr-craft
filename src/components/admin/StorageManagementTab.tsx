@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Database,
@@ -27,14 +28,15 @@ declare global {
   interface FileSystemDirectoryHandle {
     values(): AsyncIterableIterator<FileSystemHandle>;
     name: string;
-    kind: 'directory';
+    kind: string; // Changed to string to avoid modifier conflicts
   }
   
   interface FileSystemFileHandle {
     name: string;
-    kind: 'file';
+    kind: string; // Changed to string to avoid modifier conflicts
   }
   
+  // Single definition for FileSystemHandle type
   type FileSystemHandle = FileSystemDirectoryHandle | FileSystemFileHandle;
   
   interface StorageEstimate {

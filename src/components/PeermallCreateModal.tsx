@@ -15,8 +15,17 @@ interface PeermallCreateModalProps {
 }
 
 const PeermallCreateModal: React.FC<PeermallCreateModalProps> = ({ open, onClose }) => {
+  const handleSuccessfulSubmit = () => {
+    // Ensure we're closing the modal properly
+    setTimeout(() => {
+      onClose();
+    }, 100);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) onClose();
+    }}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">내 피어몰 시작하기</DialogTitle>
@@ -25,7 +34,7 @@ const PeermallCreateModal: React.FC<PeermallCreateModalProps> = ({ open, onClose
             아래 정보를 입력하여 몇 분 안에 나만의 피어몰을 만들어보세요.
           </DialogDescription>
         </DialogHeader>
-        <PeermallShopForm onSuccessfulSubmit={onClose} />
+        <PeermallShopForm onSuccessfulSubmit={handleSuccessfulSubmit} />
       </DialogContent>
     </Dialog>
   );

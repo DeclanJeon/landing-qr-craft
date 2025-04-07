@@ -14,11 +14,11 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, trend }) => {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-gray-500">{title}</CardTitle>
+      <CardHeader className="pb-1 md:pb-2">
+        <CardTitle className="text-xs md:text-sm font-medium text-gray-500">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-lg md:text-2xl font-bold">{value}</div>
         <p className={`text-xs ${trend.isPositive ? 'text-green-500' : 'text-red-500'} mt-1 flex items-center`}>
           <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path 

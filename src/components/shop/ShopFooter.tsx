@@ -49,7 +49,7 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl, shopData }) 
             </p>
           </div>
           
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2">
             <div>
               <h4 className="text-lg font-medium mb-4 text-gray-200">쇼핑몰 정보</h4>
               <ul className="space-y-3">
@@ -57,15 +57,6 @@ const ShopFooter: React.FC<ShopFooterProps> = ({ shopName, shopUrl, shopData }) 
                 <li><Link to={`/shop/${actualShopUrl}/service`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>서비스</Link></li>
                 <li><Link to={`/shop/${actualShopUrl}/terms`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>이용약관</Link></li>
                 <li><Link to={`/shop/${actualShopUrl}/privacy`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>개인정보처리방침</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-medium mb-4 text-gray-200">고객 서비스</h4>
-              <ul className="space-y-3">
-                <li><Link to={`/shop/${actualShopUrl}/faq`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>자주 묻는 질문</Link></li>
-                <li><Link to={`/shop/${actualShopUrl}/contact`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>문의하기</Link></li>
-                <li><Link to={`/shop/${actualShopUrl}/shipping`} className={`${footerSettings.textColor}/70 hover:${footerSettings.textColor} transition-colors`}>배송 안내</Link></li>
               </ul>
             </div>
             

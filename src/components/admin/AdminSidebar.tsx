@@ -4,16 +4,17 @@ import {
   LayoutDashboard, 
   Image, 
   Store,
-  Settings, // Add Settings icon
+  Settings, 
   Palette, 
   Box, 
   MousePointerClick,
   Database,
-  Image as ImageIcon // Renaming Image to avoid conflict with Hero section icon
+  Image as ImageIcon,
+  MessageSquare // Add customer service icon
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LucideProps } from 'lucide-react'; // Import LucideProps for icon type
-import { ForwardRefExoticComponent, RefAttributes } from 'react'; // Import React types
+import { LucideProps } from 'lucide-react'; 
+import { ForwardRefExoticComponent, RefAttributes } from 'react'; 
 
 // Define the structure for a section, matching ShopAdmin.tsx
 interface AdminSection {

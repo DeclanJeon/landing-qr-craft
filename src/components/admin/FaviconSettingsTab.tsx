@@ -7,15 +7,14 @@ import { Upload } from 'lucide-react'; // Import Upload icon
 
 interface FaviconSettingsTabProps {
   shopName: string;
-  faviconUrl: string; // This will hold the current *saved* URL
-  // setFaviconUrl will be used later when saving changes
-  // For now, we manage the preview locally
+  faviconUrl: string; // Current saved URL
+  setFaviconUrl: React.Dispatch<React.SetStateAction<string>>; // Add this prop to fix the error
 }
 
 const FaviconSettingsTab: React.FC<FaviconSettingsTabProps> = ({ 
   shopName, 
-  faviconUrl 
-  // setFaviconUrl // Removed for now, will be needed for saving
+  faviconUrl,
+  setFaviconUrl
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,9 +30,8 @@ const FaviconSettingsTab: React.FC<FaviconSettingsTabProps> = ({
       // Create a temporary URL for preview
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
-      // TODO: In a real app, you'd likely store the 'file' object itself 
-      // in state to be uploaded later when the user clicks "Save Changes".
-      // For now, we just update the preview.
+      // Update the favicon URL to be saved
+      setFaviconUrl(objectUrl);
       
       // Clean up the previous object URL if it exists
       return () => {

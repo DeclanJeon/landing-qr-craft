@@ -19,26 +19,43 @@ import { toast } from "@/hooks/use-toast"; // Assuming use-toast is correctly se
 import { StorageItem } from '@/types/shop'; // Assuming StorageItem type path
 
 // Type definition for window object with File System Access API
-// This might be included in modern DOM typings already
 declare global {
   interface Window {
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
   }
-  // Ensure FileSystemDirectoryHandle is recognized if not built-in
+  
   interface FileSystemDirectoryHandle {
     values(): AsyncIterableIterator<FileSystemHandle>;
     name: string;
     kind: 'directory';
-    // Add other methods if needed, like removeEntry, getDirectoryHandle, etc.
   }
+  
   interface FileSystemFileHandle {
-      kind: 'file';
-      name: string;
-      // Add other methods if needed
+    name: string;
+    kind: 'file';
   }
+  
   type FileSystemHandle = FileSystemDirectoryHandle | FileSystemFileHandle;
+  
+  interface StorageEstimate {
+    usage?: number;
+    quota?: number;
+    usageDetails?: {
+      indexedDB?: number;
+      caches?: number;
+      serviceWorkerRegistrations?: number;
+      other?: number;
+    };
+  }
+  
+  interface StorageManager {
+    estimate(): Promise<StorageEstimate>;
+  }
+  
+  interface Navigator {
+    storage: StorageManager;
+  }
 }
-
 
 const StorageManagementTab: React.FC = () => {
   const [storageData, setStorageData] = useState<{
@@ -142,7 +159,6 @@ const StorageManagementTab: React.FC = () => {
       if (navigator.storage && navigator.storage.estimate) {
         const estimate = await navigator.storage.estimate();
         // estimate.usage contains total usage (incl. Cache API, Service Workers etc.)
-        // estimate.usageDetails contains usage per storage type
         const indexedDBUsageBytes = estimate.usageDetails?.indexedDB || 0;
 
         // Convert bytes to kilobytes

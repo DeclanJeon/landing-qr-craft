@@ -29,23 +29,24 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 // TypeScript declarations for the File System Access API
-// Using type aliases to avoid declaration conflicts
+// Using interfaces without modifiers to avoid declaration conflicts
 declare global {
-  interface FileSystemDirectoryHandle {
-    values(): AsyncIterableIterator<FileSystemHandle>;
+  // Using different names to avoid conflicts with built-in types
+  interface FileSystemDirectoryHandlerAPI {
+    values(): AsyncIterableIterator<FileSystemHandlerAPI>;
     name: string;
     kind: 'directory';
   }
   
-  interface FileSystemFileHandle {
+  interface FileSystemFileHandlerAPI {
     name: string;
     kind: 'file';
   }
   
-  type FileSystemHandle = FileSystemDirectoryHandle | FileSystemFileHandle;
+  type FileSystemHandlerAPI = FileSystemDirectoryHandlerAPI | FileSystemFileHandlerAPI;
   
   interface Window {
-    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandlerAPI>;
   }
 
   interface StorageEstimate {
@@ -56,7 +57,7 @@ declare global {
 
 const StorageManagementTab = () => {
   const [storageInfo, setStorageInfo] = useState<{ quota?: number; usage?: number }>({});
-  const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandle | null>(null);
+  const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandlerAPI | null>(null);
   const [fileCount, setFileCount] = useState(0);
   const [folderCount, setFolderCount] = useState(0);
   const [selectedDirectory, setSelectedDirectory] = useState<string>('');
@@ -101,7 +102,7 @@ const StorageManagementTab = () => {
     }
   };
 
-  const countFilesAndFolders = async (dirHandle: FileSystemDirectoryHandle) => {
+  const countFilesAndFolders = async (dirHandle: FileSystemDirectoryHandlerAPI) => {
     let fileCount = 0;
     let folderCount = 0;
     setIsCalculating(true);

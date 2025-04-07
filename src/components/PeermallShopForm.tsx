@@ -130,7 +130,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     try {
       console.log("[PeermallShopForm] Attempting to update shop URL list..."); // Log 5
       const existingUrlsString = localStorage.getItem(shopUrlsKey);
-      let shopUrls: string[] = existingUrlsString ? JSON.parse(existingUrlsString) : [];
+      const shopUrls: string[] = existingUrlsString ? JSON.parse(existingUrlsString) : [];
       
       // Add the new URL if it doesn't exist
       if (!shopUrls.includes(values.shopUrl)) {
@@ -311,19 +311,20 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
                 </FormItem>
               )}
             />
-             <FormField
+            
+            {/* <FormField
               control={form.control}
               name="address"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>주소</FormLabel>
                   <FormControl>
-                    <Input placeholder="주소를 입력하세요" {...field} />
+                    <Input placeholder="서울특별시 강남구 테헤란로" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
         </div>
         

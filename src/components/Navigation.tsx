@@ -3,14 +3,19 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Store, Search, Bell, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import PeermallCreateModal from './PeermallCreateModal'; // Import the modal
+// Remove modal import if it's rendered in the parent
+// import PeermallCreateModal from './PeermallCreateModal';
 
-const Navigation = () => {
+interface NavigationProps {
+  onOpenCreateModal: () => void; // Add prop type
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => { // Use prop
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for modal
+  // Remove modal state: const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,13 +24,6 @@ const Navigation = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Modal handlers
-  const openCreateModal = () => {
-    setMobileMenuOpen(false); // Close mobile menu if open
-    setIsCreateModalOpen(true);
-  };
-  const closeCreateModal = () => setIsCreateModalOpen(false);
 
   // Toggle handlers to prevent multiple overlays
   const handleSearchToggle = () => {
@@ -46,10 +44,16 @@ const Navigation = () => {
     setNotificationsOpen(false);
   };
 
+  // Use the passed-in prop to open the modal
+  const handleOpenCreateModal = () => {
+    setMobileMenuOpen(false); // Close mobile menu if open
+    onOpenCreateModal(); // Call the prop function
+  };
+
   return (
-    <> {/* Fragment to wrap header and modal */}
+    <> {/* Keep fragment if needed, or remove if modal is outside */}
       {/* Updated background transition for dark theme */}
-      <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-black/80 backdrop-blur-lg shadow-lg py-3 border-b border-gray-800' : 'bg-transparent py-5'}`}>
+      <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-black/80 backdrop-blur-lg shadow-lg py-3 border-b border-gray-800' : 'bg-transparent py-5'}`}> {/* Header content... */}
         <div className="container mx-auto px-6"> {/* Adjusted padding to match Index */}
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center">
@@ -228,9 +232,9 @@ const Navigation = () => {
                     transition={{ delay: 0.9, duration: 0.5 }}
                   >
                      {/* Updated Create button style for dark theme */}
-                    <Button 
-                      onClick={openCreateModal} // Open modal on click
-                      className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 px-5 py-2" 
+                    <Button
+                      onClick={handleOpenCreateModal} // Use the new handler
+                      className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 px-5 py-2"
                     >
                       <Store className="h-4 w-4" />
                       내 피어몰 만들기
@@ -300,9 +304,9 @@ const Navigation = () => {
                   </Link>
                   {/* Changed Link to Button for Modal */}
                    {/* Dark theme create button */}
-                  <Button 
-                    onClick={openCreateModal} // Open modal on click
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 w-full justify-center py-2.5" 
+                  <Button
+                    onClick={handleOpenCreateModal} // Use the new handler
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 w-full justify-center py-2.5"
                   >
                     <Store className="h-4 w-4" />
                     내 피어몰 만들기
@@ -314,8 +318,8 @@ const Navigation = () => {
         </AnimatePresence>
       </header>
 
-      {/* Render the modal */}
-      <PeermallCreateModal open={isCreateModalOpen} onClose={closeCreateModal} />
+      {/* Remove modal rendering from here */}
+      {/* <PeermallCreateModal open={isCreateModalOpen} onClose={closeCreateModal} /> */}
     </>
   );
 };

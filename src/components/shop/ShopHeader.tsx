@@ -46,9 +46,6 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, logoUrl, pag
                 <Settings className="h-5 w-5 text-gray-600" />
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" className="hover:bg-gray-100 rounded-full">
-              <Heart className="h-5 w-5 text-gray-600" />
-            </Button>
             <Cart />
           </div>
         </div>

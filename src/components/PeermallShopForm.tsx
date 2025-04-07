@@ -39,9 +39,9 @@ const formSchema = z.object({
   email: z.string().email({
     message: "유효한 이메일 주소를 입력해주세요.",
   }),
-  address: z.string().min(5, {
-    message: "주소는 최소 5글자 이상이어야 합니다.",
-  }),
+  // address: z.string().min(5, { // 주소 필드 제거
+  //   message: "주소는 최소 5글자 이상이어야 합니다.",
+  // }),
   ownerName: z.string().min(2, {
     message: "대표자 이름은 최소 2글자 이상이어야 합니다.",
   }),
@@ -66,7 +66,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
       shopUrl: "",
       contactNumber: "",
       email: "",
-      address: "",
+      // address: "", // Remove address from defaultValues
       ownerName: "",
     },
   });
@@ -94,15 +94,15 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
       ownerName: values.ownerName,
       contactNumber: values.contactNumber,
       email: values.email,
-      address: values.address,
+      // address: values.address, // Remove address usage
       faviconUrl: faviconPreview || undefined,
-      location: values.address.split(' ')[0],
+      location: undefined, // Remove location derived from address or set default
       category: values.shopDescription.split(' ')[0],
       rating: 5.0,
       // Add default empty settings objects if they aren't optional in ShopData
       themeSettings: { primaryColor: "#3B82F6", secondaryColor: "#6366F1", fontFamily: "system-ui, sans-serif", borderRadius: "rounded-lg" },
       heroSettings: { background: "bg-gradient-to-r from-blue-500 to-indigo-600", title: `${values.shopName}에 오신 것을 환영합니다`, description: values.shopDescription, buttonText: "상품 구경하기", buttonColor: "bg-white text-blue-600 hover:bg-gray-100", imageUrl: "", imagePosition: "right", buttonIcon: true, buttonSize: "medium", buttonRadius: "rounded-full", showDecorations: true, widgets: { showProductCount: false, showRating: false, showBadge: false, badgeText: "신규" } },
-      footerSettings: { background: "bg-gray-800", textColor: "text-white", ownerName: values.ownerName, contactNumber: values.contactNumber, email: values.email, address: values.address },
+      footerSettings: { background: "bg-gray-800", textColor: "text-white", ownerName: values.ownerName, contactNumber: values.contactNumber, email: values.email }, // Remove address from footerSettings
       adSettings: [], // Start with empty ads
       logoUrl: '', // Start with empty logo
       // faviconUrl is already handled
@@ -312,19 +312,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
               )}
             />
             
-            {/* <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>주소</FormLabel>
-                  <FormControl>
-                    <Input placeholder="서울특별시 강남구 테헤란로" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
+            {/* Address FormField removed */}
           </div>
         </div>
         

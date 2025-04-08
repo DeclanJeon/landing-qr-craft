@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// Removed redundant Navigation import
 import {
   Card,
   CardContent,
@@ -8,29 +8,26 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge"; // Import Badge
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"; // Import Tooltip components
-import { Search, Store, MapPin, Star, ArrowRight, Filter, QrCode, User, ShoppingBag, Users } from 'lucide-react'; // Added icons
+} from "@/components/ui/tooltip";
+import { Search, Store, MapPin, Star, ArrowRight, Filter, QrCode, ShoppingBag, Users, Globe } from 'lucide-react';
 import { ShopData } from '@/types/shop';
 
 interface PeermallWithExtras extends ShopData {
-  // Using shopUrl as the unique identifier now, id might not be needed unless for mapping keys
-  id: string; // Use shopUrl as the unique identifier now
-  image: string; // Keep generated image
-  qrCode: string; // Keep generated QR code
-  specialization: 'seller' | 'buyer' | 'neutral'; // Add specialization to the extended type
+  id: string;
+  image: string;
+  qrCode: string;
+  type: 'seller' | 'buyer' | 'neutral'; // Classification type
 }
-
-// Removed defaultPeermalls array
 
 const PeermallList = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [showQR, setShowQR] = useState<string | null>(null); // Changed showQR state to hold shopUrl (string)
+  const [showQR, setShowQR] = useState<string | null>(null);
   const [peermalls, setPeermalls] = useState<PeermallWithExtras[]>([]);
 
   useEffect(() => {
@@ -48,20 +45,30 @@ const PeermallList = () => {
         if (shopDataString) {
           try {
             const parsedData: ShopData = JSON.parse(shopDataString);
-            // Add necessary display fields
+            
+            // Determine mall type based on description or other characteristics
+            // This is a simple algorithm - in production, this should be based on actual data or user settings
+            let mallType: 'seller' | 'buyer' | 'neutral' = 'neutral';
+            
+            const description = parsedData.shopDescription?.toLowerCase() || '';
+            if (description.includes('판매') || description.includes('sell') || description.includes('vendor')) {
+              mallType = 'seller';
+            } else if (description.includes('구매') || description.includes('buy') || description.includes('shop')) {
+              mallType = 'buyer';
+            }
+            
             // Use introImageUrl first, then logoUrl, then placeholder for the card image
             const cardImage = parsedData.introImageUrl || parsedData.logoUrl || `https://via.placeholder.com/400x300/E2E8F0/4A5568?text=${encodeURIComponent(parsedData.shopName)}`;
 
             loadedPeermalls.push({
               ...parsedData,
-              id: parsedData.shopUrl, // Use shopUrl as the unique ID for mapping keys
-              image: cardImage, // Use the determined image URL
-              qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/shop/${parsedData.shopUrl}/home`)}`, // Generate QR code
-              // Ensure default values if some fields might be missing from older stored data
+              id: parsedData.shopUrl,
+              image: cardImage,
+              qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/shop/${parsedData.shopUrl}/home`)}`,
               category: parsedData.category || (parsedData.shopDescription ? parsedData.shopDescription.split(' ')[0] : '일반'),
               rating: parsedData.rating || 5.0,
               location: parsedData.location || (parsedData.address ? parsedData.address.split(' ')[0] : '온라인'),
-              specialization: parsedData.specialization || 'neutral', // Read specialization or default to neutral
+              type: mallType // Add mall classification type
             });
           } catch (parseError) {
             console.error(`Error parsing shop data for ${url}:`, parseError);
@@ -75,76 +82,62 @@ const PeermallList = () => {
     }
 
     setPeermalls(loadedPeermalls);
-    // --- End Refactored Loading Logic ---
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   const filteredPeermalls = peermalls.filter(peermall =>
     peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    peermall.shopDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    peermall.shopDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (peermall.category && peermall.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (peermall.location && peermall.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (peermall.specialization && peermall.specialization.toLowerCase().includes(searchTerm.toLowerCase())) // Allow searching by specialization
+    (peermall.location && peermall.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Helper function to render specialization badge and tooltip (only for seller/buyer)
-  const renderSpecializationBadge = (specialization: 'seller' | 'buyer' | 'neutral') => {
-    // Return null if specialization is neutral or undefined
-    if (!specialization || specialization === 'neutral') {
-      return null;
-    }
-
-    let badgeText = '';
-    let badgeVariant: "default" | "secondary" | "destructive" | "outline" = 'secondary';
-    let tooltipText = '';
-    let IconComponent = Users;
-
-    switch (specialization) {
-      case 'seller':
-        badgeText = '판매자 특화';
-        badgeVariant = 'default'; // Use default (blue) for seller
-        tooltipText = '판매자 도구 및 기능에 중점을 둔 피어몰입니다.';
-        IconComponent = Store;
-        break;
-      case 'buyer':
-        badgeText = '구매자 특화';
-        badgeVariant = 'outline'; // Use outline (greenish) for buyer
-        tooltipText = '구매자 경험 및 추천에 중점을 둔 피어몰입니다.';
-        IconComponent = ShoppingBag;
-        break;
-      default: // neutral
-        badgeText = '중립형';
-        badgeVariant = 'secondary'; // Use secondary (gray) for neutral
-        tooltipText = '판매자와 구매자 모두에게 균형 잡힌 기능을 제공하는 피어몰입니다.';
-        // Neutral case is handled by the initial check, so no need for it here
-        break; 
-    }
-
-    // Define variant styles directly for more control
-    const variantClasses = {
-      default: "bg-blue-900/50 text-blue-300 border-blue-700/60",
-      outline: "bg-green-900/50 text-green-300 border-green-700/60",
-      secondary: "bg-gray-700/80 text-gray-300 border-gray-600/80",
-      destructive: "bg-red-900/50 text-red-300 border-red-700/60" // Example if needed
+  // Render shop type badge with tooltip
+  const renderShopTypeBadge = (type: 'seller' | 'buyer' | 'neutral') => {
+    let badgeContent = {
+      label: '중립형',
+      description: '판매자와 구매자 모두에게 균형있는 기능을 제공하는 피어몰입니다.',
+      icon: <Globe className="h-3 w-3 mr-1" />,
+      variant: "secondary" as const,
+      colors: "bg-blue-900/30 text-blue-300 border-blue-700/30"
     };
 
+    if (type === 'seller') {
+      badgeContent = {
+        label: '판매자 특화',
+        description: '판매 도구와 판매자 기능에 특화된 피어몰입니다.',
+        icon: <ShoppingBag className="h-3 w-3 mr-1" />,
+        variant: "secondary" as const,
+        colors: "bg-purple-900/30 text-purple-300 border-purple-700/30"
+      };
+    } else if (type === 'buyer') {
+      badgeContent = {
+        label: '구매자 특화',
+        description: '쇼핑 경험과 구매자 기능에 특화된 피어몰입니다.',
+        icon: <Users className="h-3 w-3 mr-1" />,
+        variant: "secondary" as const,
+        colors: "bg-green-900/30 text-green-300 border-green-700/30"
+      };
+    }
 
     return (
-      <TooltipProvider delayDuration={100}>
+      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Badge variant={badgeVariant} className={`cursor-default text-xs px-2 py-0.5 ${variantClasses[badgeVariant]}`}>
-              <IconComponent className="h-3 w-3 mr-1" />
-              {badgeText}
+            <Badge 
+              variant={badgeContent.variant} 
+              className={`ml-2 ${badgeContent.colors} border px-2 py-0.5 text-xs font-medium flex items-center`}
+            >
+              {badgeContent.icon}
+              {badgeContent.label}
             </Badge>
           </TooltipTrigger>
-          <TooltipContent className="bg-black border-gray-700 text-gray-200">
-            <p>{tooltipText}</p>
+          <TooltipContent className="bg-gray-800 border-gray-700 text-white p-3 max-w-xs">
+            <p>{badgeContent.description}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );
   };
-
 
   return (
     // Apply dark theme background and adjust padding
@@ -192,8 +185,6 @@ const PeermallList = () => {
           {/* Grid - Increased gap */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPeermalls.map(peermall => (
-              // Use shopUrl (now stored in peermall.id) as the key
-               /* Card styling updated */
               <Card key={peermall.id} className="overflow-hidden bg-gray-800/50 border-gray-700 hover:border-gray-600 transition-all duration-300 flex flex-col">
                 <div className="relative h-48 overflow-hidden">
                   <img
@@ -202,20 +193,16 @@ const PeermallList = () => {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-0 right-0 m-2">
-                     {/* QR Button styling updated */}
                     <Button
                       variant="outline"
                       size="icon"
                       className="h-8 w-8 bg-black/50 backdrop-blur-sm border-gray-600 text-gray-200 hover:bg-black/70 rounded-full shadow-sm"
-                      // Toggle QR based on shopUrl (stored in id)
                       onClick={() => setShowQR(showQR === peermall.id ? null : peermall.id)}
                     >
                       <QrCode className="h-4 w-4" />
                     </Button>
                   </div>
-                  {/* Show QR if showQR matches the shopUrl (stored in id) */}
                   {showQR === peermall.id && (
-                     /* QR Overlay styling updated */
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer" onClick={() => setShowQR(null)}>
                       <div className="text-center bg-gray-900 p-4 rounded-lg border border-gray-700">
                         <img src={peermall.qrCode} alt="QR Code" className="w-32 h-32 mx-auto mb-2 border rounded bg-white p-1" />
@@ -226,40 +213,39 @@ const PeermallList = () => {
                   )}
                   {/* Gradient overlay adjusted */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                    <h3 className="text-lg font-bold text-white">{peermall.shopName}</h3>
+                    <div className="flex items-center flex-wrap">
+                      <h3 className="text-lg font-bold text-white">{peermall.shopName}</h3>
+                      {renderShopTypeBadge(peermall.type)}
+                    </div>
                     <p className="text-sm text-gray-300">{peermall.category}</p>
                   </div>
                 </div>
-                 {/* Card content styling updated */}
                 <CardContent className="p-4 flex-grow">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                       {/* Icon color updated */}
                       <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                       {/* Text color updated */}
                       <span className="text-sm text-gray-400">{peermall.location}</span>
                     </div>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 text-yellow-500 mr-1 fill-current" />
-                       {/* Text color updated */}
                       <span className="text-sm font-medium text-gray-200">{peermall.rating}</span>
                     </div>
-                    {/* Render the specialization badge */}
-                    {renderSpecializationBadge(peermall.specialization)}
                   </div>
-                   {/* Text color updated */}
-                  <p className="text-sm text-gray-400 line-clamp-2 mt-3">{peermall.shopDescription}</p> 
+                  <p className="text-sm text-gray-400 line-clamp-2">{peermall.shopDescription}</p>
                 </CardContent>
-                 {/* Card footer styling updated */}
                 <CardFooter className="p-4 pt-0 flex justify-end mt-auto">
                   <Link to={`/shop/${peermall.shopUrl}/home`}>
-                     {/* Button styling updated */}
                     <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-gray-700/50">
                       방문하기
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                 </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          {/* No results message - Dark theme */}
           {filteredPeermalls.length === 0 && (
             <div className="text-center py-16 bg-gray-800/50 rounded-lg border border-gray-700">
               <Store className="h-16 w-16 mx-auto text-gray-600 mb-4" />
@@ -267,7 +253,6 @@ const PeermallList = () => {
               <p className="text-gray-500 mb-6">
                 다른 검색어로 다시 시도해보세요.
               </p>
-               {/* Button styling updated */}
               <Button onClick={() => setSearchTerm('')} className="bg-blue-600 hover:bg-blue-700 text-white">
                 모든 피어몰 보기
               </Button>

@@ -129,7 +129,7 @@ const PremiumPeermallCreator: React.FC<PremiumPeermallCreatorProps> = ({ onStart
             내 피어몰 만들기
           </h2>
           <p className="text-gray-300 text-lg leading-relaxed">
-            최고급 템플릿과 도구로 몇 분 안에 당신만의 럭셔리한 디지털 쇼핑몰을 구축하세요. 판매, 수익화까지 단 몇 번의 클릭만으로.
+            최고급 템플릿과 도구로 몇 분 안에 당신만의 럭셔리한 세상을 구축하세요. 판매, 수익화까지 단 몇 번의 클릭만으로.
           </p>
           
           <div className="pt-4">

@@ -1,214 +1,280 @@
 
 import React, { useState } from 'react';
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Separator } from './ui/separator';
-import { motion } from 'framer-motion';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { LockKeyhole, Mail, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mail, ArrowRight, Check } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import userService from '@/services/userService';
 
 interface LoginFormProps {
-  onLoginSuccess?: () => void; // Make it optional to maintain compatibility
+  onLoginSuccess?: () => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
-  const [step, setStep] = useState(1);
-  const [verificationCode, setVerificationCode] = useState('');
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Handle email submission
-  const handleEmailSubmit = () => {
-    if (!email.trim()) {
+  const [isSent, setIsSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.trim() || !email.includes('@')) {
       toast({
-        title: "이메일을 입력해주세요",
-        variant: "destructive",
+        title: "유효한 이메일을 입력해주세요",
+        description: "로그인을 위해 올바른 이메일 형식이 필요합니다.",
+        variant: "destructive"
       });
       return;
     }
-    
-    if (!email.includes('@')) {
-      toast({
-        title: "유효한 이메일 주소를 입력해주세요",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+
     setIsLoading(true);
-    
-    // Generate a random 6-digit code
-    const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedCode(randomCode);
-    
-    // Mock email sending with a log
-    console.log('info: 인증코드:', randomCode);
-    
-    // Simulate network delay
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep(2);
-      
+
+    // Generate a random 6-digit OTP
+    const { success, otp } = await userService.sendNumber(email);
+
+    if(success) {
+      setGeneratedOtp(otp);
+
+      setIsSent(true);
+
       toast({
-        title: "인증 코드가 발송되었습니다",
-        description: "이메일로 전송된 6자리 코드를 입력해주세요.",
+        title: "인증코드 발송 완료",
+        description: `${email}로 인증코드를 발송했습니다. 이메일을 확인해주세요.`,
       });
-    }, 1500);
-  };
-  
-  // Handle verification code submission
-  const handleVerificationSubmit = () => {
-    if (!verificationCode.trim()) {
+    }else {
       toast({
-        title: "인증 코드를 입력해주세요",
-        variant: "destructive",
+        title: "인증코드 발송 실패",
+        description: `${email}로 인증코드 발송에 실패했습니다. 다시 시도해주세요.`,
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (otpValue.length !== 6) {
+      toast({
+        title: "인증코드 오류",
+        description: "6자리 인증코드를 모두 입력해주세요.",
+        variant: "destructive"
       });
       return;
     }
-    
+
     setIsLoading(true);
-    
-    // Check if the entered code matches the generated code
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      if (verificationCode === generatedCode) {
-        // Store authentication state in localStorage
-        localStorage.setItem('peermall-user-authenticated', 'true');
-        localStorage.setItem('peermall-user-email', email);
-        localStorage.setItem('peermall-user-nickname', email.split('@')[0]);
-        
-        // Show success message
-        toast({
-          title: "인증 완료",
-          description: "성공적으로 로그인되었습니다.",
-        });
-        
-        // Call the success callback if provided
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        } else {
-          // Fallback if no callback is provided (for backward compatibility)
-          window.location.href = '/';
-        }
-      } else {
-        toast({
-          title: "인증 실패",
-          description: "올바른 인증 코드를 입력해주세요.",
-          variant: "destructive",
-        });
-      }
-    }, 1000);
+
+    if (otpValue == generatedOtp) {
+      await userService.login(email);
+
+      toast({
+        title: "로그인 성공",
+        description: "인증이 완료되어 로그인되었습니다.",
+      });
+
+      // Redirect to home or dashboard
+      window.location.href = '/';
+    } else {
+      toast({
+        title: "인증코드 불일치",
+        description: "입력한 인증코드가 올바르지 않습니다. 다시 확인해주세요.",
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
   };
-  
+
+  const handleResendCode = async () => {
+    const { success, otp } = await userService.sendNumber(email);
+
+    if(success) {
+      setGeneratedOtp(otp);
+
+      toast({
+        title: "인증코드 재발송 완료",
+        description: `${email}로 새 인증코드를 발송했습니다.`,
+      });
+    }else {
+      toast({
+        title: "인증코드 재발송 실패",
+        description: `${email}로 새 인증코드 발송에 실패했습니다. 다시 시도해주세요.`,
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleBackToEmail = () => {
+    setIsSent(false);
+    setIsVerifying(false);
+    setOtpValue('');
+  };
+
+  const startVerification = () => {
+    setIsVerifying(true);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-md bg-gray-800/70 backdrop-blur-md p-6 rounded-xl shadow-xl border border-gray-700"
-    >
-      <h2 className="text-xl font-semibold text-white mb-6">이메일 인증</h2>
-      
-      {step === 1 ? (
-        <div className="space-y-4">
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-            <Input
-              className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500"
-              placeholder="이메일 주소"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <Button 
-            onClick={handleEmailSubmit} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span>처리 중...</span>
+    // Apply dark theme to Card
+    <Card className="max-w-md w-full bg-gray-800/50 border-gray-700 text-gray-200">
+      <CardHeader>
+         {/* Update text colors */}
+        <CardTitle className="text-2xl text-white">로그인</CardTitle>
+        <CardDescription className="text-gray-400">
+          {!isSent
+            ? "이메일을 입력하시면 인증코드를 보내드립니다. 별도의 회원가입이 필요없습니다."
+            : !isVerifying
+              ? "이메일을 확인하고 인증을 진행해주세요."
+              : "이메일로 받은 6자리 인증코드를 입력해주세요."
+          }
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="pt-6"> {/* Added top padding */}
+        {!isSent ? (
+          <form onSubmit={handleEmailSubmit}>
+            <div className="space-y-4">
+              <div className="relative">
+                 {/* Update icon color */}
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                 {/* Update input style */}
+                <Input
+                  type="email"
+                  placeholder="example@peermall.com"
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
               </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <span>인증 코드 받기</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </div>
-            )}
-          </Button>
-          
-          <div className="relative flex items-center gap-4 py-2">
-            <Separator className="flex-1 bg-gray-700" />
-            <span className="text-xs text-gray-500">또는</span>
-            <Separator className="flex-1 bg-gray-700" />
+
+              {/* Update button style */}
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isLoading}
+              >
+                {isLoading ? "전송 중..." : "인증코드 받기"}
+              </Button>
+            </div>
+          </form>
+        ) : !isVerifying ? (
+          <div className="text-center py-4">
+             {/* Update icon background/color */}
+            <div className="mx-auto w-16 h-16 bg-green-900/50 border border-green-700 rounded-full flex items-center justify-center mb-5">
+              <Mail className="h-8 w-8 text-green-400" />
+            </div>
+             {/* Update text colors */}
+            <h3 className="text-lg font-medium mb-2 text-gray-100">이메일을 확인해주세요</h3>
+            <p className="text-gray-400 mb-6">
+              {email}로 인증코드를 발송했습니다.
+              이메일에서 인증코드를 확인한 후 계속 진행해주세요.
+            </p>
+            <div className="space-y-3">
+               {/* Update button styles */}
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={startVerification}
+              >
+                인증코드 입력하기 <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full border-gray-600 text-gray-300 hover:bg-gray-700/50"
+                onClick={handleResendCode}
+              >
+                인증코드 재발송
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full text-gray-400 hover:bg-gray-700/50 hover:text-gray-200"
+                onClick={handleBackToEmail}
+              >
+                다른 이메일로 시도
+              </Button>
+            </div>
           </div>
-          
-          <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-700">
-            소셜 로그인
-          </Button>
+        ) : (
+          <form onSubmit={handleVerifyOtp} className="space-y-5"> {/* Increased spacing */}
+            <div className="text-center mb-4">
+               {/* Update text color */}
+              <p className="text-sm text-gray-400 mb-2">
+                {email}로 발송된 6자리 인증코드를 입력해주세요
+              </p>
+            </div>
+
+            <div className="flex justify-center mb-5"> {/* Increased margin */}
+               {/* Apply dark theme styles to InputOTP if needed (might inherit or need custom styling) */}
+               {/* Assuming InputOTP slots might need styling, add classes if necessary */}
+              <InputOTP
+                maxLength={6}
+                value={otpValue}
+                onChange={setOtpValue}
+                disabled={isLoading}
+                // Add dark theme classes to InputOTPGroup and InputOTPSlot if needed
+                // e.g., className="[&>div]:border-gray-600 [&>div]:bg-gray-700 [&>div]:text-white"
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            <div className="space-y-3">
+               {/* Update button styles */}
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isLoading || otpValue.length !== 6}
+              >
+                {isLoading ? "인증 중..." : "인증코드 확인"}
+                {!isLoading && otpValue.length === 6 && <Check className="ml-1 h-4 w-4" />}
+              </Button>
+              <div className="flex gap-2">
+                 {/* Update button styles */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700/50"
+                  onClick={handleResendCode}
+                  disabled={isLoading}
+                >
+                  인증코드 재발송
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1 text-gray-400 hover:bg-gray-700/50 hover:text-gray-200"
+                  onClick={handleBackToEmail}
+                  disabled={isLoading}
+                >
+                  이메일 다시 입력
+                </Button>
+              </div>
+            </div>
+          </form>
+        )}
+      </CardContent>
+
+      {/* Update footer text/link colors */}
+      <CardFooter className="flex flex-col space-y-4 pt-6 border-t border-gray-700"> 
+        <div className="text-sm text-gray-500 text-center w-full">
+          로그인하시면 Peermall의 <a href="#" className="text-blue-400 hover:underline">이용약관</a>과 <a href="#" className="text-blue-400 hover:underline">개인정보처리방침</a>에 동의하게 됩니다.
         </div>
-      ) : (
-        <div className="space-y-4">
-          <p className="text-gray-400 text-sm mb-4">
-            <span className="font-medium text-blue-400">{email}</span>로 6자리 인증 코드를 발송했습니다. 이메일을 확인하세요.
-          </p>
-          
-          <div className="relative">
-            <LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-            <Input
-              className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500"
-              placeholder="6자리 인증 코드"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              maxLength={6}
-              disabled={isLoading}
-            />
-          </div>
-          
-          <Button 
-            onClick={handleVerificationSubmit} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span>인증 중...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <span>인증 코드 확인</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </div>
-            )}
-          </Button>
-          
-          <div className="flex justify-between text-sm">
-            <button 
-              className="text-gray-400 hover:text-blue-400 transition-colors" 
-              onClick={() => setStep(1)}
-              disabled={isLoading}
-            >
-              이메일 변경
-            </button>
-            <button 
-              className="text-gray-400 hover:text-blue-400 transition-colors"
-              onClick={handleEmailSubmit}
-              disabled={isLoading}
-            >
-              인증 코드 재발송
-            </button>
-          </div>
-        </div>
-      )}
-    </motion.div>
+      </CardFooter>
+    </Card>
   );
 };
 

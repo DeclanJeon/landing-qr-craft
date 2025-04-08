@@ -1,139 +1,152 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+
+import React, { useState } from 'react';
 import OverviewTab from './tabs/OverviewTab';
 import EmptyTabContent from './tabs/EmptyTabContent';
 import BasicInfoSettingsTab from './BasicInfoSettingsTab';
 import LogoSettingsTab from './LogoSettingsTab';
+import FaviconSettingsTab from './FaviconSettingsTab';
 import ThemeSettingsTab from './ThemeSettingsTab';
 import HeroSettingsTab from './HeroSettingsTab';
 import FooterSettingsTab from './FooterSettingsTab';
 import AdManagementTab from './AdManagementTab';
-import LayoutManagementTab from './LayoutManagementTab';
 import StorageManagementTab from './StorageManagementTab';
-import FaviconSettingsTab from './FaviconSettingsTab';
+import LayoutManagementTab from './LayoutManagementTab';
 
-interface AdminTabContentProps {
+type AdminTabContentProps = {
   activeTab: string;
-  shopData: any;
   shopName: string;
-  updateShopData: (data: any) => void;
-}
+};
 
-const AdminTabContent = ({ 
-  activeTab, 
-  shopData, 
-  shopName, 
-  updateShopData 
-}: AdminTabContentProps) => {
-  const [basicInfo, setBasicInfo] = useState(shopData.basicInfo);
-  const [logoSettings, setLogoSettings] = useState(shopData.logoSettings);
-  const [heroSettings, setHeroSettings] = useState(shopData.heroSettings);
-  const [footerSettings, setFooterSettings] = useState(shopData.footerSettings);
-  const [adSettings, setAdSettings] = useState(shopData.adSettings);
-  const [themeSettings, setThemeSettings] = useState(shopData.themeSettings);
-
-  useEffect(() => {
-    updateShopData({
-      basicInfo,
-      logoSettings,
-      heroSettings,
-      footerSettings,
-      adSettings,
-      themeSettings
-    });
-  }, [basicInfo, logoSettings, heroSettings, footerSettings, adSettings, themeSettings, updateShopData]);
-
-  return (
-    <Tabs defaultValue={activeTab || "overview"} className="w-full">
-      <TabsContent value="overview" className="mt-0">
-        <OverviewTab shopName={shopName} />
-      </TabsContent>
-      
-      <TabsContent value="basic-info" className="mt-0">
+const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab, shopName }) => {
+  // State for various settings
+  const [basicInfo, setBasicInfo] = useState({});
+  const [logoSettings, setLogoSettings] = useState({});
+  const [faviconUrl, setFaviconUrl] = useState('');
+  const [themeSettings, setThemeSettings] = useState({});
+  const [heroSettings, setHeroSettings] = useState({});
+  const [footerSettings, setFooterSettings] = useState({});
+  const [shopData, setShopData] = useState({});
+  const [adSettings, setAdSettings] = useState({});
+  const [layoutSettings, setLayoutSettings] = useState({});
+  
+  // Handler functions for saving various settings
+  const handleSaveBasicInfo = (data: any) => {
+    console.log('Saving basic info:', data);
+    setBasicInfo(data);
+  };
+  
+  const handleSaveLogoSettings = (data: any) => {
+    console.log('Saving logo settings:', data);
+    setLogoSettings(data);
+  };
+  
+  const handleSaveFaviconSettings = (url: string) => {
+    console.log('Saving favicon URL:', url);
+    setFaviconUrl(url);
+  };
+  
+  const handleSaveThemeSettings = (data: any) => {
+    console.log('Saving theme settings:', data);
+    setThemeSettings(data);
+  };
+  
+  const handleSaveHeroSettings = (data: any) => {
+    console.log('Saving hero settings:', data);
+    setHeroSettings(data);
+  };
+  
+  const handleSaveFooterSettings = (data: any) => {
+    console.log('Saving footer settings:', data);
+    setFooterSettings(data);
+    setShopData(data);
+  };
+  
+  const handleSaveAdSettings = (data: any) => {
+    console.log('Saving ad settings:', data);
+    setAdSettings(data);
+  };
+  
+  const handleSaveLayoutSettings = (data: any) => {
+    console.log('Saving layout settings:', data);
+    setLayoutSettings(data);
+  };
+  
+  // Render the appropriate tab content based on activeTab
+  switch (activeTab) {
+    case 'overview':
+      return <OverviewTab shopName={shopName} />;
+    
+    case 'basic-info':
+      return (
         <BasicInfoSettingsTab 
-          shopName={shopName}
-          basicInfo={basicInfo} 
-          setBasicInfo={setBasicInfo} 
-          onSave={handleSaveBasicInfo}
+          shopData={basicInfo} 
+          onSave={handleSaveBasicInfo} 
         />
-      </TabsContent>
-      
-      <TabsContent value="logo" className="mt-0">
+      );
+    
+    case 'logo':
+      return (
         <LogoSettingsTab 
           shopName={shopName}
-          logoSettings={logoSettings} 
-          setLogoSettings={setLogoSettings} 
           onSave={handleSaveLogoSettings}
         />
-      </TabsContent>
-      
-      <TabsContent value="favicon" className="mt-0">
-        <FaviconSettingsTab />
-      </TabsContent>
-      
-      <TabsContent value="theme" className="mt-0">
+      );
+    
+    case 'favicon':
+      return (
+        <FaviconSettingsTab 
+          shopName={shopName} 
+          faviconUrl={faviconUrl} 
+          setFaviconUrl={setFaviconUrl} 
+          onSave={handleSaveFaviconSettings}
+        />
+      );
+    
+    case 'theme':
+      return (
         <ThemeSettingsTab 
-          shopName={shopName}
-          themeSettings={themeSettings} 
-          setThemeSettings={setThemeSettings} 
           onSave={handleSaveThemeSettings}
         />
-      </TabsContent>
-      
-      <TabsContent value="hero" className="mt-0">
-        <HeroSettingsTab 
-          heroSettings={heroSettings} 
-          setHeroSettings={setHeroSettings} 
-          onSave={handleSaveHeroSettings} 
-        />
-      </TabsContent>
-      
-      <TabsContent value="footer" className="mt-0">
-        <FooterSettingsTab 
-          footerSettings={footerSettings} 
-          setFooterSettings={setFooterSettings} 
-        />
-      </TabsContent>
-      
-      <TabsContent value="ads" className="mt-0">
-        <AdManagementTab 
+      );
+    
+    case 'layout':
+      return (
+        <LayoutManagementTab 
           shopName={shopName}
-          adSettings={adSettings} 
-          setAdSettings={setAdSettings} 
+          layoutSettings={layoutSettings}
+          onSave={handleSaveLayoutSettings}
+        />
+      );
+    
+    case 'hero':
+      return (
+        <HeroSettingsTab 
+          heroSettings={heroSettings}
+          setHeroSettings={setHeroSettings}
+        />
+      );
+    
+    case 'footer':
+      return (
+        <FooterSettingsTab 
+          shopData={shopData} 
+          setShopData={setShopData}
+        />
+      );
+    
+    case 'storage':
+      return <StorageManagementTab shopName={shopName} />;
+    
+    case 'ads':
+      return (
+        <AdManagementTab 
           onSave={handleSaveAdSettings}
         />
-      </TabsContent>
-      
-      <TabsContent value="layout" className="mt-0">
-        <LayoutManagementTab />
-      </TabsContent>
-      
-      <TabsContent value="storage" className="mt-0">
-        <StorageManagementTab shopName={shopName} />
-      </TabsContent>
-      
-      <TabsContent value="pages" className="mt-0">
-        <EmptyTabContent 
-          title="페이지 관리" 
-          description="페이지 관리 기능은 현재 개발 중입니다." 
-        />
-      </TabsContent>
-      
-      <TabsContent value="banners" className="mt-0">
-        <EmptyTabContent 
-          title="배너 관리" 
-          description="배너 관리 기능은 현재 개발 중입니다." 
-        />
-      </TabsContent>
-      
-      <TabsContent value="categories" className="mt-0">
-        <EmptyTabContent 
-          title="카테고리 관리" 
-          description="카테고리 관리 기능은 현재 개발 중입니다." 
-        />
-      </TabsContent>
-    </Tabs>
-  );
+      );
+    
+    default:
+      return <EmptyTabContent />;
+  }
 };
 
 export default AdminTabContent;

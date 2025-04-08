@@ -110,12 +110,12 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="relative"
               >
-                <button 
+                {/* <button 
                   onClick={handleSearchToggle} 
                   className={`p-2 rounded-full transition-all duration-300 ${isScrolled ? 'hover:bg-gray-700/50' : 'hover:bg-white/10'}`} 
                 >
                   <Search className={`h-5 w-5 ${isScrolled ? 'text-gray-300' : 'text-gray-200'}`} /> 
-                </button>
+                </button> */}
                 <AnimatePresence>
                   {searchOpen && (
                     <motion.div 
@@ -148,7 +148,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.7, duration: 0.5 }}
                 className="relative"
               >
-                <button 
+                {/* <button 
                   onClick={handleNotificationsToggle} 
                   className={`p-2 rounded-full transition-all duration-300 ${isScrolled ? 'hover:bg-gray-700/50' : 'hover:bg-white/10'}`} 
                 >
@@ -156,7 +156,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                     <Bell className={`h-5 w-5 ${isScrolled ? 'text-gray-300' : 'text-gray-200'}`} /> 
                     <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-black"></span> 
                   </div>
-                </button>
+                </button> */}
                 <AnimatePresence>
                   {notificationsOpen && (
                     <motion.div 

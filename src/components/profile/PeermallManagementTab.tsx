@@ -34,15 +34,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { ShopData } from '@/types/shop'; // Import ShopData type
 
-// Mock data for peermalls
+// Updated Peermall interface to better match ShopData
 interface Peermall {
-  id: string;
+  id: string; // Use shopUrl as ID
   name: string;
-  type: string;
-  createdAt: string;
-  url: string;
-  status: 'active' | 'inactive' | 'pending';
+  type: string; // Use category
+  createdAt: string; // Need to find or default this
+  url: string; // shopUrl
+  status: 'active' | 'inactive' | 'pending'; // Need to determine this, default to active
 }
 
 // Define view types
@@ -59,48 +60,49 @@ const PeermallManagementTab = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('board');
   const itemsPerPage = 5;
   
-  // Generate or fetch peermall data
+  // Fetch user's peermalls from localStorage
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      // Get from localStorage or generate mock data if none exists
-      const savedPeermalls = localStorage.getItem('peermall-user-malls');
-      if (savedPeermalls) {
-        setPeermalls(JSON.parse(savedPeermalls));
-      } else {
-        const mockData: Peermall[] = [
-          {
-            id: '1',
-            name: '패션 소품 피어몰',
-            type: '패션',
-            createdAt: '2024-03-15',
-            url: 'fashion-items',
-            status: 'active'
-          },
-          {
-            id: '2',
-            name: '디지털 액세서리 몰',
-            type: '전자제품',
-            createdAt: '2024-03-20',
-            url: 'digital-accessories',
-            status: 'active'
-          },
-          {
-            id: '3',
-            name: '홈인테리어 피어몰',
-            type: '홈&리빙',
-            createdAt: '2024-03-25',
-            url: 'home-interior',
-            status: 'pending'
+    setIsLoading(true);
+    const currentUserNickname = localStorage.getItem('peermall-user-nickname');
+    const userPeermalls: Peermall[] = [];
+
+    if (currentUserNickname) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('peermallShopData_')) {
+          try {
+            const shopDataString = localStorage.getItem(key);
+            if (shopDataString) {
+              const shopData: ShopData = JSON.parse(shopDataString);
+              // Compare ownerName with current user's nickname
+              if (shopData.ownerName === currentUserNickname) {
+                userPeermalls.push({
+                  id: shopData.shopUrl, // Use shopUrl as unique ID
+                  name: shopData.shopName,
+                  type: shopData.category || '미분류', // Use category or default
+                  // TODO: Find a way to get creation date, using placeholder for now
+                  createdAt: '날짜 정보 없음', 
+                  url: shopData.shopUrl,
+                  // TODO: Determine status logic, defaulting to active
+                  status: 'active', 
+                });
+              }
+            }
+          } catch (error) {
+            console.error(`Error parsing localStorage item ${key}:`, error);
           }
-        ];
-        setPeermalls(mockData);
-        localStorage.setItem('peermall-user-malls', JSON.stringify(mockData));
+        }
       }
-      setIsLoading(false);
-    }, 800);
-  }, []);
-  
+    }
+    
+    setPeermalls(userPeermalls);
+    setIsLoading(false);
+    
+    // Note: We are not saving this filtered list back to 'peermall-user-malls' anymore.
+    // Deletion logic needs to remove the original 'peermallShopData_{shopUrl}' item.
+
+  }, []); // Run only once on mount
+
   // Filter peermalls based on search query
   const filteredPeermalls = searchQuery 
     ? peermalls.filter(mall => 
@@ -128,14 +130,13 @@ const PeermallManagementTab = () => {
     navigate(`/shop/${url}/home`);
   };
   
-  // Handle edit peermall
-  const handleEditPeermall = (id: string) => {
-    // Navigate to edit page or open modal
+  // Handle edit peermall - navigate to the specific shop admin page
+  const handleEditPeermall = (shopUrl: string) => {
     toast({
-      title: "피어몰 수정",
-      description: "피어몰 수정 페이지로 이동합니다.",
+      title: "피어몰 관리",
+      description: "피어몰 관리 페이지로 이동합니다.",
     });
-    navigate(`/personal-lounge?edit=${id}`);
+    navigate(`/shop/${shopUrl}/admin`); // Navigate to the admin page using shopUrl
   };
   
   // Handle delete confirmation
@@ -144,13 +145,16 @@ const PeermallManagementTab = () => {
     setDeleteDialogOpen(true);
   };
   
-  // Handle actual deletion
+  // Handle actual deletion - remove the item from localStorage
   const deletePeermall = () => {
-    if (!peermallToDelete) return;
+    if (!peermallToDelete) return; // peermallToDelete now holds the shopUrl (ID)
     
+    const keyToDelete = `peermallShopData_${peermallToDelete}`;
+    localStorage.removeItem(keyToDelete);
+    
+    // Update the state to reflect the deletion
     const updatedPeermalls = peermalls.filter(mall => mall.id !== peermallToDelete);
     setPeermalls(updatedPeermalls);
-    localStorage.setItem('peermall-user-malls', JSON.stringify(updatedPeermalls));
     
     toast({
       title: "피어몰이 삭제되었습니다",

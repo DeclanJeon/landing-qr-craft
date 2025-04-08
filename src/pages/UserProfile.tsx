@@ -53,13 +53,13 @@ const UserProfile = () => {
               <h1 className="text-3xl font-bold text-white mb-2">내 정보 관리</h1>
               <p className="text-gray-400">계정 정보를 관리하고 피어몰 및 쪽지함을 확인하세요.</p>
             </div>
-            <Button 
+            {/* <Button 
               variant="destructive" 
               onClick={handleLogout}
               className="mt-4 md:mt-0"
             >
               로그아웃
-            </Button>
+            </Button> */}
           </div>
           
           <div className="bg-gray-800/70 backdrop-blur-sm border border-gray-700 rounded-xl shadow-xl overflow-hidden">
@@ -79,12 +79,12 @@ const UserProfile = () => {
                     >
                       피어몰 관리
                     </TabsTrigger>
-                    <TabsTrigger 
+                    {/* <TabsTrigger 
                       value="messages"
                       className="data-[state=active]:bg-gray-700/50 data-[state=active]:text-blue-400 text-gray-400"
                     >
                       쪽지함
-                    </TabsTrigger>
+                    </TabsTrigger> */}
                   </TabsList>
                 </div>
               </div>

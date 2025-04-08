@@ -97,7 +97,6 @@ const App = () => {
                 <Route path="/community/videochat" element={<Community />} />
                 <Route path="/community/post/:postId" element={<ForumPostDetail />} />
                 <Route path="/site-integration" element={<SiteIntegration />} />
-                {/* Add other non-shop routes here */}
               </Route>
 
               {/* Shop routes WITHOUT the global MainLayout */}

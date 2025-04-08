@@ -11,12 +11,12 @@ import {
   ArrowRight, 
   CheckCheck, 
   User, 
-  ShieldCheck, // Governance/Security
-  Link2,       // Connection
-  Zap,         // Speed/Expansion/Light
-  Sun,         // Light/Vision
-  Layers,      // Building/Structure
-  HeartHandshake // Community/Relationship
+  ShieldCheck, 
+  Link2,      
+  Zap,         
+  Sun,         
+  Layers,      
+  HeartHandshake 
 } from "lucide-react";
 // Optional: Consider adding framer-motion for smoother animations
 // import { motion } from 'framer-motion';
@@ -93,70 +93,102 @@ const Section = React.forwardRef<HTMLElement, SectionProps>(
   </section>
 )) // Removed semicolon
 
-// --- QR Code Generator Component (Styled for Hero) ---
-interface HeroQrGeneratorProps {
-  qrContent: string;
-  setQrContent: (value: string) => void;
-  qrImage: string;
-  onGenerate: () => void;
-  onDownload: () => void;
+// --- Premium Peermall Creator Component ---
+interface PremiumPeermallCreatorProps {
+  onStartClick: () => void;
 }
 
-const HeroQrGenerator: React.FC<HeroQrGeneratorProps> = ({ qrContent, setQrContent, qrImage, onGenerate, onDownload }) => (
-  // Slightly increased padding and adjusted background opacity/blur for refinement
-  <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-700/50 max-w-md mx-auto"> 
-    <h3 className="text-xl font-semibold mb-6 text-center text-gray-100">나만의 QR 코드 만들기</h3>
-    <div className="bg-white p-3 rounded-lg shadow-md mb-6 flex justify-center"> {/* Centering the image container */}
-      {qrImage ? 
-        <img src={qrImage} alt="Generated QR Code" className="w-44 h-44 md:w-48 md:h-48" /> : // Slightly adjusted size
-        <div className="w-44 h-44 md:w-48 md:h-48 bg-gray-200 flex items-center justify-center text-gray-500 rounded">QR Code</div> // Added rounded corners
-      }
-    </div>
-    <div className="w-full space-y-4">
-      <Input 
-        value={qrContent}
-        onChange={(e) => setQrContent(e.target.value)}
-        placeholder="URL 또는 텍스트 입력"
-        className="w-full bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
-      />
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-        <Button onClick={onGenerate} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-           QR 코드 생성
-         </Button>
-         {/* Improved visibility for Download button */}
-         <Button 
-          onClick={onDownload} 
-          variant="outline" 
-          className="w-full border-gray-400 bg-gray-600 text-gray-200 hover:border-gray-300"
-        >
-          다운로드
-        </Button>
+const PremiumPeermallCreator: React.FC<PremiumPeermallCreatorProps> = ({ onStartClick }) => (
+  <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden p-8 border border-gray-700/40">
+    {/* Premium background patterns/effects */}
+    <div className="absolute inset-0 opacity-10">
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600 rounded-full filter blur-3xl"></div>
+      <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-purple-700 rounded-full filter blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-3xl"></div>
+      
+      {/* Grid lines for premium feel */}
+      <div className="absolute inset-0" 
+           style={{ 
+             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)', 
+             backgroundSize: '40px 40px' 
+           }}>
       </div>
-      <Link to="/qr-generator" className="block w-full pt-2">
-        <Button variant="link" className="w-full text-blue-400 hover:text-blue-300">
-          고급 QR 코드 생성기 <ArrowRight className="ml-1 h-4 w-4" />
-        </Button>
-      </Link>
+    </div>
+
+    <div className="relative z-10">
+      <div className="flex flex-col items-center text-center space-y-8 py-6">
+        <div className="flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg transform rotate-12">
+          <div className="w-20 h-20 bg-gradient-to-tl from-purple-600 to-blue-400 rounded-xl transform -rotate-12 flex items-center justify-center">
+            <Store className="h-10 w-10 text-white" />
+          </div>
+        </div>
+        
+        <div className="space-y-4 max-w-lg">
+          <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+            내 피어몰 만들기
+          </h2>
+          <p className="text-gray-300 text-lg leading-relaxed">
+            최고급 템플릿과 도구로 몇 분 안에 당신만의 럭셔리한 디지털 쇼핑몰을 구축하세요. 판매, 수익화까지 단 몇 번의 클릭만으로.
+          </p>
+          
+          <div className="pt-4">
+            <Button 
+              onClick={onStartClick} 
+              size="lg" 
+              className="px-8 py-6 h-auto rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border border-blue-500/30 group relative overflow-hidden"
+            >
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400/20 to-purple-500/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+              <div className="relative flex items-center">
+                <Store className="mr-2 h-6 w-6" />
+                <span>내 피어몰 시작하기</span>
+                <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Button>
+            
+            <div className="mt-5 text-gray-400 text-sm">
+              3% 낮은 수수료 · 무제한 제품 등록 · 프리미엄 템플릿
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-8 pt-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+              <ShieldCheck className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-gray-300">안전한 거래</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-gray-300">빠른 성장</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <Link2 className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-gray-300">쉬운 연동</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 );
 
 // --- Define Types for Hero Section Props ---
-// Get the type of the state and functions returned by the hook
 type IndexState = ReturnType<typeof useIndexState>;
 
-// Re-introducing HeroSectionProps interface for clarity
 interface HeroSectionProps {
   state: IndexState;
-  scrollToFeatures: () => void; // Simplify the function type here
+  scrollToFeatures: () => void;
+  onOpenCreateModal: () => void;
 }
 
-
 // --- Hero Section ---
-// Define as a standard function component using the interface
-const HeroSection = ({ state, scrollToFeatures }: HeroSectionProps) => (
+const HeroSection = ({ state, scrollToFeatures, onOpenCreateModal }: HeroSectionProps) => (
   <section ref={state.heroRef} className="relative min-h-screen flex items-center pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-to-b from-black via-gray-900 to-black text-gray-200 overflow-hidden">
-    {/* Background Glows / Abstract Shapes - Slightly reduced opacity and increased blur */}
+    {/* Background Glows / Abstract Shapes */}
     <div className="absolute inset-0 z-0 opacity-25"> 
       <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900 rounded-full filter blur-[180px] opacity-50 animate-pulse-slow"></div> 
       <div className="absolute bottom-[-20%] right-[-10%] w-[45vw] h-[45vw] bg-purple-900 rounded-full filter blur-[180px] opacity-40 animate-pulse-slow animation-delay-2000"></div>
@@ -168,32 +200,18 @@ const HeroSection = ({ state, scrollToFeatures }: HeroSectionProps) => (
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
             내 손안의 쇼핑몰, Peermall
           </h1>
-          {/* Adjusted line height and bottom margin */}
           <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-xl mx-auto md:mx-0 leading-relaxed"> 
             귀한 고객들이 직접 사거나 팔 수 있는 새로운 쇼핑 플랫폼입니다. QR코드로 당신의 세상을 거번하고, 모두와 연결되어 확장하세요.
           </p>
           <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4">
-             {/* Ensured consistent button styling */}
             <Button onClick={scrollToFeatures} size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black w-full sm:w-auto">
               주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            {/* Original "무료로 시작하기" button was commented out, keeping it that way */}
-            {/* <Link to="/personal-lounge">
-              <Button size="lg" variant="outline" className="text-white border-gray-600 hover:bg-gray-800 rounded-full px-8 py-3 text-lg font-semibold transition duration-300 ease-in-out w-full sm:w-auto">
-                무료로 시작하기
-              </Button>
-            </Link> */}
           </div>
         </div>
         
         <div className="mt-10 md:mt-0">
-          <HeroQrGenerator 
-            qrContent={state.qrContent}
-            setQrContent={state.setQrContent}
-            qrImage={state.qrImage}
-            onGenerate={state.handleGenerateQR}
-            onDownload={state.handleDownloadQR}
-          />
+          <PremiumPeermallCreator onStartClick={onOpenCreateModal} />
         </div>
       </div>
     </div>
@@ -374,50 +392,29 @@ const ContactSection = () => (
   </Section>
 );
 
-
 // --- Index Page Component ---
 const Index = () => {
   const state = useIndexState();
-
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+  
   return (
     <div className="min-h-screen font-sans antialiased bg-black">
-      {/* Navigation is handled by MainLayout - Ensure it matches the dark theme or is adapted */}
-      
-      <HeroSection state={state} scrollToFeatures={state.scrollToFeatures} />
+      <HeroSection 
+        state={state} 
+        scrollToFeatures={state.scrollToFeatures}
+        onOpenCreateModal={handleOpenCreateModal}
+      />
       <FeaturesSection featuresRef={state.featuresRef} />
       <StorySection />
       <VisionMissionSection />
       <ValuesSection />
       <ContactSection />
-
-      {/* Footer is handled by MainLayout - Ensure it matches the dark theme or is adapted */}
     </div>
   );
 };
 
 export default Index;
-
-// Add custom animation styles to src/index.css or App.css if needed:
-/*
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer utilities {
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-*/

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -110,12 +109,6 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="relative"
               >
-                {/* <button 
-                  onClick={handleSearchToggle} 
-                  className={`p-2 rounded-full transition-all duration-300 ${isScrolled ? 'hover:bg-gray-700/50' : 'hover:bg-white/10'}`} 
-                >
-                  <Search className={`h-5 w-5 ${isScrolled ? 'text-gray-300' : 'text-gray-200'}`} /> 
-                </button> */}
                 <AnimatePresence>
                   {searchOpen && (
                     <motion.div 
@@ -148,15 +141,6 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.7, duration: 0.5 }}
                 className="relative"
               >
-                {/* <button 
-                  onClick={handleNotificationsToggle} 
-                  className={`p-2 rounded-full transition-all duration-300 ${isScrolled ? 'hover:bg-gray-700/50' : 'hover:bg-white/10'}`} 
-                >
-                  <div className="relative">
-                    <Bell className={`h-5 w-5 ${isScrolled ? 'text-gray-300' : 'text-gray-200'}`} /> 
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-black"></span> 
-                  </div>
-                </button> */}
                 <AnimatePresence>
                   {notificationsOpen && (
                     <motion.div 
@@ -209,10 +193,11 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 >
                   <Button
                     onClick={handleOpenCreateModal}
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 px-5 py-2"
+                    className="rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-medium shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-2 px-5 py-2 border border-blue-500/30 group relative overflow-hidden"
                   >
-                    <Store className="h-4 w-4" />
-                    내 피어몰 만들기
+                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400/20 to-indigo-500/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    <Store className="h-4 w-4 relative z-10" />
+                    <span className="relative z-10">내 피어몰 만들기</span>
                   </Button>
                 </motion.div>
               </motion.div>
@@ -268,7 +253,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 
                 <Button
                   onClick={handleOpenCreateModal}
-                  className="rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 w-full justify-center py-2.5"
+                  className="rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-medium shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-2 w-full justify-center py-2.5 border border-blue-500/30"
                 >
                   <Store className="h-4 w-4" />
                   내 피어몰 만들기

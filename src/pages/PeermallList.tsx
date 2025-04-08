@@ -42,10 +42,13 @@ const PeermallList = () => {
           try {
             const parsedData: ShopData = JSON.parse(shopDataString);
             // Add necessary display fields
+            // Use introImageUrl first, then logoUrl, then placeholder for the card image
+            const cardImage = parsedData.introImageUrl || parsedData.logoUrl || `https://via.placeholder.com/400x300/E2E8F0/4A5568?text=${encodeURIComponent(parsedData.shopName)}`;
+
             loadedPeermalls.push({
               ...parsedData,
               id: parsedData.shopUrl, // Use shopUrl as the unique ID for mapping keys
-              image: `https://placehold.co/400x300/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${encodeURIComponent(parsedData.shopName)}`, // Generate placeholder image
+              image: cardImage, // Use the determined image URL
               qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/shop/${parsedData.shopUrl}/home`)}`, // Generate QR code
               // Ensure default values if some fields might be missing from older stored data
               category: parsedData.category || (parsedData.shopDescription ? parsedData.shopDescription.split(' ')[0] : '일반'),

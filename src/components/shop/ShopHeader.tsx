@@ -4,31 +4,49 @@ import { Link } from 'react-router-dom';
 import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Cart from './Cart';
+import { ShopData } from '@/types/shop'; // Import ShopData for logoTextStyle type
+
+// Define the type for logoTextStyle based on ShopData
+type LogoTextStyle = NonNullable<ShopData['logoTextStyle']>;
 
 interface ShopHeaderProps {
   shopName: string;
   shopUrl: string;
-  logoUrl?: string; // Add optional logoUrl prop
+  logoUrl?: string | null; // Allow null
+  logoText?: string;
+  logoTextStyle?: LogoTextStyle;
   page?: string;
 }
 
-const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, logoUrl, page }) => {
+const ShopHeader: React.FC<ShopHeaderProps> = ({ 
+  shopName, 
+  shopUrl, 
+  logoUrl, 
+  logoText, 
+  logoTextStyle = { fontSize: 'text-xl', fontWeight: 'font-bold', color: '#333333' }, // Provide default style
+  page 
+}) => {
   return (
     <header className="bg-white border-b border-gray-100">
       <div className="container mx-auto px-4 py-5">
         <div className="flex justify-between items-center">
-          {/* Link wrapping logo or name */}
-          <Link to={`/shop/${shopUrl}/home`} className="flex items-center group">
-            {logoUrl ? (
-              <img 
-                src={logoUrl} 
-                alt={`${shopName} Logo`} 
-                className="max-h-10 mr-2 transition-opacity duration-300 group-hover:opacity-80" // Adjust max-h as needed
-                onError={(e) => (e.currentTarget.style.display = 'none')} // Hide if image fails to load
+          {/* Link wrapping logo and/or text */}
+          <Link to={`/shop/${shopUrl}/home`} className="flex items-center gap-2 group">
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt={`${shopName} Logo`}
+                className="max-h-10 transition-opacity duration-300 group-hover:opacity-80" // Removed mr-2 to use gap
+                onError={(e) => (e.currentTarget.style.display = 'none')}
               />
-            ) : (
-              <span className="text-2xl font-serif font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                {shopName}
+            )}
+            {/* Render text if logoText exists OR if logoUrl doesn't exist (fallback to shopName) */}
+            {(logoText || !logoUrl) && (
+              <span 
+                style={{ color: logoTextStyle?.color ?? '#333333' }} 
+                className={`${logoTextStyle?.fontSize ?? 'text-xl'} ${logoTextStyle?.fontWeight ?? 'font-bold'} group-hover:text-blue-600 transition-colors`}
+              >
+                {logoText || shopName} {/* Show logoText if available, otherwise shopName */}
               </span>
             )}
           </Link>
@@ -58,18 +76,18 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({ shopName, shopUrl, logoUrl, pag
                 <span>홈</span>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to={`/shop/${shopUrl}/about`} className={`flex items-center font-medium transition-colors pb-3 ${page === 'about' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <QrCode className="h-4 w-4 mr-1 md:mr-2" />
                 <span>소개</span>
               </Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <Link to={`/shop/${shopUrl}/service`} className={`flex items-center font-medium transition-colors pb-3 ${page === 'service' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
                 <Users className="h-4 w-4 mr-1 md:mr-2" />
                 <span>서비스</span>
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
       </div>

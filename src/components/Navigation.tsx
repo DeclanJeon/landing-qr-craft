@@ -84,10 +84,10 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => { // Us
                     { name: "홈", path: "/" },
                     { name: "피어몰 목록", path: "/peermall-list" },
                     { name: "QR 생성기", path: "/qr-generator" },
-                    { name: "커뮤니티", path: "/community" },
-                    { name: "고객센터", path: "/customer-service" }
+                    // { name: "커뮤니티", path: "/community" },
+                    // { name: "고객센터", path: "/customer-service" }
                   ].map((item, index) => (
-                    <motion.li 
+                    <motion.li
                       key={item.path} 
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -277,10 +277,10 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => { // Us
                     { name: "홈", path: "/" },
                     { name: "피어몰 목록", path: "/peermall-list" },
                     { name: "QR 생성기", path: "/qr-generator" },
-                    { name: "커뮤니티", path: "/community" },
-                    { name: "고객센터", path: "/customer-service" }
+                    // { name: "커뮤니티", path: "/community" },
+                    // { name: "고객센터", path: "/customer-service" }
                   ].map((item) => (
-                    <Link 
+                    <Link
                       key={item.path} 
                       to={item.path} 
                       // Dark theme link styles

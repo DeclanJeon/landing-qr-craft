@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Users, ExternalLink, QrCode, ShoppingCart, PlusCircle, Settings } from 'lucide-react';
 import ShopHeader from './shop/ShopHeader';
 import ShopFooter from './shop/ShopFooter';
-import ShopSidebar from './shop/ShopSidebar';
+// ShopSidebar is likely unused now, remove if confirmed
+// import ShopSidebar from './shop/ShopSidebar';
 import ShopHero from './shop/ShopHero';
-import ProductSection from './shop/ProductSection';
-import QRCodeDisplay from './shop/QRCodeDisplay';
-import ForumPage from './community/ForumPage';
-import GroupChatPage from './community/GroupChatPage';
-import ProductItem from './shop/ProductItem';
 import ProductDetailPage from './shop/ProductDetailPage';
 import ProductRegistrationModal from './shop/ProductRegistrationModal';
 import AboutPage from './shop/AboutPage';
 import ServicePage from './shop/ServicePage';
 import CustomerPeerMalls from './shop/CustomerPeerMalls';
-import RecommendedPeerMalls from './shop/RecommendedPeerMalls';
-import PeerMalls from './shop/CustomerPeerMalls';
+// RecommendedPeerMalls might be merged into CustomerPeerMalls or removed
+// import RecommendedPeerMalls from './shop/RecommendedPeerMalls';
 import SideAdvertisement from './shop/product-detail/SideAdvertisement';
-import { sampleProducts, categories } from '@/constants/sampleData';
-import { ShopData, Product } from '@/types/shop';
+// Keep categories if needed for filtering logic in ShopTabs
+import { categories } from '@/constants/sampleData';
+import { ShopData, Product, Category } from '@/types/shop';
 import { useCart } from '@/contexts/CartContext';
+import ShopTabs from './shop/tabs/ShopTabs';
 
-// Define a basic type for Ad Settings if not already defined/imported
+// Define AdSetting type locally if not imported globally
 interface AdSetting {
-  id: number; // Change ID back to number to match usage
+  id: number;
   title: string;
   imageUrl: string;
   link?: string;
   isActive: boolean;
-  position: string; // e.g., 'sidebar', 'banner'
+  position: string;
   startDate: string;
   endDate: string;
 }
@@ -40,529 +36,337 @@ interface ShopTemplateProps {
   shopUrl?: string;
   page?: string;
   categoryId?: number;
-  productId?: string;
+  productId?: string; // Keep productId if ProductDetailPage is rendered here
 }
 
 const ShopTemplate: React.FC<ShopTemplateProps> = ({ shopUrl, page, categoryId }) => {
   const params = useParams();
   const navigate = useNavigate();
+  // Determine the actual shop URL from props or params
   const actualShopUrl = shopUrl || params.shopUrl;
-  const categoryParam = categoryId || (params.categoryId ? Number(params.categoryId) : 0);
+  // Determine category ID from props or params, default to 0 (all)
+  const categoryParam = categoryId !== undefined ? categoryId : (params.categoryId ? Number(params.categoryId) : 0);
+  // Get productId from params
   const productId = params.productId;
-  
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(categoryParam || 0);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  // State for the current shop's data
   const [shopData, setShopData] = useState<ShopData | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("products");
-  const [communityTab, setCommunityTab] = useState<string>("forum");
-  const [isProductRegistrationOpen, setIsProductRegistrationOpen] = useState(false);
-  const { getCartCount } = useCart();
+  // State for the products displayed in the current shop (potentially filtered)
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
-  // Use the defined AdSetting type for sideAds state
-  const [sideAds, setSideAds] = useState<{left?: AdSetting, right?: AdSetting}>({}); 
+  // State for the currently selected category ID for filtering
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(categoryParam);
+  // State for the currently active tab in the main shop view
+  const [activeTab, setActiveTab] = useState<string>("products");
+  // State for managing the product registration modal
+  const [isProductRegistrationOpen, setIsProductRegistrationOpen] = useState(false);
+  // State for side advertisements (keep for sidebar specific logic if needed)
+  // const [sideAds, setSideAds] = useState<{left?: AdSetting, right?: AdSetting}>({});
+  // State to hold ALL active ads for the current page
+  const [activeAds, setActiveAds] = useState<AdSetting[]>([]);
+  // State to hold the list of other registered peer malls
+  const [registeredPeerMalls, setRegisteredPeerMalls] = useState<ShopData[]>([]);
+  // Cart context hook (keep if cart functionality is in header/template)
+  const { getCartCount } = useCart();
 
-  const customerMalls = [
-    {
-      id: '1',
-      userName: '김철수',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '철수의 피어몰',
-      url: 'chulsu',
-      comment: '다양한 제품을 한 곳에서 확인할 수 있어 편리합니다.',
-      date: '2023-04-15'
-    },
-    {
-      id: '2',
-      userName: '이영희',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '영희 컬렉션',
-      url: 'younghee',
-      comment: '제가 좋아하는 제품들을 모아놓은 컬렉션입니다.',
-      date: '2023-05-20'
-    },
-    {
-      id: '3',
-      userName: '박지민',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '지민의 추천',
-      url: 'jimin',
-      comment: '제가 직접 사용해보고 좋았던 제품들만 모았습니다.',
-      date: '2023-06-10'
-    },
-    {
-      id: '4',
-      userName: '최수진',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '수진의 쇼핑몰',
-      url: 'soojin',
-      comment: '트렌디한 제품들을 모아놓은 컬렉션입니다.',
-      date: '2023-07-05'
-    },
-    {
-      id: '5',
-      userName: '정민준',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '민준의 추천',
-      url: 'minjun',
-      comment: '가성비 좋은 제품들만 엄선했습니다.',
-      date: '2023-08-15'
-    },
-    {
-      id: '6',
-      userName: '김서연',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '서연의 피어몰',
-      url: 'seoyeon',
-      comment: '고품질 제품들을 소개합니다.',
-      date: '2023-09-20'
-    },
-    {
-      id: '7',
-      userName: '이준호',
-      userImageUrl: 'https://placehold.co/100',
-      mallName: '준호의 피어몰',
-      url: 'junho',
-      comment: '다양한 카테고리의 제품을 확인할 수 있습니다.',
-      date: '2023-10-10'
-    }
-  ];
-
-  const recommendedMalls = [
-    {
-      id: '1',
-      name: '베스트 가전',
-      logo: 'https://placehold.co/100',
-      url: 'bestelectronics',
-      rating: 4.8,
-      category: '가전제품',
-      products: [
-        { id: 101, name: '스마트 TV', price: '599,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/tv' },
-        { id: 102, name: '무선 청소기', price: '329,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/cleaner' },
-        { id: 103, name: '에어프라이어', price: '129,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/airfryer' },
-        { id: 104, name: '로봇 청소기', price: '399,000원', imageUrl: 'https://placehold.co/300', categoryId: 1, externalUrl: 'https://example.com/robotcleaner' }
-      ]
-    },
-    {
-      id: '2',
-      name: '패션 하우스',
-      logo: 'https://placehold.co/100',
-      url: 'fashionhouse',
-      rating: 4.5,
-      category: '패션',
-      products: [
-        { id: 201, name: '남성 코트', price: '189,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/coat' },
-        { id: 202, name: '여성 니트', price: '79,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/knit' },
-        { id: 203, name: '스니커즈', price: '99,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/sneakers' },
-        { id: 204, name: '가죽 백팩', price: '159,000원', imageUrl: 'https://placehold.co/300', categoryId: 2, externalUrl: 'https://example.com/backpack' }
-      ]
-    },
-    {
-      id: '3',
-      name: '홈 데코',
-      logo: 'https://placehold.co/100',
-      url: 'homedeco',
-      rating: 4.3,
-      category: '인테리어',
-      products: [
-        { id: 301, name: '북유럽 스타일 쿠션', price: '39,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/cushion' },
-        { id: 302, name: '원목 테이블 램프', price: '89,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/lamp' },
-        { id: 303, name: '모던 벽시계', price: '59,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/clock' },
-        { id: 304, name: '패브릭 러그', price: '129,000원', imageUrl: 'https://placehold.co/300', categoryId: 3, externalUrl: 'https://example.com/rug' }
-      ]
-    },
-    {
-      id: '4',
-      name: '베이커리 숍',
-      logo: 'https://placehold.co/100',
-      url: 'bakery',
-      rating: 4.7,
-      category: '식품',
-      products: [
-        { id: 401, name: '크로와상', price: '4,500원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/croissant' },
-        { id: 402, name: '소금빵', price: '3,200원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/saltbread' },
-        { id: 403, name: '초코 머핀', price: '3,800원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/muffin' },
-        { id: 404, name: '바게트', price: '4,000원', imageUrl: 'https://placehold.co/300', categoryId: 4, externalUrl: 'https://example.com/baguette' }
-      ]
-    }
-  ];
-
+  // Effect to load current shop data and other registered peer malls
   useEffect(() => {
-    console.log(`[ShopTemplate] useEffect running for shopUrl: ${actualShopUrl}`); // Log 1: URL check
+    console.log(`[ShopTemplate] useEffect triggered for shopUrl: ${actualShopUrl}`);
 
     if (!actualShopUrl) {
-        console.warn("[ShopTemplate] actualShopUrl is undefined, cannot load data.");
-        setShopData(null);
-        return;
+      console.warn("[ShopTemplate] No actualShopUrl provided, cannot load data.");
+      setShopData(null);
+      setRegisteredPeerMalls([]); // Clear peer malls if no shop URL
+      return;
     }
 
-    const uniqueShopKey = `peermallShopData_${actualShopUrl}`;
-    console.log(`[ShopTemplate] Attempting to load data with key: ${uniqueShopKey}`); // Log 2: Key check
+    // --- Load Current Shop Data ---
+    const currentShopKey = `peermallShopData_${actualShopUrl}`;
+    const currentShopDataString = localStorage.getItem(currentShopKey);
+    let parsedCurrentShopData: ShopData | null = null;
 
-    const shopDataString = localStorage.getItem(uniqueShopKey);
-    console.log(`[ShopTemplate] Raw data string from localStorage:`, shopDataString); // Log 3: Raw data
+    if (currentShopDataString) {
+      try {
+        parsedCurrentShopData = JSON.parse(currentShopDataString);
+        setShopData(parsedCurrentShopData);
+        console.log("[ShopTemplate] Current shop data loaded:", parsedCurrentShopData);
 
-    let parsedShopData: ShopData | null = null;
-    if (shopDataString) {
-        try {
-            parsedShopData = JSON.parse(shopDataString);
-            console.log("[ShopTemplate] Parsed shop data:", parsedShopData); // Log 4: Parsed data
-        } catch (error) {
-            console.error(`[ShopTemplate] Error parsing shop data for key ${uniqueShopKey}:`, error);
-            setShopData(null); // Set to null if parsing fails
-            return;
+        // Load ALL active ads based on current shop settings and page targeting
+        if (parsedCurrentShopData?.adSettings) {
+          const now = new Date();
+          const currentPageTarget = page || 'home'; // Default to 'home' if page prop is undefined
+
+          const filteredActiveAds = parsedCurrentShopData.adSettings.filter(ad =>
+            ad.isActive &&
+            new Date(ad.startDate) <= now &&
+            new Date(ad.endDate) >= now &&
+            (ad.targetPages?.includes(currentPageTarget) || ad.targetPages?.includes('all')) // Check if ad targets current page or 'all'
+          );
+          setActiveAds(filteredActiveAds);
+          console.log(`[ShopTemplate] Active ads for page '${currentPageTarget}':`, filteredActiveAds);
+
+          // Keep sidebar specific logic if SideAdvertisement component is strictly for sidebars
+          // const sidebarAds = filteredActiveAds.filter(ad => ad.position === 'sidebar');
+          // setSideAds({
+          //   left: sidebarAds[0],
+          //   right: sidebarAds[1]
+          // });
+
+        } else {
+          setActiveAds([]); // Clear ads if none are configured
+          // setSideAds({});
         }
-    } else {
-        console.warn(`[ShopTemplate] No data found in localStorage for key: ${uniqueShopKey}`);
-    }
-    
-    // Check if data was found and matches the expected URL (redundant check now, but safe)
-    if (!parsedShopData || parsedShopData.shopUrl !== actualShopUrl) {
-        console.warn(`[ShopTemplate] Loaded data mismatch or not found. Setting shopData to null. Parsed URL: ${parsedShopData?.shopUrl}, Expected URL: ${actualShopUrl}`); // Log 5: Mismatch check
-        setShopData(null);
-    } else {
-      setShopData(parsedShopData);
-      
-      if (parsedShopData.adSettings) {
-        const activeAds = parsedShopData.adSettings.filter(ad => 
-          ad.isActive && 
-          ad.position === 'sidebar' && 
-          new Date(ad.startDate) <= new Date() && 
-          new Date(ad.endDate) >= new Date()
-        );
-        
-        if (activeAds.length > 0) {
-          const leftAd = activeAds[0];
-          const rightAd = activeAds.length > 1 ? activeAds[1] : null;
-          
-          setSideAds({
-            left: leftAd,
-            right: rightAd
-          });
-        }
+
+      } catch (error) {
+        console.error(`[ShopTemplate] Error parsing current shop data for key ${currentShopKey}:`, error);
+        setShopData(null); // Reset shop data on error
+        setActiveAds([]);
+        // setSideAds({});
       }
+    } else {
+      console.warn(`[ShopTemplate] No data found for current shop key: ${currentShopKey}`);
+      setShopData(null); // Set to null if no data found
+      setActiveAds([]);
+      // setSideAds({});
     }
 
+    // --- Load Products for the Current Shop ---
+    // Assuming products are stored globally for now, might need shop-specific logic later
     const storedProducts = localStorage.getItem('peermall-products');
     if (storedProducts) {
-      setLocalProducts(JSON.parse(storedProducts));
+      try {
+        setLocalProducts(JSON.parse(storedProducts));
+      } catch (error) {
+        console.error("[ShopTemplate] Error parsing products from localStorage:", error);
+        setLocalProducts([]);
+      }
     } else {
       setLocalProducts([]);
     }
-  }, [actualShopUrl]);
-  
-  useEffect(() => {
-    if (selectedCategoryId === 0) {
-      setFilteredProducts(localProducts);
-    } else {
-      const filtered = localProducts.filter(product => product.categoryId === selectedCategoryId);
-      setFilteredProducts(filtered);
-    }
-  }, [selectedCategoryId, localProducts]);
 
-  const handleCategorySelect = (categoryId: number) => {
-    setSelectedCategoryId(categoryId);
-  };
+    // --- Load Other Registered Peer Malls ---
+    const shopUrlsKey = 'peermallShopUrls';
+    const existingUrlsString = localStorage.getItem(shopUrlsKey);
+    const shopUrls: string[] = existingUrlsString ? JSON.parse(existingUrlsString) : [];
+    console.log("[ShopTemplate] Found registered shop URLs:", shopUrls);
 
+    const loadedMalls: ShopData[] = [];
+    shopUrls.forEach(url => {
+      // Skip loading data for the current shop itself
+      if (url === actualShopUrl) {
+        return;
+      }
+      const shopDataKey = `peermallShopData_${url}`;
+      const shopDataString = localStorage.getItem(shopDataKey);
+      if (shopDataString) {
+        try {
+          const mallData = JSON.parse(shopDataString);
+          loadedMalls.push(mallData);
+        } catch (error) {
+          console.error(`[ShopTemplate] Error parsing shop data for URL ${url}:`, error);
+        }
+      } else {
+         console.warn(`[ShopTemplate] No data found for shop key: ${shopDataKey}`);
+      }
+    });
+    setRegisteredPeerMalls(loadedMalls);
+    console.log("[ShopTemplate] Loaded other registered peer malls:", loadedMalls);
+
+  }, [actualShopUrl]); // Rerun effect when the shop URL changes
+
+  // Filter products based on selected category
+  const filteredProducts = selectedCategoryId === 0
+    ? localProducts
+    : localProducts.filter(product => product.categoryId === selectedCategoryId);
+
+  // Handler to open the product registration modal
   const openProductRegistration = () => {
     setIsProductRegistrationOpen(true);
   };
 
-  const handleDeleteProduct = (productId: number) => {
-    const updatedProducts = localProducts.filter(product => product.id !== productId);
+  // Handler to delete a product
+  const handleDeleteProduct = (productIdToDelete: number) => {
+    const updatedProducts = localProducts.filter(product => product.id !== productIdToDelete);
     setLocalProducts(updatedProducts);
     localStorage.setItem('peermall-products', JSON.stringify(updatedProducts));
-    const storedQRCodes = localStorage.getItem('peermall-qrcodes');
-    if (storedQRCodes) {
-      const qrCodes = JSON.parse(storedQRCodes);
-      const productToDelete = localProducts.find(p => p.id === productId);
-      if (productToDelete) {
-        // Add a basic type for the qr object in filter
-        const updatedQRCodes = qrCodes.filter((qr: { name: string }) => qr.name !== productToDelete.name); 
-        localStorage.setItem('peermall-qrcodes', JSON.stringify(updatedQRCodes));
-      }
+
+    // Also remove associated QR code if necessary (assuming QR code name matches product name)
+    const productToDelete = localProducts.find(p => p.id === productIdToDelete);
+    if (productToDelete) {
+        const storedQRCodes = localStorage.getItem('peermall-qrcodes');
+        if (storedQRCodes) {
+            try {
+                const qrCodes = JSON.parse(storedQRCodes);
+                // Define type for QR code object inline for filter
+                const updatedQRCodes = qrCodes.filter((qr: { name: string; content: string }) =>
+                    qr.name !== productToDelete.name || qr.content !== productToDelete.externalUrl
+                );
+                localStorage.setItem('peermall-qrcodes', JSON.stringify(updatedQRCodes));
+            } catch (error) {
+                console.error("Error updating QR codes after product deletion:", error);
+            }
+        }
     }
+    // Optionally add a toast notification for deletion
   };
 
-  if (!shopData) {
+  // Function to render the main content area based on the current page/route
+  const renderMainContent = () => {
+    if (productId) {
+      // Render product detail page if productId is present in the URL
+      return <ProductDetailPage />;
+    }
+    if (page === 'about') {
+      // Render about page
+      return <AboutPage shopData={shopData} />;
+    }
+    if (page === 'service') {
+      // Render service page
+      return <ServicePage shopData={shopData} />;
+    }
+    // Default to rendering the main shop tabs (products, QR codes, etc.)
+    return (
+      <ShopTabs
+        shopUrl={actualShopUrl || ''}
+        shopData={shopData}
+        products={filteredProducts} // Pass the filtered products
+        categories={categories} // Pass categories for filtering UI
+        selectedCategoryId={selectedCategoryId} // Pass current category
+        activeTab={activeTab} // Pass current active tab
+        setActiveTab={setActiveTab} // Pass function to change tab
+        onOpenProductRegistration={openProductRegistration} // Pass function to open modal
+        onDeleteProduct={handleDeleteProduct} // Pass function to delete product
+      />
+    );
+  };
+
+  // Loading state or if shop data couldn't be found
+  if (!shopData && actualShopUrl) { // Check actualShopUrl to avoid showing error before useEffect runs
+    // You might want a more sophisticated loading indicator here
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-2xl font-bold mb-4">피어몰을 찾을 수 없습니다</h1>
-        <p className="text-gray-600 mb-6">요청하신 피어몰이 존재하지 않거나 접근할 수 없습니다.</p>
-        <Link to="/personal-lounge">
-          <Button>피어몰 만들기로 돌아가기</Button>
-        </Link>
+        <h1 className="text-2xl font-bold mb-4">피어몰 로딩 중...</h1>
+        <p className="text-gray-600">잠시만 기다려주세요.</p>
+        {/* Optional: Add a spinner */}
       </div>
     );
   }
 
-  const renderContent = () => {
-    if (productId) {
-      return <ProductDetailPage />;
-    }
-    
-    if (page === 'about') {
-      return <AboutPage shopData={shopData} />;
-    }
+  // If shop URL is missing or shop data failed to load after trying
+  if (!shopData) {
+     return (
+       <div className="flex flex-col items-center justify-center min-h-screen p-4">
+         <h1 className="text-2xl font-bold mb-4">피어몰을 찾을 수 없습니다</h1>
+         <p className="text-gray-600 mb-6">요청하신 피어몰 주소가 유효하지 않거나 데이터를 불러올 수 없습니다.</p>
+         <Link to="/personal-lounge"> {/* Link to where users can create/manage malls */}
+           <Button>내 라운지로 이동</Button>
+         </Link>
+       </div>
+     );
+  }
 
-    if (page === 'service') {
-      return <ServicePage shopData={shopData} />;
-    }
-
-    return (
-      <Tabs defaultValue="products" value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
-        <TabsList className="grid grid-cols-4 mb-8">
-          <TabsTrigger value="products" className="flex items-center gap-2">
-            <ExternalLink className="h-4 w-4" />
-            <span className="hidden sm:inline">상품 및 링크</span>
-          </TabsTrigger>
-          <TabsTrigger value="qrcodes" className="flex items-center gap-2">
-            <QrCode className="h-4 w-4" />
-            <span className="hidden sm:inline">QR 코드</span>
-          </TabsTrigger>
-          <TabsTrigger value="community" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">커뮤니티</span>
-          </TabsTrigger>
-          <TabsTrigger value="support" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">고객지원</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="products" className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {selectedCategoryId > 0 
-                  ? (categories.find(cat => cat.id === selectedCategoryId)?.name || '상품 목록') 
-                  : '추천 상품 및 링크'}
-              </h2>
-              <Button variant="outline" size="sm" className="flex items-center" onClick={openProductRegistration}>
-                <PlusCircle className="h-4 w-4 mr-1" />
-                <span>상품 등록</span>
-              </Button>
-            </div>
-            
-            {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
-                  <div key={product.id} className="cursor-pointer" onClick={() => navigate(`/shop/${actualShopUrl}/product/${product.id}`)}>
-                    <ProductItem 
-                      product={product} 
-                      onDelete={handleDeleteProduct}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 상품이 없습니다</h3>
-                <p className="text-gray-500 mb-4">상품을 등록하여 고객에게 소개해보세요.</p>
-                <Button onClick={openProductRegistration} className="flex items-center">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  상품 등록하기
-                </Button>
-              </div>
-            )}
-          </div>
-          
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-            <div className="flex items-start">
-              <ShoppingCart className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
-              <div>
-                <h3 className="font-medium text-blue-700">링크 관심목록 정보</h3>
-                <p className="text-sm text-blue-600">
-                  이 피어몰은 직접 결제 기능이 없는 프로모션 랜딩 페이지입니다. 
-                  관심 상품은 외부 사이트에서 직접 구매하셔야 합니다.
-                </p>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="qrcodes" className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold mb-6">QR 코드 목록</h2>
-            <p className="text-gray-600 mb-4">
-              아래 QR 코드를 스캔하여 각 상품 및 링크에 직접 접근하세요.
-            </p>
-            
-            {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
-                  <QRCodeDisplay 
-                    key={product.id}
-                    product={product}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-700 mb-2">등록된 QR 코드가 없습니다</h3>
-                <p className="text-gray-500 mb-4">상품을 등록하면 자동으로 QR 코드가 생성됩니다.</p>
-                <Button onClick={openProductRegistration} className="flex items-center">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  상품 등록하기
-                </Button>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="community" className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <Tabs defaultValue="forum" value={communityTab} onValueChange={setCommunityTab} className="w-full">
-              <TabsList className="grid grid-cols-4 mb-6">
-                <TabsTrigger value="forum" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>포럼 & 게시판</span>
-                </TabsTrigger>
-                <TabsTrigger value="groupchat" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span>그룹 채팅</span>
-                </TabsTrigger>
-                <TabsTrigger value="voicechat" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>음성 채팅</span>
-                </TabsTrigger>
-                <TabsTrigger value="videochat" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>화상 채팅</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="forum">
-                {/* Pass shopUrl to ForumPage */}
-                <ForumPage shopUrl={actualShopUrl} /> 
-              </TabsContent>
-
-              <TabsContent value="groupchat">
-                <GroupChatPage type="text" />
-              </TabsContent>
-
-              <TabsContent value="voicechat">
-                <GroupChatPage type="voice" />
-              </TabsContent>
-
-              <TabsContent value="videochat">
-                <GroupChatPage type="video" />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="support" className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold mb-6">고객 지원</h2>
-            
-            <div className="mb-8">
-              <h3 className="text-lg font-medium mb-4">자주 묻는 질문</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium">피어몰은 어떤 서비스인가요?</h4>
-                  <p className="text-gray-600 mt-2">
-                    피어몰은 다양한 외부 상품과 링크를 한곳에 모아 전시하는 프로모션 랜딩 페이지입니다.
-                    직접적인 결제 시스템은 없으며, 상품 구매는 연결된 외부 사이트에서 이루어집니다.
-                  </p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium">QR 코드는 어떻게 사용하나요?</h4>
-                  <p className="text-gray-600 mt-2">
-                    각 상품과 링크에 자동으로 생성된 QR 코드를 스캔하면 해당 외부 사이트로 바로 이동할 수 있습니다.
-                    이를 통해 오프라인에서�� 손쉽게 온라인 콘텐츠에 접근할 수 있습니다.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium mb-4">문의하기</h3>
-              <p className="text-gray-600 mb-4">
-                추가 질문이나 도움이 필요하시면 아래 연락처로 문의해주세요.
-              </p>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <ul className="space-y-2">
-                  <li className="flex">
-                    <span className="font-medium w-24">이메일:</span>
-                    <span>{shopData?.email}</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-medium w-24">연락처:</span>
-                    <span>{shopData?.contactNumber}</span>
-                  </li>
-                  <li className="flex">
-                    <span className="font-medium w-24">담당자:</span>
-                    <span>{shopData?.ownerName}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    );
-  };
-
+  // Main component render structure
   return (
     <div className="min-h-screen bg-gray-50">
-      <ShopHeader 
-        shopName={shopData?.shopName || ''} 
-        shopUrl={actualShopUrl || ''} 
-        logoUrl={shopData?.logoUrl} // Pass logoUrl
-        page={page} 
+      <ShopHeader
+        shopName={shopData.shopName}
+        shopUrl={actualShopUrl || ''}
+        logoUrl={shopData.logoUrl}
+        logoText={shopData.logoText} // Pass logoText
+        logoTextStyle={shopData.logoTextStyle} // Pass logoTextStyle
+        page={page} // Pass current page type for potential header variations
       />
 
-      <ProductRegistrationModal 
-        open={isProductRegistrationOpen} 
-        onClose={() => setIsProductRegistrationOpen(false)} 
+      {/* Product Registration Modal (conditionally rendered) */}
+      <ProductRegistrationModal
+        open={isProductRegistrationOpen}
+        onClose={() => setIsProductRegistrationOpen(false)}
       />
 
-      {sideAds.left && (
-        <SideAdvertisement 
-          position="left"
-          imageUrl={sideAds.left.imageUrl}
-          link={sideAds.left.link || '#'}
-          altText={sideAds.left.title}
-          id={sideAds.left.id} // ID is now number
-        />
-      )}
-      
-      {sideAds.right && (
-        <SideAdvertisement 
-          position="right"
-          imageUrl={sideAds.right.imageUrl}
-          link={sideAds.right.link || '#'}
-          altText={sideAds.right.title}
-          id={sideAds.right.id} // ID is now number
-        />
-      )}
+      {/* Render Advertisements based on position */}
+      {/* Sidebar Ads */}
+      {activeAds.filter(ad => ad.position === 'sidebar' || ad.position === 'left').slice(0, 1).map(ad => (
+         <SideAdvertisement
+           key={ad.id}
+           position="left"
+           imageUrl={ad.imageUrl}
+           link={ad.link || '#'}
+           altText={ad.title}
+           id={ad.id}
+         />
+      ))}
+       {activeAds.filter(ad => ad.position === 'sidebar' || ad.position === 'right').slice(1, 2).map(ad => (
+         <SideAdvertisement
+           key={ad.id}
+           position="right"
+           imageUrl={ad.imageUrl}
+           link={ad.link || '#'}
+           altText={ad.title}
+           id={ad.id}
+         />
+       ))}
+
 
       <main className="container mx-auto px-4 py-8">
+        {/* Hero Ad */}
+        {activeAds.filter(ad => ad.position === 'hero').map(ad => (
+          <div key={ad.id} className="mb-8"> {/* Add margin below hero ad */}
+            {/* Use a generic AdvertisementDisplay or specific HeroAd component */}
+            {/* Assuming AdvertisementDisplay exists or will be created */}
+             {/* <AdvertisementDisplay ad={ad} /> */}
+             <a href={ad.link || '#'} target="_blank" rel="noopener noreferrer">
+               <img src={ad.imageUrl} alt={ad.title} className="w-full h-auto rounded-lg shadow-md" />
+             </a>
+          </div>
+        ))}
+
+        {/* Conditionally render ShopHero only on the main shop page */}
         {page !== 'about' && page !== 'service' && !productId && (
-          <ShopHero 
-            shopName={shopData?.shopName || ''} 
-            description={shopData?.shopDescription || ''} 
-            settings={shopData?.heroSettings} // Pass heroSettings from loaded shopData
+          <ShopHero
+            shopName={shopData.shopName}
+            description={shopData.shopDescription || ''}
+            settings={shopData.heroSettings}
           />
         )}
 
+        {/* Main content area */}
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="w-full">
-            {renderContent()}
+            {renderMainContent()}
+             {/* Ads within product list (position: 'products') would need integration inside ShopTabs/ProductsTab */}
           </div>
+          {/* Sidebar could potentially go here if needed: <ShopSidebar categories={categories} onSelectCategory={handleCategorySelect} selectedCategoryId={selectedCategoryId} /> */}
         </div>
-        
-        {(!page || page === 'home') && !productId && (
-          <div className="mt-12">
-            <CustomerPeerMalls customerMalls={customerMalls} recommendedMalls={recommendedMalls} />
-          </div>
-        )}
+
+         {/* Footer Ad (Above Footer) */}
+         {activeAds.filter(ad => ad.position === 'footer').map(ad => (
+           <div key={ad.id} className="mt-12"> {/* Add margin above footer ad */}
+             {/* <AdvertisementDisplay ad={ad} /> */}
+              <a href={ad.link || '#'} target="_blank" rel="noopener noreferrer">
+                <img src={ad.imageUrl} alt={ad.title} className="w-full h-auto rounded-lg shadow-md" />
+              </a>
+           </div>
+         ))}
+
+
+        {/* Render Other Peer Malls section */}
+        <div className="mt-12">
+          {/* Pass the loaded registeredPeerMalls data.
+              CustomerPeerMalls component needs to be adapted to handle ShopData[].
+              Assuming it will be adapted or already handles it.
+              Using 'recommendedMalls' prop name for consistency with previous structure,
+              but passing the actual registered malls data.
+          */}
+          <CustomerPeerMalls
+            recommendedMalls={registeredPeerMalls}
+            // customerMalls prop is removed as we are using registered data
+          />
+        </div>
       </main>
 
-      <ShopFooter 
-        shopName={shopData?.shopName || ''} 
-        shopUrl={actualShopUrl || ''} 
-        shopData={shopData || undefined}
+      <ShopFooter
+        shopName={shopData.shopName}
+        shopUrl={actualShopUrl || ''}
+        shopData={shopData} // Pass full shopData if footer needs more info
       />
     </div>
   );

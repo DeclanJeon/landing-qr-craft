@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+
 import { toast } from "@/hooks/use-toast";
 import { 
   QrCode, 
@@ -267,17 +268,6 @@ const FeaturesSection = ({ featuresRef }: FeaturesSectionProps) => (
         description="QR 코드 생성, 나의 라운지, 피어몰 목록 등 주요 기능에 빠르게 접근하여 효율적으로 관리하세요." 
       />
     </div>
-
-    {/* Link to create store */}
-     {/* Increased top margin */}
-     <div className="text-center mt-20"> 
-        <Link to="/personal-lounge">
-           {/* Ensured consistent button styling */}
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black">
-            내 피어몰 만들기 시작하기
-          </Button>
-        </Link>
-      </div>
   </Section>
 );
 

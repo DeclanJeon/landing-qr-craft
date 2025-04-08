@@ -21,15 +21,15 @@ import { ShopData } from '@/types/shop';
 
 const formSchema = z.object({
   shopName: z.string().min(2, {
-    message: "쇼핑몰 이름은 최소 2글자 이상이어야 합니다.",
+    message: "피어몰 이름은 최소 2글자 이상이어야 합니다.",
   }),
   shopDescription: z.string().min(10, {
-    message: "쇼핑몰 소개글은 최소 10글자 이상이어야 합니다.",
+    message: "피어몰 소개글은 최소 10글자 이상이어야 합니다.",
   }).max(200, {
-    message: "쇼핑몰 소개글은 최대 200글자까지 입력 가능합니다.",
+    message: "피어몰 소개글은 최대 200글자까지 입력 가능합니다.",
   }),
   shopUrl: z.string().min(3, {
-    message: "쇼핑몰 주소는 최소 3글자 이상이어야 합니다.",
+    message: "피어몰 주소는 최소 3글자 이상이어야 합니다.",
   }).refine(value => /^[a-z0-9-]+$/.test(value), {
     message: "주소는 영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다.",
   }),
@@ -54,8 +54,10 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
   const navigate = useNavigate();
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [introImagePreview, setIntroImagePreview] = useState<string | null>(null); // State for intro image preview
+  const [introImageFile, setIntroImageFile] = useState<File | null>(null); // State for intro image file
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,9 +82,22 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     }
   };
 
+  // Handler for intro image change
+  const handleIntroImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIntroImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIntroImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     if (isSubmitting) return;
-    
+
     try {
       setIsSubmitting(true);
       console.log("[PeermallShopForm] onSubmit called with values:", values);
@@ -95,6 +110,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
         contactNumber: values.contactNumber,
         email: values.email,
         faviconUrl: faviconPreview || undefined,
+        introImageUrl: introImagePreview || undefined, // Add intro image URL
         category: values.shopDescription.split(' ')[0],
         rating: 5.0,
         themeSettings: { primaryColor: "#3B82F6", secondaryColor: "#6366F1", fontFamily: "system-ui, sans-serif", borderRadius: "rounded-lg" },
@@ -166,7 +182,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold">쇼핑몰 기본 정보</h2>
+          <h2 className="text-xl font-semibold">피어몰 기본 정보</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -174,7 +190,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
               name="shopName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>쇼핑몰 이름</FormLabel>
+                  <FormLabel>피어몰 이름</FormLabel>
                   <FormControl>
                     <Input placeholder="나만의 피어몰" {...field} />
                   </FormControl>
@@ -188,7 +204,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
               name="shopUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>쇼핑몰 주소</FormLabel>
+                  <FormLabel>피어몰 주소</FormLabel>
                   <FormControl>
                     <div className="flex items-center">
                       <span className="text-sm text-gray-500 mr-2">peermall.com/</span>
@@ -207,10 +223,10 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
             name="shopDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>쇼핑몰 소개글</FormLabel>
+                <FormLabel>피어몰 소개글</FormLabel>
                 <FormControl>
                   <Textarea 
-                    placeholder="쇼핑몰에 대한 간단한 소개글을 작성해주세요." 
+                    placeholder="피어몰에 대한 간단한 소개글을 작성해주세요." 
                     className="resize-none" 
                     rows={4}
                     {...field} 
@@ -256,8 +272,44 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
               </div>
             </div>
           </div>
+
+          {/* Introduction Image Upload Section */}
+          <div className="space-y-4">
+            <FormLabel>소개 이미지 (선택)</FormLabel>
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="w-full sm:w-48 h-32 border rounded-md flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
+                {introImagePreview ? (
+                  <img
+                    src={introImagePreview}
+                    alt="소개 이미지 미리보기"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+              <div className="w-full">
+                <label htmlFor="intro-image-upload" className="cursor-pointer">
+                  <Button type="button" variant="outline" className="relative w-full sm:w-auto">
+                    <Upload className="w-4 h-4 mr-2" />
+                    소개 이미지 업로드
+                    <input
+                      id="intro-image-upload"
+                      type="file"
+                      accept="image/*"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={handleIntroImageChange}
+                    />
+                  </Button>
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  피어몰 목록 및 상단에 표시될 이미지입니다. (권장 비율 16:9)
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
         <div className="space-y-6 pt-6 border-t">
           <h2 className="text-xl font-semibold">연락처 정보</h2>
           

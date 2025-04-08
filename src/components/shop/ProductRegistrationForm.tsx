@@ -39,6 +39,7 @@ const productSchema = z.object({
   price: z.string().min(1, { message: "가격은 필수입니다." }),
   imageUrl: z.string().min(1, { message: "이미지 URL은 필수입니다." }),
   externalUrl: z.string().url({ message: "유효한 URL을 입력해주세요." }),
+  brandUrl: z.string().url({ message: "유효한 URL을 입력해주세요." }).optional().or(z.literal('')), // Optional URL
   distributor: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
@@ -72,6 +73,7 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
       price: "",
       imageUrl: "",
       externalUrl: "",
+      brandUrl: "", // Add default value for brandUrl
       distributor: "",
       manufacturer: "",
       description: "",
@@ -103,6 +105,7 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
       price: data.price,
       imageUrl: data.imageUrl,
       externalUrl: data.externalUrl,
+      brandUrl: data.brandUrl, // Add brandUrl to the new product object
       categoryId: data.categoryId,
       distributor: data.distributor,
       manufacturer: data.manufacturer,
@@ -150,7 +153,8 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
 
   return (
     <div className="bg-white rounded-lg">
-      <div className="grid md:grid-cols-2 gap-8">
+      {/* Change grid to stack columns on mobile (default) and go to 2 columns on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -170,7 +174,25 @@ const ProductRegistrationForm: React.FC<ProductRegistrationFormProps> = ({ onSuc
                   </FormItem>
                 )}
               />
-              
+
+              {/* Add Brand URL Field */}
+              <FormField
+                control={form.control}
+                name="brandUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>브랜드 소개 링크 (선택)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="브랜드 웹사이트 또는 소개 페이지 URL" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      상품 상세 페이지의 '브랜드 소개' 버튼에 연결될 URL입니다.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="name"

@@ -40,6 +40,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onOpenCreateModal }) => (
     </main>
     <ShopFooter
       shopName="Peermall"
+      shopUrl="/"
       shopData={{
         shopName: "Peermall",
         shopUrl: "/",

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -25,24 +24,34 @@ const MobileNavigation = ({ isMenuOpen, closeMenu }: MobileNavigationProps) => {
   
   useEffect(() => {
     // Check authentication status
-    const auth = localStorage.getItem('peermall-user-authenticated') === 'true';
-    setIsAuthenticated(auth);
+    const checkAuth = () => {
+      const auth = localStorage.getItem('peermall-user-authenticated') === 'true';
+      setIsAuthenticated(auth);
+      
+      if (auth) {
+        setUserNickname(localStorage.getItem('peermall-user-nickname') || '사용자');
+        setProfileImage(localStorage.getItem('peermall-user-profile') || null);
+      }
+    };
     
-    if (auth) {
-      setUserNickname(localStorage.getItem('peermall-user-nickname') || '사용자');
-      setProfileImage(localStorage.getItem('peermall-user-profile') || null);
-    }
+    checkAuth();
+    
+    // Set up an interval to periodically check auth status
+    const intervalId = setInterval(checkAuth, 1000);
+    
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [isMenuOpen]); // Re-check when menu opens
   
   const handleLogout = () => {
     localStorage.removeItem('peermall-user-authenticated');
     localStorage.removeItem('peermall-user-nickname');
+    localStorage.removeItem('peermall-user-email');
+    localStorage.removeItem('peermall-user-profile');
     setIsAuthenticated(false);
     toast({ title: "로그아웃 되었습니다" });
     closeMenu();
-    
-    // Refresh page to update all components
-    window.location.reload();
   };
   
   const getInitials = () => {
@@ -116,14 +125,16 @@ const MobileNavigation = ({ isMenuOpen, closeMenu }: MobileNavigationProps) => {
                 </Link>
               </li>
               
-              {!isAuthenticated ? (
+              {!isAuthenticated && (
                 <li>
                   <Link to="/login" className="flex items-center py-2 px-4 hover:bg-gray-800 rounded-md text-gray-300" onClick={closeMenu}>
                     <User className="h-5 w-5 mr-3 text-blue-500" />
                     <span>로그인</span>
                   </Link>
                 </li>
-              ) : (
+              )}
+              
+              {isAuthenticated && (
                 <>
                   <li>
                     <Link to="/user-profile?tab=messages" className="flex items-center py-2 px-4 hover:bg-gray-800 rounded-md text-gray-300" onClick={closeMenu}>

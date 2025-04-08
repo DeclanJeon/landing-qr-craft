@@ -260,11 +260,6 @@ const PeermallList = () => {
                     </Button>
                   </Link>
                 </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          {/* No results message - Dark theme */}
           {filteredPeermalls.length === 0 && (
             <div className="text-center py-16 bg-gray-800/50 rounded-lg border border-gray-700">
               <Store className="h-16 w-16 mx-auto text-gray-600 mb-4" />

@@ -8,15 +8,22 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Store, MapPin, Star, ArrowRight, Filter, QrCode } from 'lucide-react';
+import { Badge } from "@/components/ui/badge"; // Import Badge
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Import Tooltip components
+import { Search, Store, MapPin, Star, ArrowRight, Filter, QrCode, User, ShoppingBag, Users } from 'lucide-react'; // Added icons
 import { ShopData } from '@/types/shop';
-// Removed getPeermalls import
 
 interface PeermallWithExtras extends ShopData {
   // Using shopUrl as the unique identifier now, id might not be needed unless for mapping keys
-  id: string; // Changed id to string (shopUrl)
+  id: string; // Use shopUrl as the unique identifier now
   image: string; // Keep generated image
   qrCode: string; // Keep generated QR code
+  specialization: 'seller' | 'buyer' | 'neutral'; // Add specialization to the extended type
 }
 
 // Removed defaultPeermalls array
@@ -54,6 +61,7 @@ const PeermallList = () => {
               category: parsedData.category || (parsedData.shopDescription ? parsedData.shopDescription.split(' ')[0] : '일반'),
               rating: parsedData.rating || 5.0,
               location: parsedData.location || (parsedData.address ? parsedData.address.split(' ')[0] : '온라인'),
+              specialization: parsedData.specialization || 'neutral', // Read specialization or default to neutral
             });
           } catch (parseError) {
             console.error(`Error parsing shop data for ${url}:`, parseError);
@@ -74,8 +82,69 @@ const PeermallList = () => {
     peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     peermall.shopDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (peermall.category && peermall.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (peermall.location && peermall.location.toLowerCase().includes(searchTerm.toLowerCase()))
+    (peermall.location && peermall.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (peermall.specialization && peermall.specialization.toLowerCase().includes(searchTerm.toLowerCase())) // Allow searching by specialization
   );
+
+  // Helper function to render specialization badge and tooltip (only for seller/buyer)
+  const renderSpecializationBadge = (specialization: 'seller' | 'buyer' | 'neutral') => {
+    // Return null if specialization is neutral or undefined
+    if (!specialization || specialization === 'neutral') {
+      return null;
+    }
+
+    let badgeText = '';
+    let badgeVariant: "default" | "secondary" | "destructive" | "outline" = 'secondary';
+    let tooltipText = '';
+    let IconComponent = Users;
+
+    switch (specialization) {
+      case 'seller':
+        badgeText = '판매자 특화';
+        badgeVariant = 'default'; // Use default (blue) for seller
+        tooltipText = '판매자 도구 및 기능에 중점을 둔 피어몰입니다.';
+        IconComponent = Store;
+        break;
+      case 'buyer':
+        badgeText = '구매자 특화';
+        badgeVariant = 'outline'; // Use outline (greenish) for buyer
+        tooltipText = '구매자 경험 및 추천에 중점을 둔 피어몰입니다.';
+        IconComponent = ShoppingBag;
+        break;
+      default: // neutral
+        badgeText = '중립형';
+        badgeVariant = 'secondary'; // Use secondary (gray) for neutral
+        tooltipText = '판매자와 구매자 모두에게 균형 잡힌 기능을 제공하는 피어몰입니다.';
+        // Neutral case is handled by the initial check, so no need for it here
+        break; 
+    }
+
+    // Define variant styles directly for more control
+    const variantClasses = {
+      default: "bg-blue-900/50 text-blue-300 border-blue-700/60",
+      outline: "bg-green-900/50 text-green-300 border-green-700/60",
+      secondary: "bg-gray-700/80 text-gray-300 border-gray-600/80",
+      destructive: "bg-red-900/50 text-red-300 border-red-700/60" // Example if needed
+    };
+
+
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant={badgeVariant} className={`cursor-default text-xs px-2 py-0.5 ${variantClasses[badgeVariant]}`}>
+              <IconComponent className="h-3 w-3 mr-1" />
+              {badgeText}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent className="bg-black border-gray-700 text-gray-200">
+            <p>{tooltipText}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
 
   return (
     // Apply dark theme background and adjust padding
@@ -175,9 +244,11 @@ const PeermallList = () => {
                        {/* Text color updated */}
                       <span className="text-sm font-medium text-gray-200">{peermall.rating}</span>
                     </div>
+                    {/* Render the specialization badge */}
+                    {renderSpecializationBadge(peermall.specialization)}
                   </div>
                    {/* Text color updated */}
-                  <p className="text-sm text-gray-400 line-clamp-2">{peermall.shopDescription}</p>
+                  <p className="text-sm text-gray-400 line-clamp-2 mt-3">{peermall.shopDescription}</p> 
                 </CardContent>
                  {/* Card footer styling updated */}
                 <CardFooter className="p-4 pt-0 flex justify-end mt-auto">

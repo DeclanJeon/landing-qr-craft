@@ -67,6 +67,7 @@ export interface ShopData {
     isActive: boolean;
   }>;
   faviconUrl?: string;
+  specialization?: 'seller' | 'buyer' | 'neutral'; // Added specialization field
 }
 
 export interface Product {

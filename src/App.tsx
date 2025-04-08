@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+
+import React, { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom"; // Import Outlet
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import Navigation from "@/components/Navigation";
 import ShopFooter from "@/components/shop/ShopFooter";
 import Preloader from "@/components/Preloader";
-import PeermallCreateModal from "@/components/PeermallCreateModal"; // Import the modal
+import PeermallCreateModal from "@/components/PeermallCreateModal";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import UserProfile from "./pages/UserProfile"; // Import the new profile page
 import LoungeAdmin from "./pages/LoungeAdmin";
 import PersonalLounge from "./pages/PersonalLounge";
 import PeermallList from "./pages/PeermallList";
@@ -22,7 +24,7 @@ import ShopPage from "./pages/ShopPage";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import ProductRegistration from "./pages/ProductRegistration";
 import ShopAdmin from "./pages/ShopAdmin";
-import ForumPostDetail from "./pages/ForumPostDetail"; // Import the new detail page
+import ForumPostDetail from "./pages/ForumPostDetail";
 
 const queryClient = new QueryClient();
 
@@ -32,15 +34,15 @@ interface MainLayoutProps {
 }
 const MainLayout: React.FC<MainLayoutProps> = ({ onOpenCreateModal }) => (
   <div className="flex flex-col min-h-screen">
-    <Navigation onOpenCreateModal={onOpenCreateModal} /> {/* Pass the handler */}
-    <main className="flex-grow"> {/* Add flex-grow to push footer down */}
-      <Outlet /> {/* Child routes will render here */}
+    <Navigation onOpenCreateModal={onOpenCreateModal} />
+    <main className="flex-grow">
+      <Outlet />
     </main>
-    {/* Use default/placeholder data for the global footer */}
     <ShopFooter
       shopName="Peermall"
-      shopUrl="/"
       shopData={{
+        shopName: "Peermall",
+        shopUrl: "/",
         ownerName: "Peermall Team",
         contactNumber: "1-800-PEERMALL",
         email: "contact@peermall.com",
@@ -52,7 +54,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onOpenCreateModal }) => (
 
 const App = () => {
   const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Add modal state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Modal handlers
   const openCreateModal = () => setIsCreateModalOpen(true);
@@ -62,9 +64,9 @@ const App = () => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1500); // Adjust time as needed (e.g., 1500ms)
+    }, 1500);
 
-    return () => clearTimeout(timer); // Cleanup timer on unmount
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
@@ -78,14 +80,12 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* Render modal globally */}
           <PeermallCreateModal open={isCreateModalOpen} onClose={closeCreateModal} />
           <Routes>
-            {/* Pass the handler to MainLayout */}
             <Route element={<MainLayout onOpenCreateModal={openCreateModal} />}>
               <Route path="/" element={<Index />} />
-              {/* Note: Login might eventually need its own layout without Nav/Footer, but keep here for now */}
               <Route path="/login" element={<Login />} />
+              <Route path="/user-profile" element={<UserProfile />} /> {/* Add the new profile route */}
               <Route path="/qr-generator" element={<QRCodeGenerator />} />
               <Route path="/peermall-list" element={<PeermallList />} />
               <Route path="/customer-service" element={<CustomerService />} />
@@ -94,10 +94,10 @@ const App = () => {
               <Route path="/community/groupchat" element={<Community />} />
               <Route path="/community/voicechat" element={<Community />} />
               <Route path="/community/videochat" element={<Community />} />
-              <Route path="/community/post/:postId" element={<ForumPostDetail />} /> {/* Add route for post detail */}
+              <Route path="/community/post/:postId" element={<ForumPostDetail />} />
               <Route path="/site-integration" element={<SiteIntegration />} />
               {/* Add other non-shop routes here */}
-            </Route> {/* End of MainLayout routes */}
+            </Route>
 
             {/* Shop routes WITHOUT the global MainLayout */}
             <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
@@ -115,12 +115,11 @@ const App = () => {
             <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
             <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
-            {/* Add shop-specific community post detail route */}
             <Route path="/shop/:shopUrl/community/post/:postId" element={<ForumPostDetail />} />
             <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
             <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
 
-            {/* Catch-all route (outside MainLayout) */}
+            {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

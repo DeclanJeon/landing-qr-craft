@@ -11,6 +11,7 @@ import FooterSettingsTab from './FooterSettingsTab';
 import AdManagementTab from './AdManagementTab';
 import StorageManagementTab from './StorageManagementTab';
 import LayoutManagementTab from './LayoutManagementTab';
+import { ShopData } from '@/types/shop';
 
 type AdminTabContentProps = {
   activeTab: string;
@@ -19,13 +20,59 @@ type AdminTabContentProps = {
 
 const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab, shopName }) => {
   // State for various settings
-  const [basicInfo, setBasicInfo] = useState({});
+  const [basicInfo, setBasicInfo] = useState<ShopData>({
+    shopName: '',
+    shopUrl: '',
+    shopDescription: '',
+    shopCategory: '',
+    shopTags: [],
+    ownerEmail: '',
+    ownerName: '',
+    ownerPhone: '',
+    shopAddress: '',
+    contactNumber: '',
+    email: '',
+    address: ''
+  });
+  
   const [logoSettings, setLogoSettings] = useState({});
   const [faviconUrl, setFaviconUrl] = useState('');
   const [themeSettings, setThemeSettings] = useState({});
-  const [heroSettings, setHeroSettings] = useState({});
-  const [footerSettings, setFooterSettings] = useState({});
-  const [shopData, setShopData] = useState({});
+  const [heroSettings, setHeroSettings] = useState({
+    background: '',
+    title: '',
+    description: '',
+    buttonText: '',
+    buttonColor: ''
+  });
+  const [footerSettings, setFooterSettings] = useState<ShopData>({
+    shopName: '',
+    shopUrl: '',
+    shopDescription: '',
+    shopCategory: '',
+    shopTags: [],
+    ownerEmail: '',
+    ownerName: '',
+    ownerPhone: '',
+    shopAddress: '',
+    contactNumber: '',
+    email: '',
+    address: ''
+  });
+  const [shopData, setShopData] = useState<ShopData>({
+    shopName: '',
+    shopUrl: '',
+    shopDescription: '',
+    shopCategory: '',
+    shopTags: [],
+    ownerEmail: '',
+    ownerName: '',
+    ownerPhone: '',
+    shopAddress: '',
+    contactNumber: '',
+    email: '',
+    address: ''
+  });
   const [adSettings, setAdSettings] = useState({});
   const [layoutSettings, setLayoutSettings] = useState({});
   
@@ -87,34 +134,30 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab, shopName }
     case 'logo':
       return (
         <LogoSettingsTab 
+          logoSettings={logoSettings}
           shopName={shopName}
-          onSave={handleSaveLogoSettings}
         />
       );
     
     case 'favicon':
       return (
         <FaviconSettingsTab 
-          shopName={shopName} 
-          faviconUrl={faviconUrl} 
-          setFaviconUrl={setFaviconUrl} 
-          onSave={handleSaveFaviconSettings}
+          faviconUrl={faviconUrl}
+          shopName={shopName}
         />
       );
     
     case 'theme':
       return (
         <ThemeSettingsTab 
-          onSave={handleSaveThemeSettings}
+          themeSettings={themeSettings}
         />
       );
     
     case 'layout':
       return (
         <LayoutManagementTab 
-          shopName={shopName}
           layoutSettings={layoutSettings}
-          onSave={handleSaveLayoutSettings}
         />
       );
     
@@ -135,17 +178,17 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab, shopName }
       );
     
     case 'storage':
-      return <StorageManagementTab shopName={shopName} />;
+      return <StorageManagementTab />;
     
     case 'ads':
       return (
         <AdManagementTab 
-          onSave={handleSaveAdSettings}
+          adSettings={adSettings}
         />
       );
     
     default:
-      return <EmptyTabContent />;
+      return <EmptyTabContent title="페이지를 찾을 수 없음" description="선택한 탭에 대한 콘텐츠가 없습니다." />;
   }
 };
 

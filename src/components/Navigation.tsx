@@ -10,6 +10,8 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
+  console.log("Navigation component rendering");
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -196,6 +198,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.8, duration: 0.5 }}
                 className="flex items-center space-x-2"
               >
+                {console.log("About to render AuthNavigation in Navigation.tsx")}
                 <AuthNavigation />
                 
                 <motion.div

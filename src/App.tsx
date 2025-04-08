@@ -13,7 +13,7 @@ import PeermallCreateModal from "@/components/PeermallCreateModal";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import UserProfile from "./pages/UserProfile"; // Import the new profile page
+import UserProfile from "./pages/UserProfile"; 
 import LoungeAdmin from "./pages/LoungeAdmin";
 import PersonalLounge from "./pages/PersonalLounge";
 import PeermallList from "./pages/PeermallList";
@@ -78,55 +78,55 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <PeermallCreateModal open={isCreateModalOpen} onClose={closeCreateModal} />
-          <Routes>
-            <Route element={<MainLayout onOpenCreateModal={openCreateModal} />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/user-profile" element={<UserProfile />} /> {/* Add the new profile route */}
-              <Route path="/qr-generator" element={<QRCodeGenerator />} />
-              <Route path="/peermall-list" element={<PeermallList />} />
-              <Route path="/customer-service" element={<CustomerService />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/forum" element={<Community />} />
-              <Route path="/community/groupchat" element={<Community />} />
-              <Route path="/community/voicechat" element={<Community />} />
-              <Route path="/community/videochat" element={<Community />} />
-              <Route path="/community/post/:postId" element={<ForumPostDetail />} />
-              <Route path="/site-integration" element={<SiteIntegration />} />
-              {/* Add other non-shop routes here */}
-            </Route>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <PeermallCreateModal open={isCreateModalOpen} onClose={closeCreateModal} />
+            <Routes>
+              <Route element={<MainLayout onOpenCreateModal={openCreateModal} />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/user-profile" element={<UserProfile />} />
+                <Route path="/qr-generator" element={<QRCodeGenerator />} />
+                <Route path="/peermall-list" element={<PeermallList />} />
+                <Route path="/customer-service" element={<CustomerService />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/forum" element={<Community />} />
+                <Route path="/community/groupchat" element={<Community />} />
+                <Route path="/community/voicechat" element={<Community />} />
+                <Route path="/community/videochat" element={<Community />} />
+                <Route path="/community/post/:postId" element={<ForumPostDetail />} />
+                <Route path="/site-integration" element={<SiteIntegration />} />
+                {/* Add other non-shop routes here */}
+              </Route>
 
-            {/* Shop routes WITHOUT the global MainLayout */}
-            <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/community" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/support" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/service" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/product/:productId" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/terms" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/privacy" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
-            <Route path="/shop/:shopUrl/community/post/:postId" element={<ForumPostDetail />} />
-            <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
-            <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
+              {/* Shop routes WITHOUT the global MainLayout */}
+              <Route path="/shop/:shopUrl/home" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/products" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/qrcodes" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/community" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/support" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/about" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/service" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/new" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/category/:categoryId" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/product/:productId" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/terms" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/privacy" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/faq" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/contact" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/shipping" element={<ShopPage />} />
+              <Route path="/shop/:shopUrl/community/post/:postId" element={<ForumPostDetail />} />
+              <Route path="/shop/:shopUrl/admin" element={<ShopAdmin />} />
+              <Route path="/shop/:shopUrl" element={<Navigate to="/shop/:shopUrl/home" replace />} />
 
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 export default App;

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { UserCircle, LogOut } from "lucide-react";
 import {
@@ -18,7 +18,6 @@ const AuthNavigation = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userNickname, setUserNickname] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const navigate = useNavigate();
   
   useEffect(() => {
     // Check authentication status whenever component renders
@@ -59,7 +58,8 @@ const AuthNavigation = () => {
     localStorage.removeItem('peermall-user-profile');
     toast({ title: "로그아웃 되었습니다" });
     setIsAuthenticated(false);
-    navigate('/');
+    // Instead of using useNavigate, we'll reload the page to reset state
+    window.location.href = '/';
   };
   
   const getInitials = () => {

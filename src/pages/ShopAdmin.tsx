@@ -64,17 +64,14 @@ import StorageManagementTab from '@/components/admin/StorageManagementTab';
 import FaviconSettingsTab from '@/components/admin/FaviconSettingsTab';
 import LogoSettingsTab from '@/components/admin/LogoSettingsTab';
 import BasicInfoSettingsTab from '@/components/admin/BasicInfoSettingsTab';
-import FooterSettingsTab from '@/components/admin/FooterSettingsTab'; // Import the new FooterSettingsTab
+import FooterSettingsTab from '@/components/admin/FooterSettingsTab';
 
-// Define types locally for state initialization and casting
 type FooterSettingsType = NonNullable<ShopData['footerSettings']>;
 type AdSettingsType = NonNullable<ShopData['adSettings']>;
 type HeroSettingsType = NonNullable<ShopData['heroSettings']>;
 type ThemeSettingsType = NonNullable<ShopData['themeSettings']>;
 type LogoTextStyleType = NonNullable<ShopData['logoTextStyle']>;
 
-
-// Simple hook to check screen size
 const useMediaQuery = (query: string) => {
     const [matches, setMatches] = useState(false);
     useEffect(() => {
@@ -89,33 +86,27 @@ const useMediaQuery = (query: string) => {
     return matches;
 };
 
-
 const ShopAdmin = () => {
     const { shopUrl } = useParams();
     const [shopData, setShopData] = useState<ShopData | null>(null);
     const [activeTab, setActiveTab] = useState("basicInfo");
     const isMobile = useMediaQuery("(max-width: 768px)");
 
-    // State initialization with default values and correct types
-    const [heroSettings, setHeroSettings] = useState<HeroSettingsType>({
-        background: "bg-gradient-to-r from-blue-500 to-indigo-600",
-        title: "",
-        description: "",
-        buttonText: "상품 구경하기",
-        buttonColor: "bg-white text-blue-600 hover:bg-gray-100",
+    const [heroSettings, setHeroSettings] = useState({
+        background: "#f9fafb",
+        title: "Welcome to Our Shop",
+        description: "Discover amazing products and services",
+        buttonText: "Shop Now",
+        buttonColor: "#4f46e5",
         imageUrl: "",
         imagePosition: "right",
         buttonIcon: true,
-        buttonSize: "medium",
-        buttonRadius: "rounded-full",
+        buttonSize: "md",
+        buttonRadius: "md",
         showDecorations: true,
-        widgets: {
-            showProductCount: false,
-            showRating: false,
-            showBadge: false,
-            badgeText: "신규",
-        }
+        widgets: {} as Record<string, any>
     });
+
     const [footerSettings, setFooterSettings] = useState<FooterSettingsType>({
         background: "bg-gray-800",
         textColor: "text-white",
@@ -155,7 +146,6 @@ const ShopAdmin = () => {
         borderRadius: "rounded-lg",
     });
 
-    // Effect to load data from localStorage
     useEffect(() => {
         if (!shopUrl) {
             console.error("Shop URL parameter is missing!");
@@ -168,19 +158,16 @@ const ShopAdmin = () => {
 
         if (parsedShopData) {
             setShopData(parsedShopData);
-            // Initialize states from loaded data, providing defaults
             setHeroSettings(prev => ({
                 ...prev,
                 ...(parsedShopData.heroSettings || {}),
                 title: parsedShopData.heroSettings?.title || (parsedShopData.shopName ? `${parsedShopData.shopName}에 오신 것을 환영합니다` : prev.title),
-                // Use shopDescription from root if heroSettings.description is missing
                 description: parsedShopData.heroSettings?.description || parsedShopData.shopDescription || prev.description,
                 widgets: { ...prev.widgets, ...(parsedShopData.heroSettings?.widgets || {}) }
             }));
             setFooterSettings(prev => ({
                 ...prev,
                 ...(parsedShopData.footerSettings || {}),
-                // Prioritize footerSettings values, fallback to root shopData, then defaults
                 ownerName: parsedShopData.footerSettings?.ownerName ?? parsedShopData.ownerName ?? prev.ownerName,
                 contactNumber: parsedShopData.footerSettings?.contactNumber ?? parsedShopData.contactNumber ?? prev.contactNumber,
                 email: parsedShopData.footerSettings?.email ?? parsedShopData.email ?? prev.email,
@@ -191,8 +178,8 @@ const ShopAdmin = () => {
             setThemeSettings(prev => ({ ...prev, ...(parsedShopData.themeSettings || {}) }));
             setAdSettings((parsedShopData.adSettings || []).map(ad => ({
                 ...ad,
-                id: ad.id || Date.now(), // Ensure ID exists
-                isActive: ad.isActive === undefined ? true : ad.isActive // Default isActive to true if missing
+                id: ad.id || Date.now(),
+                isActive: ad.isActive === undefined ? true : ad.isActive
             })));
             setFaviconUrl(parsedShopData.faviconUrl || null);
             setLogoUrl(parsedShopData.logoUrl || null);
@@ -204,22 +191,19 @@ const ShopAdmin = () => {
         }
     }, [shopUrl]);
 
-    // Function to save all changes to localStorage
     const saveChanges = () => {
         if (!shopData || !shopUrl) return;
 
-        // Construct the updated shop data object
         const updatedShopData: ShopData = {
-            ...shopData, // Spread existing data (includes shopName, shopUrl)
-            shopDescription: shopData.shopDescription, // Ensure the potentially updated description is saved
+            ...shopData,
+            shopDescription: shopData.shopDescription,
             themeSettings,
-            // Ensure all potentially required fields have fallbacks, even if optional in type def
             heroSettings: {
-                background: heroSettings.background ?? "bg-gradient-to-r from-blue-500 to-indigo-600", // Default background
-                title: heroSettings.title ?? `${shopData.shopName}에 오신 것을 환영합니다`, // Default title
-                description: heroSettings.description ?? shopData.shopDescription ?? '', // Default description
-                buttonText: heroSettings.buttonText ?? "상품 구경하기", // Default button text
-                buttonColor: heroSettings.buttonColor ?? "bg-white text-blue-600 hover:bg-gray-100", // Default button color
+                background: heroSettings.background ?? "bg-gradient-to-r from-blue-500 to-indigo-600",
+                title: heroSettings.title ?? `${shopData.shopName}에 오신 것을 환영합니다`,
+                description: heroSettings.description ?? shopData.shopDescription ?? '',
+                buttonText: heroSettings.buttonText ?? "상품 구경하기",
+                buttonColor: heroSettings.buttonColor ?? "bg-white text-blue-600 hover:bg-gray-100",
                 imageUrl: heroSettings.imageUrl,
                 imagePosition: heroSettings.imagePosition,
                 buttonIcon: heroSettings.buttonIcon,
@@ -228,7 +212,7 @@ const ShopAdmin = () => {
                 showDecorations: heroSettings.showDecorations,
                 widgets: heroSettings.widgets,
             },
-            footerSettings, // Save the entire footerSettings state object
+            footerSettings,
             adSettings,
             faviconUrl,
             logoUrl,
@@ -241,16 +225,13 @@ const ShopAdmin = () => {
         alert('설정이 저장되었습니다.');
     };
 
-    // Ad management functions (simplified for brevity)
     const addNewAd = () => { /* ... implementation ... */ };
     const deleteAd = (adId: number) => { /* ... implementation ... */ };
     const handleAdChange = (adId: number, field: string, value: string | boolean) => { /* ... implementation ... */ };
 
-    // Loading/Not Found state
     if (!shopData) {
-        // Added a check for shopUrl to avoid showing loading indefinitely if URL is missing
         if (!shopUrl) {
-             return (
+            return (
                 <div className="flex flex-col items-center justify-center min-h-screen p-4">
                     <h1 className="text-2xl font-bold mb-4">오류</h1>
                     <p className="text-gray-600 mb-6">피어몰 주소가 URL에 없습니다.</p>
@@ -258,32 +239,27 @@ const ShopAdmin = () => {
                         <Button>내 라운지로 이동</Button>
                     </Link>
                 </div>
-             );
+            );
         }
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <h1 className="text-2xl font-bold mb-4">피어몰 로딩 중...</h1>
                 <p className="text-gray-600 mb-6">({shopUrl}) 데이터를 불러오는 중입니다...</p>
-                {/* Optional: Add spinner here */}
             </div>
         );
     }
 
-    // Define admin sections for navigation
     const adminSections = [
         { value: "basicInfo", label: "기본 정보", icon: Settings },
         { value: "logo", label: "로고 설정", icon: Image },
         { value: "hero", label: "히어로 섹션", icon: LayoutDashboard },
         { value: "ads", label: "광고 관리", icon: MousePointerClick },
         { value: "footer", label: "푸터 정보", icon: Layout },
-        // Add other sections as needed
     ];
 
-    // Function to render the content of the selected tab
     const renderTabContent = (tabValue: string) => {
         switch (tabValue) {
             case "basicInfo":
-                // Pass shopData and the setter function
                 return <BasicInfoSettingsTab shopData={shopData} setShopData={setShopData} />;
             case "logo":
                 return <LogoSettingsTab
@@ -296,15 +272,10 @@ const ShopAdmin = () => {
                             setLogoTextStyle={setLogoTextStyle}
                         />;
             case "hero":
-                // Pass heroSettings state and its setter
                 return <HeroSettingsTab shopName={shopData.shopName} heroSettings={heroSettings} setHeroSettings={setHeroSettings} />;
             case "ads":
-                 // Pass adSettings state and its setter
                 return <AdManagementTab adSettings={adSettings} setAdSettings={setAdSettings} />;
             case "footer":
-                // Render the new FooterSettingsTab component
-                // Pass the main shopData and its setter for description editing
-                // Pass the footerSettings state and its setter for footer specific settings
                 return <FooterSettingsTab
                             shopData={shopData}
                             footerSettings={footerSettings}
@@ -316,7 +287,6 @@ const ShopAdmin = () => {
         }
     };
 
-    // Main component layout
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm border-b sticky top-0 z-10">
@@ -340,7 +310,6 @@ const ShopAdmin = () => {
 
             <div className="container mx-auto px-4 py-6 md:py-8">
                 {isMobile ? (
-                    // Mobile Layout: Select dropdown
                     <div className="w-full">
                         <Select value={activeTab} onValueChange={setActiveTab}>
                             <SelectTrigger className="w-full mb-4">
@@ -362,7 +331,6 @@ const ShopAdmin = () => {
                         </div>
                     </div>
                 ) : (
-                    // Desktop Layout: Resizable panel
                     <Tabs
                         defaultValue="basicInfo"
                         value={activeTab}

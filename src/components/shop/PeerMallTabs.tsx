@@ -1,91 +1,23 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import CustomerPeerMalls from './CustomerPeerMalls';
 import RecommendedPeerMalls from './RecommendedPeerMalls';
+import CustomerPeerMalls from './CustomerPeerMalls';
 
-interface PeerMallTabsProps {
-  shopUrl: string;
-}
+const PeerMallTabs = () => {
+  const [currentTab, setCurrentTab] = useState<string>("recommended");
 
-const PeerMallTabs: React.FC<PeerMallTabsProps> = ({ shopUrl }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-  
-  // Pagination handlers
-  const handlePrevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-  
-  const handleNextPage = () => {
-    // For demo purposes, we'll assume there are at most 3 pages
-    setCurrentPage(prev => Math.min(prev + 1, 3));
-  };
-  
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-      <Tabs defaultValue="customer" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="customer">고객 피어몰</TabsTrigger>
-          <TabsTrigger value="recommended">추천 피어몰</TabsTrigger>
+    <div className="w-full">
+      <Tabs defaultValue="recommended" onValueChange={setCurrentTab}>
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="recommended" className="flex-1">추천 피어몰</TabsTrigger>
+          <TabsTrigger value="customer" className="flex-1">고객 피어몰</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="customer">
-          <CustomerPeerMalls currentPage={currentPage} itemsPerPage={itemsPerPage} />
-          
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm font-medium mx-2">
-                {currentPage} / 3
-              </span>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleNextPage}
-                disabled={currentPage === 3}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+        <TabsContent value="recommended" className="mt-0">
+          <RecommendedPeerMalls />
         </TabsContent>
-        
-        <TabsContent value="recommended">
-          <RecommendedPeerMalls currentPage={currentPage} itemsPerPage={itemsPerPage} />
-          
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm font-medium mx-2">
-                {currentPage} / 3
-              </span>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleNextPage}
-                disabled={currentPage === 3}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+        <TabsContent value="customer" className="mt-0">
+          <CustomerPeerMalls />
         </TabsContent>
       </Tabs>
     </div>

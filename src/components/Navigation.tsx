@@ -183,10 +183,9 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                 transition={{ delay: 0.8, duration: 0.5 }}
                 className="flex items-center space-x-2"
               >
-                {console.log("About to render AuthNavigation in Navigation.tsx")}
                 <AuthNavigation />
                 
-                <motion.div
+                {/* <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.9, duration: 0.5 }}
@@ -199,7 +198,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                     <Store className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">내 피어몰 만들기</span>
                   </Button>
-                </motion.div>
+                </motion.div> */}
               </motion.div>
             </div>
           </div>
@@ -251,13 +250,13 @@ const Navigation: React.FC<NavigationProps> = ({ onOpenCreateModal }) => {
                   <AuthNavigation />
                 </div>
                 
-                <Button
+                {/* <Button
                   onClick={handleOpenCreateModal}
                   className="rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-medium shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-2 w-full justify-center py-2.5 border border-blue-500/30"
                 >
                   <Store className="h-4 w-4" />
                   내 피어몰 만들기
-                </Button>
+                </Button> */}
               </div>
             </div>
           </motion.div>

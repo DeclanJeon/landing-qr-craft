@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import PeermallCreateModal from '@/components/PeermallCreateModal'; // Import the modal
 
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -145,9 +146,9 @@ const PremiumPeermallCreator: React.FC<PremiumPeermallCreatorProps> = ({ onStart
               </div>
             </Button>
             
-            <div className="mt-5 text-gray-400 text-sm">
+            {/* <div className="mt-5 text-gray-400 text-sm">
               3% 낮은 수수료 · 무제한 제품 등록 · 프리미엄 템플릿
-            </div>
+            </div> */}
           </div>
         </div>
         
@@ -396,8 +397,20 @@ const ContactSection = () => (
 const Index = () => {
   const state = useIndexState();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
+
   const handleOpenCreateModal = () => {
+    // Check if user is authenticated before opening
+    const isAuthenticated = localStorage.getItem('peermall-user-authenticated') === 'true';
+    if (!isAuthenticated) {
+      toast({
+        title: "로그인 필요",
+        description: "피어몰을 생성하려면 로그인이 필요합니다.",
+        variant: "destructive",
+      });
+      // Optionally redirect to login or just show the toast
+      // navigate('/login'); 
+      return; 
+    }
     setIsCreateModalOpen(true);
   };
   
@@ -413,6 +426,12 @@ const Index = () => {
       <VisionMissionSection />
       <ValuesSection />
       <ContactSection />
+      
+      {/* Render the modal */}
+      <PeermallCreateModal 
+        open={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} // Reverted to onClose
+      />
     </div>
   );
 };

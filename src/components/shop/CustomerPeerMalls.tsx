@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link for navigation
 import { ShopData } from '@/types/shop'; // Import ShopData type
@@ -33,6 +34,8 @@ const CustomerPeerMalls: React.FC<PeerMallsProps> = ({
           const mallDescription = mall.shopDescription || '피어몰 설명이 없습니다.'; // Fallback description
           // Use introImageUrl first, then logoUrl, then placeholder
           const imageUrl = mall.introImageUrl || mall.logoUrl || `https://via.placeholder.com/600x400/E2E8F0/4A5568?text=${encodeURIComponent(mallName)}`;
+          // Ensure specialization is one of the permitted values or default to 'neutral'
+          const specialization = mall.specialization || 'neutral';
 
           return (
             // Wrap the card content with a Link to the mall's page

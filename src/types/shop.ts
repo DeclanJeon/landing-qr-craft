@@ -1,3 +1,4 @@
+
 export interface ShopData {
   shopName: string;
   shopUrl: string;
@@ -36,6 +37,14 @@ export interface ShopData {
       showBadge?: boolean;
       badgeText?: string;
     };
+    slides?: Array<{
+      id: string;
+      imageUrl: string;
+      title?: string;
+      description?: string;
+      buttonText?: string;
+      buttonLink?: string;
+    }>;
   };
   footerSettings?: {
     background?: string;
@@ -44,7 +53,6 @@ export interface ShopData {
     contactNumber?: string;
     email?: string;
     address?: string;
-    // Add custom links and skin selection
     links?: { title: string; url: string }[];
     skin?: string; // Identifier for the chosen footer skin/template
   };
@@ -53,6 +61,28 @@ export interface ShopData {
     secondaryColor?: string;
     fontFamily?: string;
     borderRadius?: string;
+    skin?: string;
+    accentColor?: string;
+    textColor?: string;
+    cardStyle?: string;
+    buttonStyle?: string;
+    headerStyle?: string;
+    luxuryEffects?: boolean;
+    animations?: string;
+  };
+  templateSettings?: {
+    primaryColor?: string;
+    secondaryColor?: string;
+    fontFamily?: string;
+    borderRadius?: string;
+    skin?: string;
+    accentColor?: string;
+    textColor?: string;
+    cardStyle?: string;
+    buttonStyle?: string;
+    headerStyle?: string;
+    luxuryEffects?: boolean;
+    animations?: string;
   };
   adSettings?: Array<{
     id: number;
@@ -68,11 +98,13 @@ export interface ShopData {
   }>;
   faviconUrl?: string;
   specialization?: 'seller' | 'buyer' | 'neutral'; // Added specialization field
+  templateType?: string; // Added template type field
 }
 
 export interface Product {
   id: number;
   name: string;
+  title?: string; // Making title optional to accommodate existing code
   description?: string;
   price: string | number;
   originalPrice?: string | number;
@@ -91,6 +123,8 @@ export interface Product {
   tags?: string[];
   distributor?: string;
   manufacturer?: string;
+  quantity?: number; // Added for NovasProductCard
+  image?: string; // Added for LuxuryProductCard compatibility
 }
 
 export interface Category {

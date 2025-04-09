@@ -80,4 +80,3 @@ const ProductRegistrationModal: React.FC<ProductRegistrationModalProps> = ({ ope
 };
 
 export default ProductRegistrationModal;
-// Removed duplicated code block that was here

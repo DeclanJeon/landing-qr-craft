@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,6 +32,7 @@ const queryClient = new QueryClient();
 interface MainLayoutProps {
   onOpenCreateModal: () => void;
 }
+
 const MainLayout: React.FC<MainLayoutProps> = ({ onOpenCreateModal }) => (
   <div className="flex flex-col min-h-screen">
     <Navigation onOpenCreateModal={onOpenCreateModal} />
@@ -53,15 +54,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onOpenCreateModal }) => (
   </div>
 );
 
-const App = () => {
-  const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+const App: React.FC = () => {
+  const [loading, setLoading] = React.useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
   // Modal handlers
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => setIsCreateModalOpen(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
@@ -128,4 +129,5 @@ const App = () => {
     </QueryClientProvider>
   );
 };
+
 export default App;

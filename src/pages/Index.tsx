@@ -10,642 +10,50 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import PeermallCreateModal from '@/components/PeermallCreateModal';
 import { toast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { getPeermalls } from "@/utils/peermallStorage";
+import { ShopData } from "@/types/shop";
 import { 
   Search, 
   ShoppingCart, 
   User, 
   ChevronRight, 
   Heart, 
-  Clock,
-  Gift,
-  Truck,
-  Tag,
-  Layers,
   Star,
   TrendingUp,
-  Sparkles,
+  Store,
   Menu,
   Globe,
-  Shield,
   Zap,
-  Bookmark
+  Filter,
+  Clock,
+  ArrowRight
 } from "lucide-react";
-
-// Main Hero Section
-const HeroBanner = () => {
-  return (
-    <div className="relative rounded-2xl overflow-hidden h-[500px] shadow-xl">
-      {/* Background overlay with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
-        {/* Abstract shapes for visual interest */}
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-white/5 animate-pulse-slow"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-48 h-48 rounded-full bg-white/5 animate-pulse-slow animation-delay-1000"></div>
-        <div className="absolute top-1/2 right-1/4 w-24 h-24 rounded-full bg-blue-500/5 animate-pulse-slow animation-delay-2000"></div>
-      </div>
-      
-      <div className="absolute inset-0 z-10">
-        <div className="container h-full mx-auto px-4 flex items-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="flex flex-col justify-center"
-            >
-              <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
-                당신을 위한 프리미엄<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-                  쇼핑 경험
-                </span>
-              </h1>
-              <p className="text-gray-300 text-lg mb-8 max-w-xl">
-                피어몰에서 엄선된 프리미엄 제품과 서비스를 만나보세요. 새로운 쇼핑 경험을 선사합니다.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg">
-                  둘러보기
-                </Button>
-                <Button size="lg" variant="outline" className="bg-transparent border-2 border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-lg">
-                  내 피어몰 시작하기
-                </Button>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="hidden md:flex justify-center items-center relative"
-            >
-              <div className="relative z-10">
-                <img 
-                  src="/lovable-uploads/c45cb3ed-cd99-46e3-a59f-aa8d7072cdbc.png"
-                  alt="Premium Products"
-                  className="max-h-[350px] object-contain"
-                />
-                {/* Floating badges */}
-                <div className="absolute -left-4 top-12 bg-white/90 backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
-                  <div className="flex items-center">
-                    <Shield className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="font-medium text-sm">100% 정품 보증</span>
-                  </div>
-                </div>
-                <div className="absolute -right-4 top-1/3 bg-white/90 backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
-                  <div className="flex items-center">
-                    <Zap className="h-5 w-5 text-amber-500 mr-2" />
-                    <span className="font-medium text-sm">빠른 배송</span>
-                  </div>
-                </div>
-                <div className="absolute bottom-12 left-1/4 bg-white/90 backdrop-blur-md rounded-xl px-4 py-3 shadow-lg">
-                  <div className="flex items-center">
-                    <Heart className="h-5 w-5 text-red-500 mr-2" />
-                    <span className="font-medium text-sm">고객 만족도 97%</span>
-                  </div>
-                </div>
-              </div>
-              {/* Background glow effect */}
-              <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full"></div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Featured Products Section
-const FeaturedProducts = () => {
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Premium Leather Handbag",
-      price: "₩298,000",
-      originalPrice: "₩350,000",
-      rating: 4.8,
-      reviewCount: 238,
-      image: "/lovable-uploads/4f55e5d0-3fb9-4d4c-8be3-5f63048cbaf9.png",
-      badge: "인기"
-    },
-    {
-      id: 2,
-      name: "Smart Watch Ultra",
-      price: "₩459,000", 
-      originalPrice: "₩499,000",
-      rating: 4.9,
-      reviewCount: 521,
-      image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=2072&auto=format&fit=crop",
-      badge: "신상"
-    },
-    {
-      id: 3,
-      name: "Wireless Noise-Canceling Headphones",
-      price: "₩329,000",
-      originalPrice: "₩389,000",
-      rating: 4.7,
-      reviewCount: 345,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
-      badge: "할인"
-    },
-    {
-      id: 4,
-      name: "Luxury Perfume Collection",
-      price: "₩198,000",
-      originalPrice: "₩240,000",
-      rating: 4.9,
-      reviewCount: 178,
-      image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2004&auto=format&fit=crop",
-      badge: "특별"
-    }
-  ];
-  
-  return (
-    <section className="container mx-auto px-4 py-12">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-medium text-gray-900">베스트 셀러</h2>
-        <Button variant="link" className="font-medium text-blue-600 flex items-center gap-1">
-          전체보기 <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {featuredProducts.map((product) => (
-          <motion.div
-            key={product.id}
-            whileHover={{ y: -8 }}
-            transition={{ duration: 0.3 }}
-            className="group"
-          >
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-              <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {product.badge && (
-                  <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0">
-                    {product.badge}
-                  </Badge>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <Button size="sm" className="w-full bg-white text-gray-900 hover:bg-white/90">
-                    <ShoppingCart className="h-4 w-4 mr-2" /> 
-                    장바구니에 추가
-                  </Button>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium text-lg mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                  {product.name}
-                </h3>
-                <div className="flex items-baseline mb-2">
-                  <span className="text-lg font-bold text-gray-900">{product.price}</span>
-                  {product.originalPrice && (
-                    <span className="ml-2 text-sm text-gray-500 line-through">{product.originalPrice}</span>
-                  )}
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <div className="flex items-center text-amber-500 mr-2">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    <span className="ml-1">{product.rating}</span>
-                  </div>
-                  <span>리뷰 {product.reviewCount}</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-// Categories Section with elegant design
-const CategoriesSection = () => {
-  const categories = [
-    { id: 1, name: "패션", icon: <Tag className="h-6 w-6" />, color: "from-blue-500 to-indigo-600", count: 124 },
-    { id: 2, name: "뷰티", icon: <Sparkles className="h-6 w-6" />, color: "from-pink-500 to-rose-500", count: 89 },
-    { id: 3, name: "테크", icon: <Layers className="h-6 w-6" />, color: "from-indigo-500 to-purple-600", count: 65 },
-    { id: 4, name: "홈", icon: <Gift className="h-6 w-6" />, color: "from-amber-500 to-orange-600", count: 112 },
-    { id: 5, name: "여행", icon: <Globe className="h-6 w-6" />, color: "from-emerald-500 to-teal-600", count: 47 },
-    { id: 6, name: "건강", icon: <Heart className="h-6 w-6" />, color: "from-red-500 to-rose-600", count: 58 },
-  ];
-  
-  return (
-    <section className="py-16 bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-medium text-gray-900 mb-3">카테고리 둘러보기</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            다양한 카테고리에서 엄선된 최고의 제품을 만나보세요. 당신의 라이프스타일에 맞는 특별한 아이템이 기다리고 있습니다.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {categories.map((category) => (
-            <motion.div
-              key={category.id}
-              whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-              transition={{ duration: 0.3 }}
-              className="group bg-white rounded-xl border border-gray-100 p-6 text-center cursor-pointer"
-            >
-              <div className={`mx-auto w-16 h-16 rounded-full bg-gradient-to-br ${category.color} flex items-center justify-center text-white mb-4`}>
-                {category.icon}
-              </div>
-              <h3 className="font-medium text-lg mb-1 group-hover:text-blue-600 transition-colors">
-                {category.name}
-              </h3>
-              <p className="text-gray-500 text-sm">{category.count}개 상품</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// VIP Section with luxury appeal
-const VipSection = () => {
-  return (
-    <section className="container mx-auto px-4 py-16">
-      <div className="bg-gradient-to-r from-slate-900 to-gray-900 rounded-2xl overflow-hidden shadow-xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          <div className="p-8 md:p-12 flex flex-col justify-center">
-            <Badge className="bg-amber-500 text-white border-0 mb-4 w-fit">VIP EXCLUSIVE</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              VIP 멤버십으로<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
-                특별한 혜택
-              </span>을 누리세요
-            </h2>
-            <p className="text-gray-300 mb-8">
-              프리미엄 고객을 위한 특별한 혜택과 서비스를 제공합니다. 
-              VIP 멤버십에 가입하고 특별한 쇼핑 경험을 즐기세요.
-            </p>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start">
-                <div className="bg-amber-500/20 rounded-full p-1 mt-1 mr-3">
-                  <Star className="h-4 w-4 text-amber-500" />
-                </div>
-                <span className="text-gray-200">모든 상품 5% 추가 할인</span>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-amber-500/20 rounded-full p-1 mt-1 mr-3">
-                  <Star className="h-4 w-4 text-amber-500" />
-                </div>
-                <span className="text-gray-200">신상품 우선 알림 및 선구매 기회</span>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-amber-500/20 rounded-full p-1 mt-1 mr-3">
-                  <Star className="h-4 w-4 text-amber-500" />
-                </div>
-                <span className="text-gray-200">전담 쇼핑 어드바이저 서비스</span>
-              </li>
-              <li className="flex items-start">
-                <div className="bg-amber-500/20 rounded-full p-1 mt-1 mr-3">
-                  <Star className="h-4 w-4 text-amber-500" />
-                </div>
-                <span className="text-gray-200">프리미엄 배송 서비스 (당일/익일)</span>
-              </li>
-            </ul>
-            <Button className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white w-fit px-8 py-3 rounded-lg shadow-lg">
-              VIP 멤버십 가입하기
-            </Button>
-          </div>
-          <div className="hidden lg:block relative">
-            <div className="absolute inset-0 bg-black/20"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1573739711422-34a9d2b3f8a7?q=80&w=1970&auto=format&fit=crop" 
-              alt="VIP Experience" 
-              className="h-full w-full object-cover"
-            />
-            {/* VIP Badge Overlay */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="relative">
-                <div className="absolute inset-0 bg-amber-500 blur-md rounded-full"></div>
-                <div className="relative bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full w-32 h-32 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">VIP</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// Trending Products with Tabs
-const TrendingProducts = () => {
-  const productsByCategory = {
-    all: [
-      {
-        id: 1,
-        name: "Ultra HD Smart TV",
-        price: "₩1,299,000",
-        image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop",
-        badge: "신상",
-        rating: 4.9
-      },
-      {
-        id: 2,
-        name: "Premium Coffee Machine",
-        price: "₩549,000",
-        image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?q=80&w=2070&auto=format&fit=crop",
-        badge: "",
-        rating: 4.7
-      },
-      {
-        id: 3,
-        name: "Designer Sunglasses",
-        price: "₩389,000",
-        image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=2080&auto=format&fit=crop",
-        badge: "인기",
-        rating: 4.8
-      },
-      {
-        id: 4,
-        name: "Portable Bluetooth Speaker",
-        price: "₩229,000",
-        image: "https://images.unsplash.com/photo-1589003077984-894e133dabab?q=80&w=1964&auto=format&fit=crop",
-        badge: "할인",
-        rating: 4.6
-      }
-    ],
-    tech: [
-      {
-        id: 1,
-        name: "Ultra HD Smart TV",
-        price: "₩1,299,000",
-        image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop",
-        badge: "신상",
-        rating: 4.9
-      },
-      {
-        id: 5,
-        name: "Wireless Earbuds Pro",
-        price: "₩279,000",
-        image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?q=80&w=2070&auto=format&fit=crop",
-        badge: "",
-        rating: 4.8
-      },
-      {
-        id: 4,
-        name: "Portable Bluetooth Speaker",
-        price: "₩229,000",
-        image: "https://images.unsplash.com/photo-1589003077984-894e133dabab?q=80&w=1964&auto=format&fit=crop",
-        badge: "할인",
-        rating: 4.6
-      },
-      {
-        id: 6,
-        name: "Smart Home Hub",
-        price: "₩199,000",
-        image: "https://images.unsplash.com/photo-1558002038-1055e2dae2d7?q=80&w=2070&auto=format&fit=crop",
-        badge: "",
-        rating: 4.5
-      }
-    ],
-    home: [
-      {
-        id: 7,
-        name: "Modern Lounge Chair",
-        price: "₩789,000",
-        image: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?q=80&w=1974&auto=format&fit=crop",
-        badge: "",
-        rating: 4.7
-      },
-      {
-        id: 2,
-        name: "Premium Coffee Machine",
-        price: "₩549,000",
-        image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?q=80&w=2070&auto=format&fit=crop",
-        badge: "",
-        rating: 4.7
-      },
-      {
-        id: 8,
-        name: "Ceramic Dinnerware Set",
-        price: "₩369,000",
-        image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=2070&auto=format&fit=crop",
-        badge: "신상",
-        rating: 4.9
-      },
-      {
-        id: 9,
-        name: "Luxury Bed Linen",
-        price: "₩459,000",
-        image: "https://images.unsplash.com/photo-1584100936595-c0848df6ef08?q=80&w=2069&auto=format&fit=crop",
-        badge: "",
-        rating: 4.8
-      }
-    ],
-    fashion: [
-      {
-        id: 10,
-        name: "Designer Watch",
-        price: "₩1,890,000",
-        image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2080&auto=format&fit=crop",
-        badge: "프리미엄",
-        rating: 5.0
-      },
-      {
-        id: 3,
-        name: "Designer Sunglasses",
-        price: "₩389,000",
-        image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=2080&auto=format&fit=crop",
-        badge: "인기",
-        rating: 4.8
-      },
-      {
-        id: 11,
-        name: "Luxury Handbag",
-        price: "₩2,490,000",
-        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=2069&auto=format&fit=crop",
-        badge: "",
-        rating: 4.9
-      },
-      {
-        id: 12,
-        name: "Premium Leather Boots",
-        price: "₩890,000",
-        image: "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?q=80&w=1974&auto=format&fit=crop",
-        badge: "",
-        rating: 4.7
-      }
-    ]
-  };
-  
-  const ProductCard = ({ product }) => {
-    return (
-      <motion.div
-        whileHover={{ y: -8 }}
-        transition={{ duration: 0.3 }}
-        className="group"
-      >
-        <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-50">
-          <div className="relative h-64 overflow-hidden">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            {product.badge && (
-              <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0">
-                {product.badge}
-              </Badge>
-            )}
-            <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-black/60 to-transparent"></div>
-            <div className="absolute bottom-3 left-3 flex items-center">
-              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-white text-sm ml-1 font-medium">{product.rating}</span>
-            </div>
-            <Button variant="outline" size="icon" className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/80 hover:bg-white border-0">
-              <Heart className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="p-4">
-            <h3 className="font-medium text-lg mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
-              {product.name}
-            </h3>
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-gray-900">{product.price}</span>
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100">
-                <ShoppingCart className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-  
-  return (
-    <section className="container mx-auto px-4 py-16">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-medium text-gray-900">트렌딩 제품</h2>
-        <div className="flex items-center">
-          <span className="text-gray-500 mr-2">더 많은 상품</span>
-          <Button variant="outline" size="sm" className="rounded-full">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="mb-8 bg-transparent border-b border-gray-200 w-full justify-start h-auto p-0 space-x-8">
-          <TabsTrigger 
-            value="all" 
-            className="data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none h-10 font-medium"
-          >
-            전체
-          </TabsTrigger>
-          <TabsTrigger 
-            value="tech" 
-            className="data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none h-10 font-medium"
-          >
-            테크
-          </TabsTrigger>
-          <TabsTrigger 
-            value="home" 
-            className="data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none h-10 font-medium"
-          >
-            홈리빙
-          </TabsTrigger>
-          <TabsTrigger 
-            value="fashion" 
-            className="data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent border-b-2 border-transparent rounded-none h-10 font-medium"
-          >
-            패션
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsByCategory.all.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="tech" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsByCategory.tech.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="home" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsByCategory.home.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="fashion" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {productsByCategory.fashion.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </section>
-  );
-};
-
-// Newsletter Section
-const NewsletterSection = () => {
-  return (
-    <section className="container mx-auto px-4 py-16">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-xl overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="p-8 md:p-12">
-            <Badge className="bg-white text-blue-600 border-0 mb-4">NEWSLETTER</Badge>
-            <h2 className="text-3xl font-bold text-white mb-4">
-              최신 제품과 특별한 혜택<br />
-              가장 먼저 받아보세요
-            </h2>
-            <p className="text-blue-100 mb-8">
-              뉴스레터에 가입하고 프리미엄 제품 출시, 특별 혜택, 비공개 세일 정보를 먼저 받아보세요.
-              구독자에게는 첫 구매 10% 할인 쿠폰을 드립니다.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Input 
-                placeholder="이메일 주소 입력" 
-                className="bg-white/90 border-0 placeholder:text-gray-500"
-              />
-              <Button className="bg-white text-blue-600 hover:bg-white/90 border-0 whitespace-nowrap">
-                구독하기
-              </Button>
-            </div>
-            <p className="text-blue-200 text-sm mt-3">
-              ✓ 언제든지 구독을 취소할 수 있으며, 개인정보는 안전하게 보호됩니다.
-            </p>
-          </div>
-          <div className="hidden md:flex justify-center items-center relative p-12">
-            <div className="relative z-10">
-              <img 
-                src="/lovable-uploads/4f55e5d0-3fb9-4d4c-8be3-5f63048cbaf9.png"
-                alt="Exclusive Products"
-                className="max-h-[250px] object-contain"
-              />
-            </div>
-            {/* Decorative elements */}
-            <div className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full bg-indigo-400/30 blur-xl"></div>
-            <div className="absolute bottom-1/4 left-1/4 w-32 h-32 rounded-full bg-blue-400/30 blur-xl"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
 
 const Index = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [peermalls, setPeermalls] = useState<ShopData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Load peermalls from localStorage
+    const loadedPeermalls = getPeermalls();
+    setPeermalls(loadedPeermalls);
+  }, []);
+
+  // Filter peermalls based on search term and active category
+  const filteredPeermalls = peermalls.filter(peermall => {
+    const matchesSearch = 
+      peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (peermall.shopDescription?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = 
+      activeCategory === 'all' || 
+      (peermall.category?.toLowerCase() || '').includes(activeCategory.toLowerCase());
+    
+    return matchesSearch && matchesCategory;
+  });
 
   const handleOpenCreateModal = () => {
     // Check if user is authenticated before opening
@@ -660,9 +68,24 @@ const Index = () => {
     }
     setIsCreateModalOpen(true);
   };
+
+  // Categories for filtering
+  const categories = [
+    { id: 'all', name: '전체' },
+    { id: 'fashion', name: '패션' },
+    { id: 'beauty', name: '뷰티' },
+    { id: 'tech', name: '테크' },
+    { id: 'home', name: '홈리빙' },
+    { id: 'food', name: '식품' }
+  ];
+
+  // Featured peermalls (could be based on rating, visits, etc.)
+  const featuredPeermalls = peermalls.length > 0 
+    ? [...peermalls].sort((a, b) => (b.rating || 5) - (a.rating || 5)).slice(0, 4) 
+    : [];
   
   return (
-    <div className="min-h-screen bg-gray-50 font-sans antialiased">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white font-sans antialiased">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto px-4">
@@ -695,8 +118,10 @@ const Index = () => {
               <div className="relative w-full">
                 <Input
                   type="text"
-                  placeholder="찾고 싶은 상품을 검색하세요"
+                  placeholder="피어몰 또는 제품 검색"
                   className="pr-10 rounded-full border-gray-200 focus-visible:ring-blue-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Button size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-blue-600">
                   <Search className="h-4 w-4" />
@@ -739,19 +164,13 @@ const Index = () => {
                 <Link to="/" className="text-blue-600 font-medium border-b-2 border-blue-600 px-1 py-2">홈</Link>
               </li>
               <li>
+                <Link to="/peermall-list" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">피어몰 목록</Link>
+              </li>
+              <li>
                 <Link to="/shop/peermall/category/1" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">베스트</Link>
               </li>
               <li>
-                <Link to="/shop/peermall/category/2" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">신상품</Link>
-              </li>
-              <li>
                 <Link to="/shop/peermall/category/3" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">특가</Link>
-              </li>
-              <li>
-                <Link to="/shop/peermall/category/4" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">캐시백</Link>
-              </li>
-              <li>
-                <Link to="/shop/peermall/category/5" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">쿠폰</Link>
               </li>
               <li>
                 <Link to="/shop/peermall/category/6" className="text-gray-600 hover:text-blue-600 transition-colors px-1 py-2">기획전</Link>
@@ -765,25 +184,298 @@ const Index = () => {
       </header>
 
       <main>
-        {/* Hero Section */}
+        {/* Header for Peer Mall List */}
         <section className="container mx-auto px-4 pt-6 pb-4">
-          <HeroBanner />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-3xl font-serif font-bold text-gray-800">피어몰 둘러보기</h1>
+              <p className="text-gray-600 mt-1">다양한 피어몰을 발견하고 쇼핑을 시작하세요</p>
+            </div>
+            <div className="flex gap-2">
+              <Link to="/peermall-list">
+                <Button variant="outline" className="flex gap-1 items-center">
+                  <Globe className="w-4 h-4" />
+                  <span>전체보기</span>
+                </Button>
+              </Link>
+              <Button onClick={handleOpenCreateModal} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                <Store className="w-4 h-4 mr-1" />
+                <span>내 피어몰 만들기</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex overflow-x-auto pb-3 scrollbar-none space-x-2 mb-6">
+            {categories.map(category => (
+              <Button
+                key={category.id}
+                variant={activeCategory === category.id ? "default" : "outline"}
+                className="rounded-full whitespace-nowrap"
+                onClick={() => setActiveCategory(category.id)}
+              >
+                {category.name}
+              </Button>
+            ))}
+          </div>
+
+          {peermalls.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Store className="h-10 w-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-800 mb-2">아직 등록된 피어몰이 없습니다</h3>
+              <p className="text-gray-500 mb-6">
+                첫 번째 피어몰을 만들어 시작해보세요!
+              </p>
+              <Button onClick={handleOpenCreateModal} className="bg-blue-600 hover:bg-blue-700 text-white">
+                피어몰 시작하기
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Featured Peer Malls - Only show if we have peer malls */}
+              {featuredPeermalls.length > 0 && (
+                <div className="mb-12">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-medium">추천 피어몰</h2>
+                    <Button variant="ghost" className="text-blue-600 flex items-center gap-1">
+                      더보기 <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-4">
+                      {featuredPeermalls.map((mall) => (
+                        <CarouselItem key={mall.shopUrl} className="pl-4 md:basis-1/2 lg:basis-1/4">
+                          <Link to={`/shop/${mall.shopUrl}/home`}>
+                            <motion.div
+                              whileHover={{ y: -8 }}
+                              transition={{ duration: 0.3 }}
+                              className="relative h-72 overflow-hidden rounded-xl luxury-card shadow-md"
+                            >
+                              <img 
+                                src={mall.introImageUrl || mall.logoUrl || "https://via.placeholder.com/400x600?text=Peermall"} 
+                                alt={mall.shopName}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                              <Badge className="absolute top-3 right-3 bg-blue-600 border-0">추천</Badge>
+                              <div className="absolute bottom-0 left-0 w-full p-5 text-white">
+                                <div className="flex items-center mb-1">
+                                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                  <span className="ml-1 text-sm font-medium">{mall.rating || 5.0}</span>
+                                </div>
+                                <h3 className="text-lg font-bold mb-1">{mall.shopName}</h3>
+                                <p className="text-sm text-gray-300 mb-4 line-clamp-1">{mall.shopDescription || '프리미엄 피어몰'}</p>
+                                <Button size="sm" className="w-full bg-white text-blue-600 hover:bg-white/90">
+                                  방문하기
+                                </Button>
+                              </div>
+                            </motion.div>
+                          </Link>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <div className="hidden md:block">
+                      <CarouselPrevious className="-left-12" />
+                      <CarouselNext className="-right-12" />
+                    </div>
+                  </Carousel>
+                </div>
+              )}
+
+              {/* All Peer Malls Grid */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-medium">모든 피어몰</h2>
+                  <div className="flex items-center">
+                    <Filter className="h-4 w-4 mr-2 text-gray-500" />
+                    <select 
+                      className="bg-transparent text-sm text-gray-600 font-medium border-none focus:ring-0"
+                      defaultValue="newest"
+                    >
+                      <option value="newest">최신순</option>
+                      <option value="rating">평점순</option>
+                      <option value="popular">인기순</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {filteredPeermalls.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <Search className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">검색 결과가 없습니다</h3>
+                    <p className="text-gray-500 mb-4">
+                      다른 검색어로 다시 시도하거나 필터를 변경해보세요.
+                    </p>
+                    <Button onClick={() => setSearchTerm('')} variant="outline">
+                      전체 목록 보기
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {filteredPeermalls.map((mall) => (
+                      <motion.div
+                        key={mall.shopUrl}
+                        whileHover={{ y: -5 }}
+                        transition={{ duration: 0.3 }}
+                        className="group"
+                      >
+                        <Card className="overflow-hidden border-gray-100 hover:border-blue-200 transition-all duration-300 h-full flex flex-col">
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={mall.introImageUrl || mall.logoUrl || "https://via.placeholder.com/400x300?text=Peermall"}
+                              alt={mall.shopName}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            {mall.specialization && (
+                              <Badge className="absolute top-3 right-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-0">
+                                {mall.specialization}
+                              </Badge>
+                            )}
+                            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div className="absolute bottom-3 left-3 flex items-center">
+                              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-white text-sm ml-1 font-medium">{mall.rating || "5.0"}</span>
+                            </div>
+                          </div>
+                          <CardContent className="p-4 flex-grow flex flex-col">
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="font-medium text-lg group-hover:text-blue-600 transition-colors">
+                                {mall.shopName}
+                              </h3>
+                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                NEW
+                              </span>
+                            </div>
+                            <p className="text-gray-600 text-sm line-clamp-2 mb-4 flex-grow">
+                              {mall.shopDescription || '피어몰에서 다양한 제품을 만나보세요.'}
+                            </p>
+                            <Link to={`/shop/${mall.shopUrl}/home`} className="mt-auto">
+                              <Button variant="ghost" className="w-full justify-between text-blue-600 group-hover:bg-blue-50">
+                                방문하기
+                                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                              </Button>
+                            </Link>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </section>
-        
-        {/* Categories Section */}
-        <CategoriesSection />
-        
-        {/* Best Sellers Section */}
-        <FeaturedProducts />
-        
-        {/* VIP Section */}
-        <VipSection />
-        
-        {/* Trending Products with Tabs */}
-        <TrendingProducts />
-        
-        {/* Newsletter Section */}
-        <NewsletterSection />
+
+        {/* Trending on Peermall */}
+        {peermalls.length > 0 && (
+          <section className="container mx-auto px-4 py-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-medium text-gray-900">인기 제품</h2>
+              <Button variant="link" className="font-medium text-blue-600 flex items-center gap-1">
+                전체보기 <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((id) => (
+                <motion.div
+                  key={id}
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className="group"
+                >
+                  <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="relative h-64 overflow-hidden">
+                      <img 
+                        src={`https://picsum.photos/400/500?random=${id}`} 
+                        alt="Product" 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0">
+                        인기
+                      </Badge>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                        <Button size="sm" className="w-full bg-white text-gray-900 hover:bg-white/90">
+                          <ShoppingCart className="h-4 w-4 mr-2" /> 
+                          장바구니에 추가
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium text-lg mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                        프리미엄 제품 {id}
+                      </h3>
+                      <div className="flex items-baseline mb-2">
+                        <span className="text-lg font-bold text-gray-900">₩{(149000 + id * 15000).toLocaleString()}</span>
+                        <span className="ml-2 text-sm text-gray-500 line-through">₩{(189000 + id * 20000).toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <div className="flex items-center text-amber-500 mr-2">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <span className="ml-1">4.{7 + (id % 3)}</span>
+                        </div>
+                        <span>리뷰 {(id * 57 + 120).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Info Section with VIP Benefits */}
+        <section className="py-16 bg-gradient-to-b from-blue-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-medium mb-4">피어몰에서 쇼핑을 시작하세요</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                다양한 판매자들의 피어몰에서 특별한 제품을 발견하거나, 직접 피어몰을 만들어 판매를 시작해보세요.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-6">
+                  <Store className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-medium mb-3">피어몰 만들기</h3>
+                <p className="text-gray-600 mb-6">
+                  몇 분 안에 나만의 피어몰을 구축하고 온라인 비즈니스를 시작하세요. 쉽고 간편한 설정으로 빠르게 시작할 수 있습니다.
+                </p>
+                <Button variant="outline" onClick={handleOpenCreateModal} className="w-full">피어몰 만들기</Button>
+              </div>
+              
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-6">
+                  <ShoppingCart className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-medium mb-3">쇼핑하기</h3>
+                <p className="text-gray-600 mb-6">
+                  수많은 피어몰에서 다양한 제품을 발견하고 쇼핑해보세요. 독특한 아이템부터 일상 필수품까지 모두 만나볼 수 있습니다.
+                </p>
+                <Link to="/peermall-list">
+                  <Button variant="outline" className="w-full">쇼핑 시작하기</Button>
+                </Link>
+              </div>
+              
+              <div className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-6">
+                  <Zap className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-medium mb-3">VIP 혜택</h3>
+                <p className="text-gray-600 mb-6">
+                  VIP 멤버십에 가입하고 특별한 혜택을 누리세요. 추가 할인, 특별 이벤트 초대, 프리미엄 고객 지원 서비스를 제공합니다.
+                </p>
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white">VIP 가입하기</Button>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
@@ -796,7 +488,7 @@ const Index = () => {
                 <span className="ml-2 text-lg text-gray-300">Premium</span>
               </div>
               <p className="text-gray-400 mb-6">
-                피어몰은 고객에게 최상의 쇼핑 경험과 프리미엄 제품을 제공하는 플랫폼입니다.
+                피어몰은 고객에게 최상의 쇼핑 경험과 판매자에게는 최고의 비즈니스 플랫폼을 제공합니다.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -871,7 +563,7 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Product Registration Modal */}
+      {/* Peermall Creation Modal */}
       <PeermallCreateModal 
         open={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)}

@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    /* 사용자 정의 색상 변수 */
-    --primary-100: #f7cac9;
-    --primary-200: #5c5c5c; /* Note: primary-200 and 300 are the same */
-    --primary-300: #5c5c5c;
-    --accent-100: #5c5c5c; /* Note: accent-100 and primary-200/300 are the same */
-    --accent-200: #ebebeb;
-    --text-100: #333333;
-    --text-200: #5c5c5c; /* Note: text-200 and primary-200/300/accent-100 are the same */
-    --bg-100: #fffff3;
-    --bg-200: #f5f5e9;
-    --bg-300: #ccccc0;
+    /* 개선된 프리미엄 컬러 변수 */
+    --primary-100: #3a506b; /* 깊은 청록색 */
+    --primary-200: #1c2541; /* 짙은 네이비 */
+    --primary-300: #5bc0be; /* 밝은 청록색 */
+    --accent-100: #fca311; /* 밝은 주황색 */
+    --accent-200: #ffbd59; /* 부드러운 주황색 */
+    --text-100: #1a1a2e; /* 진한 텍스트 */
+    --text-200: #4a4e69; /* 중간 톤 텍스트 */
+    --bg-100: #f5f5f7; /* 매우 밝은 배경 */
+    --bg-200: #e5e5ec; /* 밝은 회색 배경 */
+    --bg-300: #d1d1e0; /* 중간 회색 배경 */
 
     /* shadcn/ui 변수를 사용자 정의 변수로 매핑 */
     --background: var(--bg-100); /* #fffff3 */

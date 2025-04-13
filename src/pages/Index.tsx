@@ -13,11 +13,16 @@ import {
   ChevronRight,
   Star,
   Store,
-  Search, // 검색 아이콘은 필터링 결과 표시에 사용될 수 있으므로 유지
+  Search,
   Heart,
-  Bell, // CTA 섹션에서 사용
-  User, // CTA 섹션에서 사용
-  ArrowRight // 모든 피어몰 카드에서 사용
+  Bell,
+  User,
+  ArrowRight,
+  Hash,
+  Users,
+  MessageCircle,
+  Megaphone,
+  Monitor
 } from "lucide-react";
 
 const Index = () => {
@@ -53,42 +58,52 @@ const Index = () => {
     setIsCreateModalOpen(true);
   };
 
-  // Categories for display
-  const categories = [
-    { id: 'fashion', name: '패션', icon: '👕' },
-    { id: 'beauty', name: '뷰티', icon: '💄' },
-    { id: 'electronics', name: '전자제품', icon: '📱' },
-    { id: 'home', name: '홈리빙', icon: '🏠' },
-    { id: 'food', name: '식품', icon: '🍔' },
-    { id: 'books', name: '도서', icon: '📚' },
-    { id: 'toys', name: '완구/취미', icon: '🎮' },
-    { id: 'sports', name: '스포츠', icon: '⚽' }
-  ];
-
-  // Banner slides
-  const bannerSlides = [
-    {
-      id: 1,
-      imageUrl: 'https://picsum.photos/1200/300?random=1',
-      title: '인기 피어몰 둘러보기',
-      subtitle: '다양한 상품들을 만나보세요',
-      buttonText: '쇼핑하기'
+  // 피어몰 핵심 서비스 카테고리
+  const services = [
+    { 
+      id: 'create-mall', 
+      name: '피어몰 만들기', 
+      icon: <Store className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '나만의 온라인 스토어를 쉽게 생성'
     },
-    {
-      id: 2,
-      imageUrl: 'https://picsum.photos/1200/300?random=2',
-      title: '지금 피어몰 만들고 할인 받기',
-      subtitle: '쉽고 빠른 온라인 스토어 제작',
-      buttonText: '시작하기'
+    { 
+      id: 'generate-number', 
+      name: '고유 번호 생성', 
+      icon: <Hash className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '나만의 고유 식별 번호 발급'
     },
-    {
-      id: 3,
-      imageUrl: 'https://picsum.photos/1200/300?random=3',
-      title: '특별한 혜택, 한정 기간',
-      subtitle: '최대 50% 할인 이벤트 진행중',
-      buttonText: '더 알아보기'
+    { 
+      id: 'build-community', 
+      name: '커뮤니티 형성', 
+      icon: <Users className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '관심사 기반 커뮤니티 구축'
+    },
+    { 
+      id: 'direct-communication', 
+      name: '다이렉트 통신', 
+      icon: <MessageCircle className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '번호 기반 1:1 소통'
+    },
+    { 
+      id: 'promote-content', 
+      name: '콘텐츠 홍보', 
+      icon: <Megaphone className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '제품/서비스 효과적 노출'
+    },
+    { 
+      id: 'shared-browsing', 
+      name: '함께 보기', 
+      icon: <Monitor className="w-8 h-8 mx-auto text-accent-100" />,
+      description: '실시간 웹사이트 공유'
     }
   ];
+
+  // 간소화된 히어로 섹션
+  const heroContent = {
+    title: '당신의 디지털 공간을 완성하세요',
+    subtitle: '피어몰로 시작하는 나만의 온라인 프레즌스',
+    ctaText: '지금 시작하기'
+  };
 
   // Featured peermalls
   const featuredPeermalls = peermalls.length > 0
@@ -101,73 +116,50 @@ const Index = () => {
     : [];
 
   return (
-    // 페이지 배경색 변경
-    <div className="min-h-screen bg-bg-100">
+    <div className="min-h-screen bg-bg-100 text-text-100">
       {/* Navigation 컴포넌트로 대체 */}
       <Navigation onOpenCreateModal={handleOpenCreateModal} />
 
-      {/* main 태그에 pt-20 정도의 패딩 추가 (fixed 헤더 높이만큼) */}
       <main className="pb-12 pt-20">
-        {/* Main Carousel Banner */}
-        {/* Carousel 섹션에 container 추가 및 overflow-hidden 추가 */}
-        <section className="relative overflow-hidden"> {/* overflow-hidden 추가 */}
-          <div className="container mx-auto px-4"> {/* 컨테이너 추가 */}
-            <Carousel className="mx-auto">
-              <CarouselContent>
-                {bannerSlides.map((slide) => (
-                <CarouselItem key={slide.id} className="relative">
-                  <div className="relative h-[300px] md:h-[350px] w-full">
-                    <img
-                      src={slide.imageUrl}
-                      alt={slide.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* 캐러셀 오버레이 및 텍스트 색상 변경 */}
-                    {/* 내부 중첩 container 및 패딩 제거 (부모 container 패딩 사용) */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-200/70 to-transparent flex items-center"> 
-                        <div className="max-w-lg"> {/* 패딩은 부모 container의 px-4를 따름 */}
-                          <h2 className="text-3xl md:text-4xl font-bold text-bg-100 mb-2"> {/* 텍스트 색상 변경 */}
-                            {slide.title}
-                          </h2>
-                          <p className="text-lg text-bg-100/90 mb-6"> {/* 텍스트 색상 변경 */}
-                            {slide.subtitle}
-                          </p>
-                          {/* 버튼 배경, 호버, 텍스트 색상 변경 */}
-                          <Button className="bg-primary-100 hover:bg-primary-100/80 text-text-100">
-                            {slide.buttonText}
-                          </Button>
-                        </div>
-                      {/* </div> */}
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            {/* 캐러셀 버튼 배경, 호버, 아이콘 색상 변경 */}
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-              <CarouselPrevious className="bg-bg-100/30 hover:bg-bg-100/50 border-none text-text-100" />
-            </div>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-              <CarouselNext className="bg-bg-100/30 hover:bg-bg-100/50 border-none text-text-100" />
-            </div>
-            </Carousel>
-          </div> {/* 컨테이너 닫기 */}
+        {/* Hero Section */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold text-text-100 mb-4">
+              {heroContent.title}
+            </h1>
+            <p className="text-xl text-text-200 mb-8">
+              {heroContent.subtitle}
+            </p>
+            <Button 
+              onClick={handleOpenCreateModal}
+              className="px-8 py-6 text-lg bg-accent-100 hover:bg-accent-200 text-bg-100"
+            >
+              {heroContent.ctaText}
+            </Button>
+          </div>
         </section>
 
-        {/* Categories Grid - mt 값 조정 */}
-        <section className="container mx-auto px-4 -mt-16 mb-8 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {categories.map((category) => (
-              // 카테고리 카드 배경, 텍스트, 호버 그림자 색상 변경
-              <Link
-                key={category.id}
-                to={`/shop/peermall/category/${category.id}`}
-                className="bg-bg-100 rounded-lg shadow p-4 flex flex-col items-center justify-center text-center hover:shadow-lg transition-shadow border border-bg-200 hover:border-primary-100"
+        {/* Services Grid */}
+        <section className="container mx-auto px-4 mb-16">
+          <h2 className="text-3xl font-bold text-text-100 mb-8 text-center">
+            피어몰 핵심 서비스
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <div 
+                key={service.id}
+                className="bg-bg-200 rounded-xl p-6 border border-bg-300 hover:border-accent-100 transition-colors duration-300"
               >
-                <span className="text-2xl mb-2">{category.icon}</span>
-                {/* 카테고리 이름 텍스트 색상 변경 */}
-                <span className="text-sm font-medium text-text-100">{category.name}</span>
-              </Link>
+                <div className="mb-4">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-text-100 mb-2">
+                  {service.name}
+                </h3>
+                <p className="text-text-200">
+                  {service.description}
+                </p>
+              </div>
             ))}
           </div>
         </section>
@@ -321,15 +313,15 @@ const Index = () => {
                     <Button variant="outline" size="sm" className={`text-sm ${activeCategory === 'all' ? 'bg-primary-100 text-text-100 border-primary-100' : 'bg-bg-100 text-text-200 border-border hover:bg-bg-200'}`} onClick={() => setActiveCategory('all')}>
                       전체
                     </Button>
-                    {categories.slice(0, 4).map((category) => (
+                    {services.slice(0, 4).map((service) => (
                       <Button
-                        key={category.id}
-                        variant={activeCategory === category.id ? "default" : "outline"}
+                        key={service.id}
+                        variant={activeCategory === service.id ? "default" : "outline"}
                         size="sm"
-                        className={`text-sm ${activeCategory === category.id ? 'bg-primary-100 hover:bg-primary-100/80 text-text-100 border-none' : 'bg-bg-100 text-text-200 border-border hover:bg-bg-200'}`}
-                        onClick={() => setActiveCategory(category.id)}
+                        className={`text-sm ${activeCategory === service.id ? 'bg-primary-100 hover:bg-primary-100/80 text-text-100 border-none' : 'bg-bg-100 text-text-200 border-border hover:bg-bg-200'}`}
+                        onClick={() => setActiveCategory(service.id)}
                       >
-                        {category.name}
+                        {service.name}
                       </Button>
                     ))}
                   </div>

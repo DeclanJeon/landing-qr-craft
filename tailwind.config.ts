@@ -21,17 +21,17 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // 사용자 정의 색상 추가 (CSS 변수 참조)
-        'primary-100': 'var(--primary-100)',
-        'primary-200': 'var(--primary-200)',
-        'primary-300': 'var(--primary-300)',
-        'accent-100': 'var(--accent-100)',
-        'accent-200': 'var(--accent-200)',
-        'text-100': 'var(--text-100)',
-        'text-200': 'var(--text-200)',
-        'bg-100': 'var(--bg-100)',
-        'bg-200': 'var(--bg-200)',
-        'bg-300': 'var(--bg-300)',
+        // 개선된 프리미엄 컬러 팔레트
+        'primary-100': '#3a506b', // 깊은 청록색
+        'primary-200': '#1c2541', // 짙은 네이비
+        'primary-300': '#5bc0be', // 밝은 청록색
+        'accent-100': '#fca311', // 밝은 주황색
+        'accent-200': '#ffbd59', // 부드러운 주황색
+        'text-100': '#1a1a2e', // 진한 텍스트
+        'text-200': '#4a4e69', // 중간 톤 텍스트
+        'bg-100': '#f5f5f7', // 매우 밝은 배경
+        'bg-200': '#e5e5ec', // 밝은 회색 배경
+        'bg-300': '#d1d1e0', // 중간 회색 배경
 
         // 기존 shadcn/ui 색상 정의 (CSS 변수 참조)
         border: 'hsl(var(--border))',

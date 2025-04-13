@@ -39,9 +39,7 @@ const formSchema = z.object({
   email: z.string().email({
     message: "유효한 이메일 주소를 입력해주세요.",
   }),
-  ownerName: z.string().min(2, {
-    message: "대표자 이름은 최소 2글자 이상이어야 합니다.",
-  }),
+  // ownerName field removed from schema
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,7 +64,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
       shopUrl: "",
       contactNumber: "",
       email: "",
-      ownerName: "",
+      // ownerName removed from defaultValues
     },
   });
 
@@ -101,12 +99,25 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
     try {
       setIsSubmitting(true);
       console.log("[PeermallShopForm] onSubmit called with values:", values);
+      
+      // Get the current user's nickname from localStorage
+      const currentUserNickname = localStorage.getItem('peermall-user-nickname');
+      
+      if (!currentUserNickname) {
+        toast({
+          title: "오류",
+          description: "로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       const shopData: ShopData = {
         shopName: values.shopName,
         shopDescription: values.shopDescription,
         shopUrl: values.shopUrl,
-        ownerName: values.ownerName,
+        ownerName: currentUserNickname, // Use the nickname from localStorage
         contactNumber: values.contactNumber,
         email: values.email,
         faviconUrl: faviconPreview || undefined,
@@ -115,7 +126,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
         rating: 5.0,
         themeSettings: { primaryColor: "#3B82F6", secondaryColor: "#6366F1", fontFamily: "system-ui, sans-serif", borderRadius: "rounded-lg" },
         heroSettings: { background: "bg-gradient-to-r from-blue-500 to-indigo-600", title: `${values.shopName}에 오신 것을 환영합니다`, description: values.shopDescription, buttonText: "상품 구경하기", buttonColor: "bg-white text-blue-600 hover:bg-gray-100", imageUrl: "", imagePosition: "right", buttonIcon: true, buttonSize: "medium", buttonRadius: "rounded-full", showDecorations: true, widgets: { showProductCount: false, showRating: false, showBadge: false, badgeText: "신규" } },
-        footerSettings: { background: "bg-gray-800", textColor: "text-white", ownerName: values.ownerName, contactNumber: values.contactNumber, email: values.email },
+        footerSettings: { background: "bg-gray-800", textColor: "text-white", ownerName: currentUserNickname, contactNumber: values.contactNumber, email: values.email }, // Use currentUserNickname here too
         adSettings: [],
         logoUrl: '',
       };
@@ -314,19 +325,7 @@ const PeermallShopForm: React.FC<PeermallShopFormProps> = ({ onSuccessfulSubmit 
           <h2 className="text-xl font-semibold">연락처 정보</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="ownerName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>대표자 이름</FormLabel>
-                  <FormControl>
-                    <Input placeholder="홍길동" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* ownerName FormField removed */}
             
             <FormField
               control={form.control}

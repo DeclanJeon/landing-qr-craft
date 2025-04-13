@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import PeermallCreateModal from '@/components/PeermallCreateModal'; // Import the modal
 import {
   Table,
   TableBody,
@@ -58,6 +59,7 @@ const PeermallManagementTab = () => {
   const [peermallToDelete, setPeermallToDelete] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('board');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Add state for modal
   const itemsPerPage = 5;
   
   // Fetch user's peermalls from localStorage
@@ -167,7 +169,8 @@ const PeermallManagementTab = () => {
   
   // Handle create new peermall
   const handleCreatePeermall = () => {
-    navigate('/personal-lounge');
+    // navigate('/personal-lounge'); // Remove navigation
+    setIsCreateModalOpen(true); // Open the modal instead
   };
   
   // Toggle view mode
@@ -500,6 +503,12 @@ const PeermallManagementTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Render the Peermall Create Modal */}
+      <PeermallCreateModal 
+        open={isCreateModalOpen} // Changed isOpen to open
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
     </div>
   );
 };

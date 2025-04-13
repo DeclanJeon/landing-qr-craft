@@ -1,402 +1,50 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import PeermallCreateModal from '@/components/PeermallCreateModal'; // Import the modal
-
+import { Card } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PeermallCreateModal from '@/components/PeermallCreateModal';
 import { toast } from "@/hooks/use-toast";
+import { getPeermalls } from "@/utils/peermallStorage";
+import { ShopData } from "@/types/shop";
 import { 
-  QrCode, 
-  Store, 
-  ArrowRight, 
-  CheckCheck, 
+  Search, 
+  ShoppingCart, 
   User, 
-  ShieldCheck, 
-  Link2,      
-  Zap,         
-  Sun,         
-  Layers,      
-  HeartHandshake 
+  ChevronRight,
+  ChevronLeft, 
+  Star,
+  Store,
+  Menu,
+  MapPin,
+  ChevronDown,
+  Heart,
+  Bell,
+  ArrowRight
 } from "lucide-react";
-// Optional: Consider adding framer-motion for smoother animations
-// import { motion } from 'framer-motion';
 
-// --- Helper Functions & State Hook ---
-const generateQrCode = (content: string) => {
-  // Using a slightly higher quality QR code generator API if needed, or stick to qrserver
-  // Example: return `https://api.qr-code-generator.com/v1/create?access-token=YOUR_TOKEN&qr_code_text=${encodeURIComponent(content)}...`;
-  return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(content)}&qzone=1&format=png`; // Increased size, added quiet zone
-};
-
-const useIndexState = () => {
-  const [qrContent, setQrContent] = useState('https://peermall.com'); // Default to a relevant URL
-  const [qrImage, setQrImage] = useState('');
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setQrImage(generateQrCode(qrContent));
-  }, [qrContent]);
-
-  const handleGenerateQR = () => {
-    setQrImage(generateQrCode(qrContent));
-    toast({
-      title: "QR Code Generated",
-      description: "Your unique QR code is ready.",
-      variant: "default", // Use Shadcn variants if defined
-    });
-  };
-
-  const handleDownloadQR = () => {
-    if (!qrImage) return;
-    const link = document.createElement('a');
-    link.href = qrImage;
-    link.download = 'peermall-qrcode.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast({
-      title: "QR Code Downloaded",
-      description: "The QR code image has been saved.",
-    });
-  };
-
-  const scrollToFeatures = () => {
-    featuresRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  return {
-    qrContent, setQrContent, qrImage, handleGenerateQR, handleDownloadQR,
-    featuresRef, heroRef, scrollToFeatures
-  };
-};
-
-// --- Reusable Section Component ---
-interface SectionProps {
-  id?: string;
-  className?: string;
-  children: React.ReactNode;
-  hasSeparator?: boolean;
-  // No need to explicitly add ref to props when using forwardRef with TypeScript generics
-}
-
-const Section = React.forwardRef<HTMLElement, SectionProps>(
-  ({ id, className = "", children, hasSeparator = false }, ref) => (
-  // Increased vertical padding slightly for more breathing room
-  <section id={id} ref={ref} className={`relative py-28 md:py-36 overflow-hidden ${className}`}> 
-    <div className="container mx-auto px-6 relative z-10">
-      {children}
-    </div>
-    {hasSeparator && (
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
-    )}
-  </section>
-)) // Removed semicolon
-
-// --- Premium Peermall Creator Component ---
-interface PremiumPeermallCreatorProps {
-  onStartClick: () => void;
-}
-
-const PremiumPeermallCreator: React.FC<PremiumPeermallCreatorProps> = ({ onStartClick }) => (
-  <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl overflow-hidden p-8 border border-gray-700/40">
-    {/* Premium background patterns/effects */}
-    <div className="absolute inset-0 opacity-10">
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600 rounded-full filter blur-3xl"></div>
-      <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-purple-700 rounded-full filter blur-3xl"></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-3xl"></div>
-      
-      {/* Grid lines for premium feel */}
-      <div className="absolute inset-0" 
-           style={{ 
-             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)', 
-             backgroundSize: '40px 40px' 
-           }}>
-      </div>
-    </div>
-
-    <div className="relative z-10">
-      <div className="flex flex-col items-center text-center space-y-8 py-6">
-        <div className="flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg transform rotate-12">
-          <div className="w-20 h-20 bg-gradient-to-tl from-purple-600 to-blue-400 rounded-xl transform -rotate-12 flex items-center justify-center">
-            <Store className="h-10 w-10 text-white" />
-          </div>
-        </div>
-        
-        <div className="space-y-4 max-w-lg">
-          <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
-            내 피어몰 만들기
-          </h2>
-          <p className="text-gray-300 text-lg leading-relaxed">
-            최고급 템플릿과 도구로 몇 분 안에 당신만의 럭셔리한 세상을 구축하세요. 판매, 수익화까지 단 몇 번의 클릭만으로.
-          </p>
-          
-          <div className="pt-4">
-            <Button 
-              onClick={onStartClick} 
-              size="lg" 
-              className="px-8 py-6 h-auto rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border border-blue-500/30 group relative overflow-hidden"
-            >
-              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400/20 to-purple-500/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
-              <div className="relative flex items-center">
-                <Store className="mr-2 h-6 w-6" />
-                <span>내 피어몰 시작하기</span>
-                <ArrowRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Button>
-            
-            {/* <div className="mt-5 text-gray-400 text-sm">
-              3% 낮은 수수료 · 무제한 제품 등록 · 프리미엄 템플릿
-            </div> */}
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-8 pt-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-              <ShieldCheck className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-gray-300">안전한 거래</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-gray-300">빠른 성장</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-              <Link2 className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-gray-300">쉬운 연동</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// --- Define Types for Hero Section Props ---
-type IndexState = ReturnType<typeof useIndexState>;
-
-interface HeroSectionProps {
-  state: IndexState;
-  scrollToFeatures: () => void;
-  onOpenCreateModal: () => void;
-}
-
-// --- Hero Section ---
-const HeroSection = ({ state, scrollToFeatures, onOpenCreateModal }: HeroSectionProps) => (
-  <section ref={state.heroRef} className="relative min-h-screen flex items-center pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-to-b from-black via-gray-900 to-black text-gray-200 overflow-hidden">
-    {/* Background Glows / Abstract Shapes */}
-    <div className="absolute inset-0 z-0 opacity-25"> 
-      <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900 rounded-full filter blur-[180px] opacity-50 animate-pulse-slow"></div> 
-      <div className="absolute bottom-[-20%] right-[-10%] w-[45vw] h-[45vw] bg-purple-900 rounded-full filter blur-[180px] opacity-40 animate-pulse-slow animation-delay-2000"></div>
-    </div>
-    
-    <div className="container mx-auto px-6 relative z-10"> 
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
-            내 손안의 쇼핑몰, Peermall
-          </h1>
-          <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-xl mx-auto md:mx-0 leading-relaxed"> 
-            귀한 고객들이 직접 사거나 팔 수 있는 새로운 쇼핑 플랫폼입니다. QR코드로 당신의 세상을 거번하고, 모두와 연결되어 확장하세요.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4">
-            <Button onClick={scrollToFeatures} size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-black w-full sm:w-auto">
-              주요 기능 살펴보기 <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="mt-10 md:mt-0">
-          <PremiumPeermallCreator onStartClick={onOpenCreateModal} />
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
-// --- Feature Item Component ---
-interface FeatureItemProps {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-}
-const FeatureItem: React.FC<FeatureItemProps> = ({ icon: Icon, title, description }) => (
-  <div className="flex items-start space-x-4">
-    <div className="flex-shrink-0 mt-1">
-      <Icon className="h-6 w-6 text-blue-500" />
-    </div>
-    <div>
-      <h4 className="text-lg font-semibold text-gray-100 mb-1">{title}</h4>
-      <p className="text-gray-400">{description}</p>
-    </div>
-  </div>
-);
-
-// --- Define Types for Features Section Props ---
-interface FeaturesSectionProps {
-  featuresRef: React.RefObject<HTMLDivElement>; // Type from useIndexState
-}
-
-// --- Features Section ---
-// Define as standard function for consistency
-const FeaturesSection = ({ featuresRef }: FeaturesSectionProps) => (
-  <Section id="features" ref={featuresRef} className="bg-gray-900 text-gray-300" hasSeparator>
-    {/* Increased spacing */}
-    <div className="text-center mb-20"> 
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">Peermall 기능 살펴보기</h2> 
-      <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed"> 
-        당신의 디지털 자산을 관리하고, 커뮤니티와 소통하며, 안전하게 거래할 수 있는 강력한 기능들을 만나보세요.
-      </p>
-    </div>
-    
-    {/* Using a grid layout similar to examples - increased gap */}
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12"> 
-      <FeatureItem 
-        icon={Layers} 
-        title="나의 쇼핑몰 (Effortless Store Creation)" 
-        description="쉽고 빠르게 나만의 온라인 쇼핑몰을 구축하세요. 복잡한 과정 없이 몇 분 만에 제품을 등록하고 판매를 시작할 수 있습니다. (수수료 3%)" 
-      />
-      <FeatureItem 
-        icon={QrCode} 
-        title="QR 코드 (Dynamic QR Codes)" 
-        description="상품, 상점, 프로모션을 위한 QR 코드를 간편하게 생성하고 공유하세요. 오프라인과 온라인을 연결하는 효과적인 마케팅을 진행할 수 있습니다." 
-      />
-      <FeatureItem 
-        icon={ShieldCheck} 
-        title="인증 (Blockchain Authentication)" 
-        description="블록체인 기술을 활용한 진품 인증 시스템으로 제품의 신뢰도를 높이고, 소유권 인증을 통해 안전한 거래를 보장합니다." 
-      />
-      <FeatureItem 
-        icon={HeartHandshake} // Changed from User
-        title="커뮤니티 (Integrated Community)" 
-        description="사용자들과 소통하고 정보를 공유할 수 있는 커뮤니티 공간과 1:1 음성, 화상, 채팅 상담 서비스를 제공합니다." 
-      />
-       <FeatureItem 
-        icon={Link2} // Represents connection/integration
-        title="사이트 통합 (Seamless Integration)" 
-        description="기존 웹사이트나 플랫폼에 Peermall 기능을 손쉽게 연동하여 사용자 경험을 확장하세요." 
-      />
-       <FeatureItem 
-        icon={Zap} // Represents speed/power
-        title="빠른 기능 접근" 
-        description="QR 코드 생성, 나의 라운지, 피어몰 목록 등 주요 기능에 빠르게 접근하여 효율적으로 관리하세요." 
-      />
-    </div>
-  </Section>
-);
-
-// --- Story Section ---
-const StorySection = () => (
-  <Section id="story" className="bg-black text-gray-300" hasSeparator>
-    {/* Increased spacing */}
-    <div className="text-center max-w-4xl mx-auto"> 
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">Peermall 이야기</h2> 
-      <p className="text-lg md:text-xl leading-relaxed text-gray-400">
-        <strong className="text-blue-400">피어(Peer)의 귀족, 또래</strong> 등의 뜻과 <strong className="text-blue-400">몰(Mall)</strong>은 쇼핑하는 곳이라는 뜻의 합성어입니다. 귀족이 쇼핑하는 곳처럼, <strong className="text-white">귀한 고객들이 직접 사거나 팔 수 있는 품격 있는 사이트</strong>를 지향합니다.
-      </p>
-    </div>
-  </Section>
-);
-
-// --- Vision & Mission Section ---
-const VisionMissionSection = () => (
-  <Section id="vision-mission" className="bg-gray-900 text-gray-300" hasSeparator>
-    {/* Increased gap */}
-    <div className="grid lg:grid-cols-2 gap-20 items-center"> 
-      <div>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-10">우리의 비전과 미션</h2> 
-        <div className="space-y-10"> {/* Increased space between vision/mission */}
-          <div>
-            <h3 className="flex items-center text-xl font-semibold text-blue-400 mb-4"> 
-              <Sun className="h-6 w-6 mr-2" /> 우리의 비전
-            </h3>
-            <p className="text-gray-400 leading-relaxed"> 
-              인간이 가상과 현실 세계를 거주지와 직장으로 사용할 수 있도록 고도화된 인터넷 서비스 인프라를 구축하고 운영하여 '지속 가능한 인간 사회'에서 살아가는 것입니다.
-            </p>
-          </div>
-          <div>
-            <h3 className="flex items-center text-xl font-semibold text-blue-400 mb-4"> 
-              <CheckCheck className="h-6 w-6 mr-2" /> 우리의 미션
-            </h3>
-            <p className="text-gray-400 leading-relaxed"> 
-              우리는 청정 커머스 서비스인 피어몰을 통해 지속 가능한 인간 사회를 만드는 일에 이바지하고자 합니다. 피어몰은 각각의 유저나 회사, 커뮤니티가 직접 거버넌스를 한다는 모토를 가지고 "내가 내 세상을 거번하고, 당신이 당신의 세상을 거번하고, 우리가 우리의 세상을 거번한다"는 철학적이고 기술적인 메커니즘을 통해 디지털-물리적 자산, 사업 및 프라이버시를 보호할 수 있는 인프라 시스템을 구축합니다.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="relative h-64 md:h-96 mt-10 lg:mt-0">
-        {/* Placeholder visual - slightly adjusted */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-80"> 
-          <div className="relative w-full h-full">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-gradient-to-r from-blue-700 to-purple-700 rounded-full opacity-25 filter blur-3xl"></div> 
-            <Link2 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 text-blue-400 opacity-60" /> 
-            {/* Network/light elements */}
-            <div className="absolute top-[30%] left-[30%] w-3 h-3 bg-blue-300 rounded-full animate-ping"></div> 
-             <div className="absolute bottom-[30%] right-[30%] w-2 h-2 bg-purple-300 rounded-full animate-ping animation-delay-1000"></div> 
-          </div>
-        </div>
-         <p className="absolute bottom-2 right-2 text-xs text-gray-600 italic">[Visualizing Connection & Governance]</p> 
-      </div>
-    </div>
-  </Section>
-);
-
-// --- Values Section ---
-interface ValueCardProps { title: string; description: string; }
-const ValueCard: React.FC<ValueCardProps> = ({ title, description }) => (
-  <div className="bg-gray-800/60 backdrop-blur-sm p-6 rounded-lg border border-gray-700 h-full">
-    <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-    <p className="text-gray-400 text-sm">{description}</p>
-  </div>
-);
-
-const ValuesSection = () => (
-  <Section id="values" className="bg-black text-gray-300" hasSeparator>
-    {/* Increased spacing */}
-    <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-16">우리의 가치</h2> 
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8"> {/* Increased gap */}
-      <ValueCard title="Relationship & Identification" description="관계와 정체성을 중요시하며 진정한 연결을 추구합니다." />
-      <ValueCard title="3R (Role, Responsibility, Rights)" description="역할, 책임, 권리의 균형을 통한 자기 거버넌스를 지향합니다." />
-      <ValueCard title="Quality of Life" description="삶의 질 향상을 위한 가치 창출에 기여합니다." />
-      <ValueCard title="Private & Security" description="개인정보 보호와 보안을 최우선으로 생각합니다." />
-      <ValueCard title="Holistic human society" description="총체적인 인간 사회를 위한 지속 가능한 발전을 추구합니다." />
-    </div>
-  </Section>
-);
-
-// --- Contact Section ---
-const ContactSection = () => (
-  <Section id="contact" className="bg-gray-900 text-gray-300">
-    {/* Increased spacing */}
-    <div className="text-center max-w-3xl mx-auto"> 
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">문의하기</h2> 
-      <p className="text-lg text-gray-400 mb-10 leading-relaxed"> 
-        Peermall에 대해 더 궁금한 점이 있으신가요? 지금 바로 문의하세요!
-      </p>
-      <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-lg mx-auto">
-        <Input 
-          type="email" 
-          placeholder="이메일을 입력하세요" 
-          className="flex-1 bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500 rounded-full px-5 py-3" // Rounded input
-        />
-         {/* Ensured consistent button styling */}
-        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"> 
-          문의하기
-        </Button>
-      </div>
-    </div>
-  </Section>
-);
-
-// --- Index Page Component ---
 const Index = () => {
-  const state = useIndexState();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [peermalls, setPeermalls] = useState<ShopData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Load peermalls from localStorage
+    const loadedPeermalls = getPeermalls();
+    setPeermalls(loadedPeermalls);
+  }, []);
+
+  // Filter peermalls based on search term
+  const filteredPeermalls = peermalls.filter(peermall => 
+    peermall.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (peermall.shopDescription?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
 
   const handleOpenCreateModal = () => {
     // Check if user is authenticated before opening
@@ -407,30 +55,533 @@ const Index = () => {
         description: "피어몰을 생성하려면 로그인이 필요합니다.",
         variant: "destructive",
       });
-      // Optionally redirect to login or just show the toast
-      // navigate('/login'); 
       return; 
     }
     setIsCreateModalOpen(true);
   };
-  
+
+  // Categories for display
+  const categories = [
+    { id: 'fashion', name: '패션', icon: '👕' },
+    { id: 'beauty', name: '뷰티', icon: '💄' },
+    { id: 'electronics', name: '전자제품', icon: '📱' },
+    { id: 'home', name: '홈리빙', icon: '🏠' },
+    { id: 'food', name: '식품', icon: '🍔' },
+    { id: 'books', name: '도서', icon: '📚' },
+    { id: 'toys', name: '완구/취미', icon: '🎮' },
+    { id: 'sports', name: '스포츠', icon: '⚽' }
+  ];
+
+  // Banner slides
+  const bannerSlides = [
+    {
+      id: 1,
+      imageUrl: 'https://picsum.photos/1200/300?random=1',
+      title: '인기 피어몰 둘러보기',
+      subtitle: '다양한 상품들을 만나보세요',
+      buttonText: '쇼핑하기'
+    },
+    {
+      id: 2,
+      imageUrl: 'https://picsum.photos/1200/300?random=2',
+      title: '지금 피어몰 만들고 할인 받기',
+      subtitle: '쉽고 빠른 온라인 스토어 제작',
+      buttonText: '시작하기'
+    },
+    {
+      id: 3,
+      imageUrl: 'https://picsum.photos/1200/300?random=3',
+      title: '특별한 혜택, 한정 기간',
+      subtitle: '최대 50% 할인 이벤트 진행중',
+      buttonText: '더 알아보기'
+    }
+  ];
+
+  // Featured peermalls
+  const featuredPeermalls = peermalls.length > 0 
+    ? [...peermalls].sort((a, b) => (b.rating || 5) - (a.rating || 5)).slice(0, 4) 
+    : [];
+
+  // Recently added peermalls
+  const recentPeermalls = peermalls.length > 0 
+    ? [...peermalls].slice(0, 8) 
+    : [];
+
   return (
-    <div className="min-h-screen font-sans antialiased bg-black">
-      <HeroSection 
-        state={state} 
-        scrollToFeatures={state.scrollToFeatures}
-        onOpenCreateModal={handleOpenCreateModal}
-      />
-      <FeaturesSection featuresRef={state.featuresRef} />
-      <StorySection />
-      <VisionMissionSection />
-      <ValuesSection />
-      <ContactSection />
-      
-      {/* Render the modal */}
+    <div className="min-h-screen bg-gray-100">
+      {/* Top Navigation */}
+      <header className="bg-slate-900 text-white">
+        {/* Upper Nav */}
+        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            {/* Logo */}
+            <Link to="/" className="text-2xl font-bold mr-4">
+              <span className="text-orange-400">Peer</span>
+              <span className="text-white">mall</span>
+            </Link>
+
+            {/* Location */}
+            <div className="hidden md:flex items-center space-x-1 text-sm">
+              <MapPin className="h-4 w-4" />
+              <span className="text-gray-300">배송지:</span>
+              <span className="font-medium">대한민국</span>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="flex-1 max-w-3xl mx-4">
+            <div className="relative flex">
+              <Select defaultValue="all">
+                <SelectTrigger className="w-[80px] rounded-l-md rounded-r-none border-r border-gray-400 bg-gray-100 text-gray-800">
+                  <SelectValue placeholder="전체" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  <SelectItem value="fashion">패션</SelectItem>
+                  <SelectItem value="beauty">뷰티</SelectItem>
+                  <SelectItem value="electronics">전자제품</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="text"
+                placeholder="피어몰 또는 상품 검색"
+                className="flex-1 rounded-none border-gray-300"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button className="rounded-l-none rounded-r-md bg-orange-400 hover:bg-orange-500 text-white">
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Account & Lists */}
+          <div className="hidden md:flex items-center space-x-6">
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-300">안녕하세요, 로그인하세요</span>
+              <Link to="/login" className="text-sm font-medium flex items-center">
+                계정 및 목록
+                <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
+              </Link>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs text-gray-300">반품</span>
+              <Link to="/shop/peermall/returns" className="text-sm font-medium">
+                & 주문
+              </Link>
+            </div>
+
+            <Link to="/shop/peermall/cart" className="flex items-end">
+              <div className="relative">
+                <ShoppingCart className="h-6 w-6" />
+                <span className="absolute -top-1 -right-1 bg-orange-400 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  0
+                </span>
+              </div>
+              <span className="font-medium ml-1">장바구니</span>
+            </Link>
+          </div>
+
+          {/* Mobile Icons */}
+          <div className="flex md:hidden items-center space-x-4">
+            <Link to="/login">
+              <User className="h-5 w-5" />
+            </Link>
+            <Link to="/shop/peermall/cart">
+              <div className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 bg-orange-400 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  0
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Lower Nav */}
+        <div className="bg-slate-800 py-2">
+          <div className="container mx-auto px-4 flex items-center">
+            <button className="flex items-center text-white mr-6">
+              <Menu className="h-5 w-5 mr-2" />
+              <span>전체 카테고리</span>
+            </button>
+            <nav className="flex space-x-6 overflow-x-auto scrollbar-none text-sm">
+              <Link to="/peermall-list" className="text-white whitespace-nowrap">베스트 피어몰</Link>
+              <Link to="/shop/peermall/category/new" className="text-white whitespace-nowrap">신규 피어몰</Link>
+              <Link to="/shop/peermall/category/today" className="text-white whitespace-nowrap">오늘의 딜</Link>
+              <Link to="/qr-generator" className="text-white whitespace-nowrap">QR코드 생성</Link>
+              <Link to="/community" className="text-white whitespace-nowrap">커뮤니티</Link>
+              <Link to="/customer-service" className="text-white whitespace-nowrap">고객센터</Link>
+            </nav>
+            <div className="ml-auto">
+              <Button onClick={handleOpenCreateModal} className="bg-transparent hover:bg-slate-700 text-white border border-gray-500">
+                내 피어몰 시작
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="pb-12">
+        {/* Main Carousel Banner */}
+        <section className="relative bg-gray-800">
+          <Carousel className="mx-auto">
+            <CarouselContent>
+              {bannerSlides.map((slide) => (
+                <CarouselItem key={slide.id} className="relative">
+                  <div className="relative h-[300px] md:h-[350px] w-full">
+                    <img
+                      src={slide.imageUrl}
+                      alt={slide.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
+                      <div className="container mx-auto px-8 md:px-16">
+                        <div className="max-w-lg">
+                          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                            {slide.title}
+                          </h2>
+                          <p className="text-lg text-white/90 mb-6">
+                            {slide.subtitle}
+                          </p>
+                          <Button className="bg-orange-400 hover:bg-orange-500 text-white">
+                            {slide.buttonText}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+              <CarouselPrevious className="bg-white/30 hover:bg-white/50 border-none text-white" />
+            </div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+              <CarouselNext className="bg-white/30 hover:bg-white/50 border-none text-white" />
+            </div>
+          </Carousel>
+        </section>
+
+        {/* Categories Grid */}
+        <section className="container mx-auto px-4 -mt-6 mb-8 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {categories.map((category) => (
+              <Link 
+                key={category.id}
+                to={`/shop/peermall/category/${category.id}`}
+                className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow"
+              >
+                <span className="text-2xl mb-2">{category.icon}</span>
+                <span className="text-sm font-medium">{category.name}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Peermall Listings */}
+        <div className="container mx-auto px-4">
+          {/* Peermall List Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">피어몰 둘러보기</h1>
+              <p className="text-sm text-gray-600">원하는 피어몰을 찾아보세요</p>
+            </div>
+            <div className="flex gap-2">
+              <Select defaultValue="recommended">
+                <SelectTrigger className="w-[130px] bg-white">
+                  <SelectValue placeholder="정렬 기준" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recommended">추천순</SelectItem>
+                  <SelectItem value="newest">최신순</SelectItem>
+                  <SelectItem value="popular">인기순</SelectItem>
+                  <SelectItem value="rating">평점순</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={handleOpenCreateModal} className="bg-orange-400 hover:bg-orange-500 text-white">
+                <Store className="w-4 h-4 mr-1" />
+                <span>내 피어몰 만들기</span>
+              </Button>
+            </div>
+          </div>
+
+          {peermalls.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Store className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-800 mb-2">아직 등록된 피어몰이 없습니다</h3>
+              <p className="text-gray-500 mb-6">
+                첫 번째 피어몰을 만들어 시작해보세요!
+              </p>
+              <Button onClick={handleOpenCreateModal} className="bg-orange-400 hover:bg-orange-500 text-white">
+                피어몰 시작하기
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Peermall Collections */}
+              <section className="mb-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">추천 피어몰</h2>
+                  <Link to="/peermall-list" className="text-sm text-orange-500 flex items-center">
+                    모두 보기 <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                  
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {featuredPeermalls.map((mall) => (
+                    <Link key={mall.shopUrl} to={`/shop/${mall.shopUrl}/home`}>
+                      <div className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow">
+                        <div className="h-40 overflow-hidden relative">
+                          <img 
+                            src={mall.introImageUrl || mall.logoUrl || `https://picsum.photos/400/300?random=${mall.shopName}`} 
+                            alt={mall.shopName}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                            <div className="flex items-center text-white">
+                              <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                              <span className="ml-1 text-xs">{mall.rating || "5.0"}</span>
+                            </div>
+                          </div>
+                          {mall.specialization && (
+                            <Badge className="absolute top-2 left-2 bg-orange-400 hover:bg-orange-400 border-none">
+                              {mall.specialization}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <h3 className="font-medium text-sm mb-1">{mall.shopName}</h3>
+                          <p className="text-xs text-gray-500 line-clamp-2">
+                            {mall.shopDescription || '다양한 제품을 합리적인 가격에 만나보세요.'}
+                          </p>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-gray-500">방문수: {Math.floor(Math.random() * 5000) + 100}</span>
+                            <span className="text-xs text-orange-500">바로가기</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* Recent Peermalls Grid */}
+              <section className="mb-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">최근 등록된 피어몰</h2>
+                  <Link to="/peermall-list" className="text-sm text-orange-500 flex items-center">
+                    모두 보기 <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {recentPeermalls.map((mall) => (
+                    <Link key={mall.shopUrl} to={`/shop/${mall.shopUrl}/home`}>
+                      <div className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow h-full">
+                        <div className="h-32 overflow-hidden">
+                          <img
+                            src={mall.introImageUrl || mall.logoUrl || `https://picsum.photos/400/300?random=${mall.shopName}-recent`}
+                            alt={mall.shopName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-3">
+                          <h3 className="font-medium text-sm mb-1 line-clamp-1">{mall.shopName}</h3>
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                            <span className="ml-1">{mall.rating || "5.0"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* All Peermalls with Filters */}
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">모든 피어몰</h2>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="text-sm bg-white" onClick={() => setActiveCategory('all')}>
+                      전체
+                    </Button>
+                    {categories.slice(0, 4).map((category) => (
+                      <Button
+                        key={category.id}
+                        variant={activeCategory === category.id ? "default" : "outline"}
+                        size="sm"
+                        className={`text-sm ${activeCategory === category.id ? 'bg-orange-400 hover:bg-orange-500 border-none' : 'bg-white'}`}
+                        onClick={() => setActiveCategory(category.id)}
+                      >
+                        {category.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {filteredPeermalls.length === 0 ? (
+                  <div className="text-center py-8 bg-white rounded-lg shadow-sm">
+                    <Search className="h-10 w-10 mx-auto text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">검색 결과가 없습니다</h3>
+                    <p className="text-gray-500 mb-4">다른 검색어로 다시 시도하거나 필터를 변경해보세요.</p>
+                    <Button onClick={() => setSearchTerm('')} variant="outline" className="bg-white">
+                      전체 목록 보기
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {filteredPeermalls.map((mall) => (
+                      <Link key={mall.shopUrl} to={`/shop/${mall.shopUrl}/home`}>
+                        <div className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-all h-full border border-gray-100 hover:border-orange-200">
+                          <div className="h-40 overflow-hidden relative">
+                            <img
+                              src={mall.introImageUrl || mall.logoUrl || `https://picsum.photos/400/300?random=${mall.shopName}-all`}
+                              alt={mall.shopName}
+                              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            />
+                            <div className="absolute top-2 right-2 flex space-x-1">
+                              <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full bg-white/80 text-gray-700 hover:bg-white hover:text-orange-500">
+                                <Heart className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <div className="flex justify-between mb-1">
+                              <h3 className="font-medium text-sm">{mall.shopName}</h3>
+                              <div className="flex items-center">
+                                <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                                <span className="text-xs ml-1">{mall.rating || "5.0"}</span>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                              {mall.shopDescription || '다양한 제품을 만나보세요.'}
+                            </p>
+                            <Button variant="outline" size="sm" className="w-full text-xs justify-between bg-gray-50 hover:bg-orange-50 hover:text-orange-500 border-gray-200">
+                              방문하기
+                              <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+        </div>
+
+        {/* CTAs Before Footer */}
+        {peermalls.length > 0 && (
+          <section className="bg-gray-50 py-10 mt-12">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 mr-4">
+                      <Store className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg font-medium">내 피어몰 만들기</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">간단한 설정으로 나만의 온라인 스토어를 만들고 수익을 창출하세요.</p>
+                  <Button onClick={handleOpenCreateModal} className="bg-orange-400 hover:bg-orange-500 text-white w-full">시작하기</Button>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-4">
+                      <Bell className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg font-medium">특별 할인 알림</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">주요 특가 및 할인 소식을 놓치지 마세요. 이메일로 최신 정보를 받아보세요.</p>
+                  <div className="flex">
+                    <Input placeholder="이메일 입력" className="rounded-r-none" />
+                    <Button className="rounded-l-none bg-orange-400 hover:bg-orange-500 text-white">구독</Button>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-4">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg font-medium">고객 지원</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">문의사항이 있으신가요? 언제든지 고객센터로 연락주세요. 24시간 이내 답변드립니다.</p>
+                  <Link to="/customer-service">
+                    <Button variant="outline" className="w-full border-gray-200 hover:bg-gray-50 hover:border-gray-300">문의하기</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-gray-400 pt-10 pb-6">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between pb-8 border-b border-gray-800">
+            <div className="mb-6 md:mb-0">
+              <Link to="/" className="text-2xl font-bold">
+                <span className="text-orange-400">Peer</span>
+                <span className="text-white">mall</span>
+              </Link>
+              <p className="mt-2 text-sm text-gray-400 max-w-md">
+                피어몰은 판매자와 구매자를 연결하는 온라인 마켓플레이스입니다. 
+                지금 바로 쇼핑을 시작하거나 나만의 온라인 스토어를 만들어보세요.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-white text-sm font-medium mb-4">쇼핑</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/peermall-list" className="hover:text-orange-400">인기 피어몰</Link></li>
+                  <li><Link to="/shop/peermall/category/new" className="hover:text-orange-400">신규 피어몰</Link></li>
+                  <li><Link to="/shop/peermall/category/today" className="hover:text-orange-400">오늘의 특가</Link></li>
+                  <li><Link to="/qr-generator" className="hover:text-orange-400">QR코드</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-white text-sm font-medium mb-4">판매하기</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/" onClick={handleOpenCreateModal} className="hover:text-orange-400">피어몰 만들기</Link></li>
+                  <li><Link to="/site-integration" className="hover:text-orange-400">사이트 통합</Link></li>
+                  <li><Link to="/shop/peermall/admin" className="hover:text-orange-400">판매자 센터</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-white text-sm font-medium mb-4">고객지원</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link to="/customer-service" className="hover:text-orange-400">고객센터</Link></li>
+                  <li><Link to="/community" className="hover:text-orange-400">커뮤니티</Link></li>
+                  <li><a href="mailto:contact@peermall.com" className="hover:text-orange-400">이메일 문의</a></li>
+                  <li><a href="tel:1588-1588" className="hover:text-orange-400">전화: 1588-1588</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 text-center text-sm">
+            <p>&copy; {new Date().getFullYear()} Peermall. 모든 권리 보유.</p>
+            <div className="flex justify-center space-x-4 mt-4">
+              <Link to="/" className="text-gray-400 hover:text-white">이용약관</Link>
+              <Link to="/" className="text-gray-400 hover:text-white">개인정보처리방침</Link>
+              <Link to="/" className="text-gray-400 hover:text-white">판매자 이용약관</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Peermall Creation Modal */}
       <PeermallCreateModal 
         open={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} // Reverted to onClose
+        onClose={() => setIsCreateModalOpen(false)}
       />
     </div>
   );

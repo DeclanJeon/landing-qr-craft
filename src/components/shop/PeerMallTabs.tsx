@@ -1,11 +1,20 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RecommendedPeerMalls from './RecommendedPeerMalls';
 import CustomerPeerMalls from './CustomerPeerMalls';
+import { getPeermalls } from "@/utils/peermallStorage";
+import { ShopData } from '@/types/shop';
 
 const PeerMallTabs = () => {
   const [currentTab, setCurrentTab] = useState<string>("recommended");
+  const [peermalls, setPeermalls] = useState<ShopData[]>([]);
+  
+  useEffect(() => {
+    // Load peermalls from localStorage
+    const loadedPeermalls = getPeermalls();
+    setPeermalls(loadedPeermalls);
+  }, []);
 
   return (
     <div className="w-full">
@@ -18,7 +27,7 @@ const PeerMallTabs = () => {
           <RecommendedPeerMalls />
         </TabsContent>
         <TabsContent value="customer" className="mt-0">
-          <CustomerPeerMalls />
+          <CustomerPeerMalls recommendedMalls={peermalls} />
         </TabsContent>
       </Tabs>
     </div>

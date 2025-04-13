@@ -1,85 +1,119 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* 사용자 정의 색상 변수 */
+    --primary-100: #f7cac9;
+    --primary-200: #5c5c5c; /* Note: primary-200 and 300 are the same */
+    --primary-300: #5c5c5c;
+    --accent-100: #5c5c5c; /* Note: accent-100 and primary-200/300 are the same */
+    --accent-200: #ebebeb;
+    --text-100: #333333;
+    --text-200: #5c5c5c; /* Note: text-200 and primary-200/300/accent-100 are the same */
+    --bg-100: #fffff3;
+    --bg-200: #f5f5e9;
+    --bg-300: #ccccc0;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
- 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* shadcn/ui 변수를 사용자 정의 변수로 매핑 */
+    --background: var(--bg-100); /* #fffff3 */
+    --foreground: var(--text-100); /* #333333 */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
- 
+    --card: var(--bg-100); /* #fffff3 */
+    --card-foreground: var(--text-100); /* #333333 */
+
+    --popover: var(--bg-100); /* #fffff3 */
+    --popover-foreground: var(--text-100); /* #333333 */
+
+    --primary: var(--primary-100); /* #f7cac9 */
+    --primary-foreground: var(
+      --text-100
+    ); /* #333333 - 대비를 위해 기본 텍스트 색상 사용 */
+
+    --secondary: var(--primary-200); /* #5c5c5c */
+    --secondary-foreground: var(
+      --bg-100
+    ); /* #fffff3 - 대비를 위해 밝은 배경색 사용 */
+
+    --muted: var(--bg-200); /* #f5f5e9 */
+    --muted-foreground: var(--text-200); /* #5c5c5c */
+
+    --accent: var(--accent-100); /* #5c5c5c */
+    --accent-foreground: var(
+      --bg-100
+    ); /* #fffff3 - 대비를 위해 밝은 배경색 사용 */
+
+    /* Destructive 색상은 유지하거나, 필요시 사용자 정의 색상으로 변경 */
+    --destructive: 0 84.2% 60.2%; /* 기존 값 유지 */
+    --destructive-foreground: 210 40% 98%; /* 기존 값 유지 */
+
+    --border: var(--bg-300); /* #ccccc0 */
+    --input: var(--bg-200); /* #f5f5e9 */
+    --ring: var(--primary-100); /* #f7cac9 */
+
     --radius: 0.5rem;
   }
- 
+
+  /* 다크 모드 설정 - 필요시 사용자 정의 색상표에 맞게 조정 */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.5% 48%;
+    /* 다크 모드 색상 변수 정의 (예시 - 실제 값은 디자인에 맞게 조정 필요) */
+    --primary-100: #5c5c5c;
+    --primary-200: #f7cac9;
+    --primary-300: #ebebeb;
+    --accent-100: #ebebeb;
+    --accent-200: #f7cac9;
+    --text-100: #fffff3;
+    --text-200: #ccccc0;
+    --bg-100: #333333;
+    --bg-200: #5c5c5c;
+    --bg-300: #f5f5e9; /* 밝은 회색을 경계선 등으로 사용 */
+
+    --background: var(--bg-100);
+    --foreground: var(--text-100);
+
+    --card: var(--bg-200);
+    --card-foreground: var(--text-100);
+
+    --popover: var(--bg-200);
+    --popover-foreground: var(--text-100);
+
+    --primary: var(--primary-100);
+    --primary-foreground: var(--text-100);
+
+    --secondary: var(--primary-200);
+    --secondary-foreground: var(--bg-100);
+
+    --muted: var(--bg-300);
+    --muted-foreground: var(--text-200);
+
+    --accent: var(--accent-100);
+    --accent-foreground: var(--bg-100);
+
+    /* Destructive 색상은 유지하거나, 필요시 사용자 정의 색상으로 변경 */
+    --destructive: 0 62.8% 30.6%; /* 기존 값 유지 */
+    --destructive-foreground: 210 40% 98%; /* 기존 값 유지 */
+
+    --border: var(--bg-300);
+    --input: var(--bg-200);
+    --ring: var(--primary-100);
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
 
 /* Animation utilities */
 @keyframes pulse-slow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -88,7 +122,8 @@
 }
 
 @keyframes floating {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -115,7 +150,12 @@
 
 .animate-shimmer {
   animation: shimmer 3s infinite linear;
-  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 20%, rgba(255,255,255,0) 40%);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0) 40%
+  );
   background-size: 1000px 100%;
 }
 
@@ -134,8 +174,8 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Luxury effects */

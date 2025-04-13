@@ -1,220 +1,92 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Phone, Mail, MapPin } from 'lucide-react'; // Import more icons
-import { ShopData } from '@/types/shop'; // Import ShopData
+// Icons might not be used in the provided snippet, but keep imports for safety or future use
+import { Phone, Mail, MapPin } from 'lucide-react';
+import { ShopData } from '@/types/shop'; // Keep type import
 
-// Define the type for footer settings from ShopData
+// Define the type for footer settings from ShopData (Keep this definition)
 type FooterSettings = NonNullable<ShopData['footerSettings']>;
 
+// Interface needs to match the component usage
 interface ShopFooterProps {
-  shopName: string;
-  shopUrl: string;
-  shopData?: ShopData; // Pass the whole shopData
-  footerSettingsOverride?: FooterSettings; // Optional override for preview
+  shopName: string; // Used in snippet
+  shopUrl: string; // Used for internal logic (params fallback)
+  shopData?: ShopData; // Potentially used for fallbacks if snippet logic changes
+  footerSettingsOverride?: FooterSettings; // Keep for potential future use
+  handleOpenCreateModal?: () => void; // Add this based on the snippet usage
 }
 
 const ShopFooter: React.FC<ShopFooterProps> = ({
-  shopName,
-  shopUrl,
-  shopData,
-  footerSettingsOverride
+  shopName, // Used in snippet
+  shopUrl, // Used for internal logic
+  shopData, // Keep for potential future use
+  footerSettingsOverride, // Keep for potential future use
+  handleOpenCreateModal // Destructure the new prop
 }) => {
+  // Keep this logic as it might be relevant for links or other parts not shown
   const params = useParams();
   const actualShopUrl = shopUrl || params.shopUrl || '';
 
-  // Determine the settings to use: override first, then from shopData, then defaults
-  const settings: FooterSettings = {
-    background: "bg-gray-900", // Default background
-    textColor: "text-white",   // Default text color
-    skin: 'default',           // Default skin
-    links: [],                 // Default empty links
-    // Merge defaults with shopData settings
-    ...(shopData?.footerSettings || {}),
-    // Override with footerSettingsOverride if provided
-    ...(footerSettingsOverride || {})
-  };
-
-  // Extract settings for easier use
-  const {
-    background = "bg-gray-900",
-    textColor = "text-white",
-    ownerName = shopData?.ownerName, // Fallback to shopData ownerName
-    contactNumber = shopData?.contactNumber,
-    email = shopData?.email,
-    address = shopData?.address,
-    links = [],
-    skin = 'default'
-  } = settings;
-
-  // Get shop description from main shopData
-  const shopDescription = shopData?.shopDescription || `${shopName}에 오신 것을 환영합니다.`;
-
-  // --- Render different footer layouts based on skin ---
-
-  const renderDefaultFooter = () => (
-    <div className="container mx-auto px-4 py-16">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Shop Info */}
-        <div className="md:col-span-2 mb-8 md:mb-0">
-          <h3 className="text-2xl font-serif font-medium mb-4">{shopName}</h3>
-          <p className={`${textColor}/80 max-w-md leading-relaxed text-sm`}>
-            {shopDescription}
-          </p>
-        </div>
-
-        {/* Custom Links */}
-        {links.length > 0 && (
-          <div>
-            <h4 className="text-lg font-medium mb-4">바로가기</h4>
-            <ul className="space-y-2">
-              {links.map((link, index) => (
-                <li key={index}>
-                  {/* Use Link component for internal links, 'a' for external */}
-                  {link.url.startsWith('/') ? (
-                    <Link to={link.url} className={`${textColor}/70 hover:${textColor} transition-colors text-sm`}>
-                      {link.title}
-                    </Link>
-                  ) : (
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className={`${textColor}/70 hover:${textColor} transition-colors text-sm`}>
-                      {link.title}
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Contact Info */}
-        <div>
-          <h4 className="text-lg font-medium mb-4">연락처 정보</h4>
-          <ul className={`space-y-2 ${textColor}/70 text-sm`}>
-            {ownerName && <li>대표: {ownerName}</li>}
-            {contactNumber && (
-              <li className="flex items-center">
-                <Phone className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{contactNumber}</span>
-              </li>
-            )}
-            {email && (
-              <li className="flex items-center">
-                <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
-                <a href={`mailto:${email}`} className={`hover:${textColor}`}>{email}</a>
-              </li>
-            )}
-            {address && (
-               <li className="flex items-start">
-                 <MapPin className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                 <span>{address}</span>
-               </li>
-            )}
-          </ul>
-        </div>
-      </div>
-      <div className={`border-t border-${textColor}/10 mt-12 pt-8 text-center ${textColor}/60 text-xs`}>
-        <p>© {new Date().getFullYear()} {shopName}. All rights reserved. Powered by Peermall.</p>
-      </div>
-    </div>
-  );
-
-  const renderMinimalFooter = () => (
-     <div className="container mx-auto px-4 py-8">
-       <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
-         <p className={`${textColor}/60 text-xs mb-4 sm:mb-0`}>
-           © {new Date().getFullYear()} {shopName}. All rights reserved.
-           {ownerName && ` | 대표: ${ownerName}`}
-           {contactNumber && ` | 연락처: ${contactNumber}`}
-         </p>
-         {links.length > 0 && (
-           <ul className="flex space-x-4">
-             {links.map((link, index) => (
-               <li key={index}>
-                 {link.url.startsWith('/') ? (
-                    <Link to={link.url} className={`${textColor}/70 hover:${textColor} transition-colors text-xs`}>
-                      {link.title}
-                    </Link>
-                  ) : (
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className={`${textColor}/70 hover:${textColor} transition-colors text-xs`}>
-                      {link.title}
-                    </a>
-                  )}
-               </li>
-             ))}
-           </ul>
-         )}
-       </div>
-     </div>
-   );
-
-   const renderCenteredFooter = () => (
-     <div className="container mx-auto px-4 py-12 text-center">
-       <h3 className="text-xl font-serif font-medium mb-4">{shopName}</h3>
-       <p className={`${textColor}/80 max-w-lg mx-auto leading-relaxed text-sm mb-6`}>
-         {shopDescription}
-       </p>
-       {links.length > 0 && (
-         <ul className="flex justify-center space-x-6 mb-6">
-           {links.map((link, index) => (
-             <li key={index}>
-               {link.url.startsWith('/') ? (
-                  <Link to={link.url} className={`${textColor}/70 hover:${textColor} transition-colors text-sm font-medium`}>
-                    {link.title}
-                  </Link>
-                ) : (
-                  <a href={link.url} target="_blank" rel="noopener noreferrer" className={`${textColor}/70 hover:${textColor} transition-colors text-sm font-medium`}>
-                    {link.title}
-                  </a>
-                )}
-             </li>
-           ))}
-         </ul>
-       )}
-       <div className={`border-t border-${textColor}/10 pt-6 ${textColor}/60 text-xs`}>
-         <p>
-           {ownerName && `대표: ${ownerName} | `}
-           {contactNumber && `연락처: ${contactNumber} | `}
-           {email && `이메일: ${email}`}
-         </p>
-         <p className="mt-1">© {new Date().getFullYear()} {shopName}. All rights reserved. Powered by Peermall.</p>
-       </div>
-     </div>
-   );
-
-
-  // Choose the render function based on the skin
-  const renderFooterContent = () => {
-    switch (skin) {
-      case 'minimal':
-        return renderMinimalFooter();
-      case 'centered':
-        return renderCenteredFooter();
-      case 'default':
-      default:
-        return renderDefaultFooter();
-    }
-  };
-
-  // Use background and textColor classes directly if they are Tailwind classes
-  // Apply inline styles if they are hex codes
-  const footerStyle: React.CSSProperties = {};
-  let footerClasses = '';
-
-  if (background?.startsWith('#')) {
-    footerStyle.backgroundColor = background;
-  } else {
-    footerClasses += ` ${background}`; // Add background class
-  }
-
-  if (textColor?.startsWith('#')) {
-    footerStyle.color = textColor;
-    // Note: Applying hex color via style might override Tailwind text color utilities used inside
-  } else {
-    footerClasses += ` ${textColor}`; // Add text color class
-  }
-
+  // Directly return the JSX provided by the user
   return (
-    <footer className={footerClasses.trim()} style={footerStyle}>
-      {renderFooterContent()}
+    <footer className="bg-primary-200 text-bg-200 pt-10 pb-6">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between pb-8 border-b border-bg-300">
+          <div className="mb-6 md:mb-0">
+            <Link to="/" className="text-2xl font-bold">
+              {/* Footer 로고 색상 변경 */}
+              <span className="text-primary-100">Peer</span>
+              <span className="text-bg-100">mall</span>
+            </Link>
+            {/* Footer 설명 텍스트 색상 변경 */}
+            <p className="mt-2 text-sm text-bg-200 max-w-md">
+              피어몰은 판매자와 구매자를 연결하는 온라인 마켓플레이스입니다.
+              지금 바로 쇼핑을 시작하거나 나만의 온라인 스토어를 만들어보세요.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+            <div>
+              {/* Footer 제목 텍스트 색상 변경 */}
+              <h3 className="text-bg-100 text-sm font-medium mb-4">쇼핑</h3>
+              <ul className="space-y-2 text-sm">
+                {/* Footer 링크 텍스트, 호버 색상 변경 */}
+                <li><Link to="/peermall-list" className="hover:text-primary-100">인기 피어몰</Link></li>
+                <li><Link to="/shop/peermall/category/new" className="hover:text-primary-100">신규 피어몰</Link></li>
+                <li><Link to="/shop/peermall/category/today" className="hover:text-primary-100">오늘의 특가</Link></li>
+                <li><Link to="/qr-generator" className="hover:text-primary-100">QR코드</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-bg-100 text-sm font-medium mb-4">판매하기</h3>
+              <ul className="space-y-2 text-sm">
+                {/* Ensure handleOpenCreateModal is passed if this link is used */}
+                <li><Link to="/" onClick={handleOpenCreateModal} className="hover:text-primary-100">피어몰 만들기</Link></li>
+                <li><Link to="/site-integration" className="hover:text-primary-100">사이트 통합</Link></li>
+                <li><Link to="/shop/peermall/admin" className="hover:text-primary-100">판매자 센터</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-bg-100 text-sm font-medium mb-4">고객지원</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/customer-service" className="hover:text-primary-100">고객센터</Link></li>
+                <li><Link to="/community" className="hover:text-primary-100">커뮤니티</Link></li>
+                <li><a href="mailto:contact@peermall.com" className="hover:text-primary-100">이메일 문의</a></li>
+                <li><a href="tel:1588-1588" className="hover:text-primary-100">전화: 1588-1588</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {/* Copyright 텍스트 색상 변경 */}
+        <div className="mt-8 text-center text-sm text-bg-200">
+          <p>&copy; {new Date().getFullYear()} Peermall. 모든 권리 보유.</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            {/* Footer 하단 링크 텍스트, 호버 색상 변경 */}
+            <Link to="/" className="text-bg-200 hover:text-bg-100">이용약관</Link>
+            <Link to="/" className="text-bg-200 hover:text-bg-100">개인정보처리방침</Link>
+            <Link to="/" className="text-bg-200 hover:text-bg-100">판매자 이용약관</Link>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };

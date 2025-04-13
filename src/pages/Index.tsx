@@ -75,14 +75,8 @@ const Index = () => {
   };
 
   // Featured peermalls
-  const featuredPeermalls = peermalls.length > 0
-    ? [...peermalls].sort((a, b) => (b.rating || 5) - (a.rating || 5)).slice(0, 4)
-    : [];
-
-  // Recently added peermalls
-  const recentPeermalls = peermalls.length > 0
-    ? [...peermalls].slice(0, 8)
-    : [];
+  const featuredPeermalls = [...peermalls].sort((a, b) => (b.rating || 5) - (a.rating || 5)).slice(0, 4);
+  const recentPeermalls = [...peermalls].slice(0, 8);
 
   return (
     <div className="min-h-screen bg-bg-100 text-text-100">

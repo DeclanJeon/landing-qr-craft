@@ -65,44 +65,7 @@ const Index = () => {
   };
 
   // 피어몰 핵심 서비스 카테고리
-  const services = [
-    { 
-      id: 'create-mall', 
-      name: '피어몰 만들기', 
-      icon: <Store className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '나만의 온라인 스토어를 쉽게 생성'
-    },
-    { 
-      id: 'generate-number', 
-      name: '고유 번호 생성', 
-      icon: <Hash className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '나만의 고유 식별 번호 발급'
-    },
-    { 
-      id: 'build-community', 
-      name: '커뮤니티 형성', 
-      icon: <Users className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '관심사 기반 커뮤니티 구축'
-    },
-    { 
-      id: 'direct-communication', 
-      name: '다이렉트 통신', 
-      icon: <MessageCircle className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '번호 기반 1:1 소통'
-    },
-    { 
-      id: 'promote-content', 
-      name: '콘텐츠 홍보', 
-      icon: <Megaphone className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '제품/서비스 효과적 노출'
-    },
-    { 
-      id: 'shared-browsing', 
-      name: '함께 보기', 
-      icon: <Monitor className="w-8 h-8 mx-auto text-accent-100" />,
-      description: '실시간 웹사이트 공유'
-    }
-  ];
+  
 
   // 간소화된 히어로 섹션
   const heroContent = {
@@ -145,31 +108,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Services Grid */}
-        <section className="container mx-auto px-4 mb-16">
-          <h2 className="text-3xl font-bold text-text-100 mb-8 text-center">
-            피어몰 핵심 서비스
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service) => (
-              <div 
-                key={service.id}
-                className="bg-bg-200 rounded-xl p-6 border border-bg-300 hover:border-accent-100 transition-colors duration-300 cursor-pointer"
-                onClick={() => setSelectedService(service)}
-              >
-                <div className="mb-4">
-                  {service.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-text-100 mb-2">
-                  {service.name}
-                </h3>
-                <p className="text-text-200">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
+        
 
         {/* Peermall Listings */}
         <div className="container mx-auto px-4">
@@ -317,20 +256,6 @@ const Index = () => {
                   <h2 className="text-xl font-bold text-text-100">모든 피어몰</h2>
                   <div className="flex items-center gap-2">
                     {/* 필터 버튼 배경, 텍스트, 테두리, 활성 상태 색상 변경 */}
-                    <Button variant="outline" size="sm" className={`text-sm ${activeCategory === 'all' ? 'bg-primary-100 text-text-100 border-primary-100' : 'bg-bg-100 text-text-200 border-border hover:bg-bg-200'}`} onClick={() => setActiveCategory('all')}>
-                      전체
-                    </Button>
-                    {services.slice(0, 4).map((service) => (
-                      <Button
-                        key={service.id}
-                        variant={activeCategory === service.id ? "default" : "outline"}
-                        size="sm"
-                        className={`text-sm ${activeCategory === service.id ? 'bg-primary-100 hover:bg-primary-100/80 text-text-100 border-none' : 'bg-bg-100 text-text-200 border-border hover:bg-bg-200'}`}
-                        onClick={() => setActiveCategory(service.id)}
-                      >
-                        {service.name}
-                      </Button>
-                    ))}
                   </div>
                 </div>
 

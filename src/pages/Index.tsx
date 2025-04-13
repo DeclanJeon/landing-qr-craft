@@ -24,9 +24,15 @@ import {
   Megaphone,
   Monitor
 } from "lucide-react";
+import ServiceModal from '@/components/ServiceModal';
 
 const Index = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<{
+    id: string;
+    name: string;
+    description: string;
+  } | null>(null);
   const [peermalls, setPeermalls] = useState<ShopData[]>([]);
   const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태는 유지 (필터링 로직에 사용)
   const [activeCategory, setActiveCategory] = useState('all');
@@ -148,7 +154,8 @@ const Index = () => {
             {services.map((service) => (
               <div 
                 key={service.id}
-                className="bg-bg-200 rounded-xl p-6 border border-bg-300 hover:border-accent-100 transition-colors duration-300"
+                className="bg-bg-200 rounded-xl p-6 border border-bg-300 hover:border-accent-100 transition-colors duration-300 cursor-pointer"
+                onClick={() => setSelectedService(service)}
               >
                 <div className="mb-4">
                   {service.icon}

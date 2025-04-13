@@ -1,22 +1,21 @@
+
 import React, { useState, useEffect } from 'react';
-import { ShopData } from '@/types/shop';
+import { ShopData, ThemeSettings } from '@/types/shop';
 
 // Define placeholder interfaces for tab components that had type errors
-interface ThemeSettings {
-  primaryColor: string;
-  secondaryColor: string;
-  fontFamily: string;
-  borderRadius: string;
-}
-
 interface BasicInfoSettingsTabProps {
   shopData: ShopData;
-  // Remove onSave if it doesn't exist in the component interface
+  setShopData: React.Dispatch<React.SetStateAction<ShopData>>;
 }
 
 interface LogoSettingsTabProps {
   shopName: string;
-  // Remove logoSettings if it doesn't exist in the component interface
+  logoUrl: string;
+  setLogoUrl: React.Dispatch<React.SetStateAction<string>>;
+  logoText: string;
+  setLogoText: React.Dispatch<React.SetStateAction<string>>;
+  logoTextStyle: any;
+  setLogoTextStyle: React.Dispatch<React.SetStateAction<any>>;
 }
 
 interface FaviconSettingsTabProps {
@@ -27,7 +26,7 @@ interface FaviconSettingsTabProps {
 
 interface ThemeSettingsTabProps {
   themeSettings: ThemeSettings;
-  // Other props as needed
+  setThemeSettings: React.Dispatch<React.SetStateAction<any>>;
 }
 
 interface HeroSettingsProps {
@@ -38,21 +37,34 @@ interface HeroSettingsProps {
     description: string;
     buttonText: string;
     buttonColor: string;
+    imageUrl?: string;
+    imagePosition?: string;
+    buttonIcon?: boolean;
+    buttonSize?: string;
+    buttonRadius?: string;
+    showDecorations?: boolean;
+    widgets?: any;
   };
-  setHeroSettings: React.Dispatch<React.SetStateAction<{
-    background: string;
-    title: string;
-    description: string;
-    buttonText: string;
-    buttonColor: string;
-  }>>;
+  setHeroSettings: React.Dispatch<React.SetStateAction<any>>;
 }
 
 interface FooterSettingsTabProps {
   shopData: ShopData;
-  setShopData: React.Dispatch<React.SetStateAction<ShopData>>;
   footerSettings: any;
   setFooterSettings: React.Dispatch<React.SetStateAction<any>>;
+}
+
+interface AdManagementTabProps {
+  shopData: ShopData;
+  adSettings: any[];
+  setAdSettings: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+interface TemplateSettingsTabProps {
+  templateType: string;
+  setTemplateType: React.Dispatch<React.SetStateAction<string>>;
+  templateSettings: any;
+  setTemplateSettings: React.Dispatch<React.SetStateAction<any>>;
 }
 
 // Fix the import of components with correct TypeScript props
@@ -66,6 +78,7 @@ import HeroSettingsTab from './HeroSettingsTab';
 import FooterSettingsTab from './FooterSettingsTab';
 import StorageManagementTab from './StorageManagementTab';
 import AdManagementTab from './AdManagementTab';
+import TemplateSettingsTab from './TemplateSettingsTab';
 
 export interface AdminTabContentProps {
   tabId: string;
@@ -103,14 +116,17 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
   
   const [adSettings, setAdSettings] = useState(shopData.adSettings || []);
   const [faviconUrl, setFaviconUrl] = useState(shopData.faviconUrl || '');
+  const [logoUrl, setLogoUrl] = useState(shopData.logoUrl || '');
+  const [logoText, setLogoText] = useState(shopData.logoText || '');
+  const [logoTextStyle, setLogoTextStyle] = useState(shopData.logoTextStyle || {});
+  const [themeSettings, setThemeSettings] = useState(shopData.themeSettings || {});
+  const [templateType, setTemplateType] = useState(shopData.templateType || 'default');
+  const [templateSettings, setTemplateSettings] = useState(shopData.templateSettings || {});
 
   const handleSaveInfo = (updatedData: Partial<ShopData>) => {
-    // Remove shopCategory if it doesn't exist in ShopData type
-    const { shopCategory, ...validData } = updatedData as any;
-    
     const newShopData = { 
       ...shopData,
-      ...validData,
+      ...updatedData,
     };
     
     setShopData(newShopData);
@@ -120,6 +136,21 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
     localStorage.setItem(shopDataKey, JSON.stringify(newShopData));
     
     console.log('Shop data updated:', newShopData);
+  };
+  
+  const handleSettingsChange = () => {
+    handleSaveInfo({
+      heroSettings,
+      footerSettings,
+      adSettings,
+      faviconUrl,
+      logoUrl,
+      logoText,
+      logoTextStyle,
+      themeSettings,
+      templateType,
+      templateSettings
+    });
   };
   
   useEffect(() => {
@@ -147,10 +178,21 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
       return <OverviewTab shopName={shopData.shopName} />;
       
     case 'basic-info':
-      return <BasicInfoSettingsTab shopData={shopData} />;
+      return <BasicInfoSettingsTab 
+        shopData={shopData} 
+        setShopData={setShopData} 
+      />;
       
     case 'logo':
-      return <LogoSettingsTab shopName={shopData.shopName} />;
+      return <LogoSettingsTab 
+        shopName={shopData.shopName} 
+        logoUrl={logoUrl}
+        setLogoUrl={setLogoUrl}
+        logoText={logoText}
+        setLogoText={setLogoText}
+        logoTextStyle={logoTextStyle}
+        setLogoTextStyle={setLogoTextStyle}
+      />;
       
     case 'favicon':
       return <FaviconSettingsTab 
@@ -161,12 +203,8 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
       
     case 'theme':
       return <ThemeSettingsTab 
-        themeSettings={shopData.themeSettings as ThemeSettings || {
-          primaryColor: '#3B82F6',
-          secondaryColor: '#6366F1',
-          fontFamily: 'sans',
-          borderRadius: 'rounded-md'
-        }} 
+        themeSettings={themeSettings}
+        setThemeSettings={setThemeSettings}
       />;
       
     case 'layout':
@@ -175,14 +213,19 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
     case 'hero':
       return <HeroSettingsTab 
         shopName={shopData.shopName}
-        heroSettings={heroSettings}
+        heroSettings={{
+          background: heroSettings.background || 'bg-gradient-to-r from-blue-600 to-indigo-700',
+          title: heroSettings.title || shopData.shopName || '피어몰 제목',
+          description: heroSettings.description || '피어몰에 오신 것을 환영합니다.',
+          buttonText: heroSettings.buttonText || '쇼핑 시작하기',
+          buttonColor: heroSettings.buttonColor || 'bg-white text-blue-600 hover:bg-blue-50',
+        }}
         setHeroSettings={setHeroSettings}
       />;
       
     case 'footer':
       return <FooterSettingsTab 
         shopData={shopData}
-        setShopData={setShopData}
         footerSettings={footerSettings}
         setFooterSettings={setFooterSettings}
       />;
@@ -195,11 +238,16 @@ const AdminTabContent = ({ tabId, shopData, setShopData }: AdminTabContentProps)
         shopData={shopData}
         adSettings={adSettings}
         setAdSettings={setAdSettings}
-        onSave={(updatedAdSettings) => {
-          setAdSettings(updatedAdSettings);
-        }}
       />;
       
+    case 'templates':
+      return <TemplateSettingsTab
+        templateType={templateType}
+        setTemplateType={setTemplateType}
+        templateSettings={templateSettings}
+        setTemplateSettings={setTemplateSettings}
+      />;
+
     default:
       return <div className="p-4">
         <p>해당 탭을 찾을 수 없습니다.</p>

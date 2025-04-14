@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -20,24 +21,24 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ service, isOpen, onClose })
       case 'create-mall':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">피어몰 생성 단계</h3>
-            <ol className="list-decimal pl-5 space-y-2">
+            <h3 className="text-lg font-semibold text-text-100">피어몰 생성 단계</h3>
+            <ol className="list-decimal pl-5 space-y-2 text-text-200">
               <li>기본 정보 입력 (스토어 이름, 카테고리)</li>
               <li>디자인 테마 선택</li>
               <li>상품 등록 (이미지, 가격, 설명)</li>
               <li>결제 시스템 연결</li>
             </ol>
-            <Button className="w-full mt-4">시작하기</Button>
+            <Button className="w-full mt-4 bg-primary-100 hover:bg-primary-200 text-bg-100">시작하기</Button>
           </div>
         );
       case 'generate-number':
         return (
           <div className="space-y-4">
             <div className="p-4 bg-bg-200 rounded-lg">
-              <p className="text-center text-2xl font-mono">PM-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+              <p className="text-center text-2xl font-mono text-primary-100">PM-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
             </div>
-            <p className="text-sm">이 고유 번호로 고객과 직접 연결됩니다.</p>
-            <Button className="w-full">번호 생성하기</Button>
+            <p className="text-sm text-text-200">이 고유 번호로 고객과 직접 연결됩니다.</p>
+            <Button className="w-full bg-primary-100 hover:bg-primary-200 text-bg-100">번호 생성하기</Button>
           </div>
         );
       case 'build-community':
@@ -48,42 +49,42 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ service, isOpen, onClose })
               <input 
                 type="text" 
                 placeholder="커뮤니티 이름 입력" 
-                className="flex-1 p-2 border rounded"
+                className="flex-1 p-2 border rounded focus:ring-2 focus:ring-primary-100 focus:border-primary-100 text-text-100 bg-bg-100"
               />
             </div>
             <textarea 
               placeholder="커뮤니티 설명 (예: 이 커뮤니티는 ___을 위한 공간입니다)"
-              className="w-full p-2 border rounded min-h-[100px]"
+              className="w-full p-2 border rounded min-h-[100px] focus:ring-2 focus:ring-primary-100 focus:border-primary-100 text-text-100 bg-bg-100"
             />
-            <Button className="w-full">커뮤니티 만들기</Button>
+            <Button className="w-full bg-primary-100 hover:bg-primary-200 text-bg-100">커뮤니티 만들기</Button>
           </div>
         );
       case 'direct-communication':
         return (
           <div className="space-y-4">
             <div className="p-4 bg-bg-200 rounded-lg">
-              <p className="text-center">고객의 피어몰 번호를 입력해 연결하세요</p>
+              <p className="text-center text-text-100">고객의 피어몰 번호를 입력해 연결하세요</p>
               <input 
                 type="text" 
                 placeholder="PM-XXXXXX"
-                className="w-full p-2 mt-2 border rounded text-center"
+                className="w-full p-2 mt-2 border rounded text-center focus:ring-2 focus:ring-primary-100 focus:border-primary-100 text-text-100 bg-bg-100"
               />
             </div>
-            <Button className="w-full">연결 시작</Button>
+            <Button className="w-full bg-primary-100 hover:bg-primary-200 text-bg-100">연결 시작</Button>
           </div>
         );
       default:
-        return <div>{service.description}</div>;
+        return <div className="text-text-100">{service.description}</div>;
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-bg-100 border-border">
         <DialogHeader>
-          <DialogTitle className="flex justify-between items-center">
+          <DialogTitle className="flex justify-between items-center text-text-100">
             {service.name}
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-text-200 hover:text-primary-100 hover:bg-bg-200">
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>

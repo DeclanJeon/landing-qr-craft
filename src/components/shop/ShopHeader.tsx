@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Search, ExternalLink, QrCode, MessageSquare, Users, Settings } from 'lucide-react';
@@ -27,7 +26,7 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({
   page 
 }) => {
   return (
-    <header className="bg-white border-b border-gray-100">
+    <header className="bg-bg-100 border-b border-bg-200">
       <div className="container mx-auto px-4 py-5">
         <div className="flex justify-between items-center">
           {/* Link wrapping logo and/or text */}
@@ -43,8 +42,8 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({
             {/* Render text if logoText exists OR if logoUrl doesn't exist (fallback to shopName) */}
             {(logoText || !logoUrl) && (
               <span 
-                style={{ color: logoTextStyle?.color ?? '#333333' }} 
-                className={`${logoTextStyle?.fontSize ?? 'text-xl'} ${logoTextStyle?.fontWeight ?? 'font-bold'} group-hover:text-blue-600 transition-colors`}
+                style={{ color: logoTextStyle?.color ?? '#1a1a2e' }} 
+                className={`${logoTextStyle?.fontSize ?? 'text-xl'} ${logoTextStyle?.fontWeight ?? 'font-bold'} group-hover:text-primary-100 transition-colors`}
               >
                 {logoText || shopName} {/* Show logoText if available, otherwise shopName */}
               </span>
@@ -55,13 +54,13 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({
               <input
                 type="text"
                 placeholder="상품 검색..."
-                className="px-4 py-2 pr-10 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-60 bg-gray-50 focus:bg-white transition-all duration-300"
+                className="px-4 py-2 pr-10 border border-bg-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-100 text-sm w-60 bg-bg-200 focus:bg-bg-100 transition-all duration-300 text-text-100"
               />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search className="absolute right-3 top-2.5 h-5 w-5 text-text-200" />
             </div>
             <Link to={`/shop/${shopUrl}/admin`}>
-              <Button variant="ghost" size="sm" className="hover:bg-gray-100 rounded-full" title="관리 페이지">
-                <Settings className="h-5 w-5 text-gray-600" />
+              <Button variant="ghost" size="sm" className="hover:bg-bg-200 hover:text-primary-100 rounded-full" title="관리 페이지">
+                <Settings className="h-5 w-5 text-text-200" />
               </Button>
             </Link>
             <Cart />
@@ -69,9 +68,9 @@ const ShopHeader: React.FC<ShopHeaderProps> = ({
         </div>
         
         <nav className="mt-5">
-          <ul className="flex space-x-6 overflow-x-auto pb-1 border-b border-gray-100">
+          <ul className="flex space-x-6 overflow-x-auto pb-1 border-b border-bg-200">
             <li>
-              <Link to={`/shop/${shopUrl}/home`} className={`flex items-center font-medium transition-colors pb-3 ${(!page || page === 'home') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}>
+              <Link to={`/shop/${shopUrl}/home`} className={`flex items-center font-medium transition-colors pb-3 ${(!page || page === 'home') ? 'text-primary-100 border-b-2 border-primary-100' : 'text-text-200 hover:text-primary-100'}`}>
                 <ExternalLink className="h-4 w-4 mr-1 md:mr-2" />
                 <span>홈</span>
               </Link>

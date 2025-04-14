@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 
 const NavLogo = () => {
   return (
-    <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center">
-      <span>Peermall</span>
+    <Link to="/" className="text-2xl font-bold flex items-center">
+      <span className="text-primary-100">Peer</span>
+      <span className="text-accent-100">mall</span>
     </Link>
   );
 };
